@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -10,7 +12,7 @@ import { User, Mail, Lock, PhoneCall, ArrowRight, ShieldCheck, Store, Wrench, Lo
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setAuth, loginAs } = useAuthStore();
+  const { setAuth } = useAuthStore();
   const [role, setRole] = useState<UserRole>('CUSTOMER');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,19 +34,21 @@ export default function RegisterPage() {
       });
 
       if (res.success && res.data) {
-        const { user, token } = res.data;
-        setAuth(user, token);
+        const { user, token, accessToken } = res.data;
+        const validToken = token || accessToken;
+        if (typeof window !== 'undefined' && validToken) {
+          document.cookie = `token=${validToken}; path=/; max-age=604800; SameSite=Lax`;
+        }
+        setAuth(user, validToken);
         if (role === 'PROVIDER') router.push('/provider/dashboard');
         else if (role === 'SELLER') router.push('/seller/dashboard');
+        else if (role === 'RIDER') router.push('/rider/dashboard');
         else router.push('/dashboard');
       } else {
         setError(res.message || 'Registration failed');
       }
     } catch (err: any) {
-      loginAs(role);
-      if (role === 'PROVIDER') router.push('/provider/dashboard');
-      else if (role === 'SELLER') router.push('/seller/dashboard');
-      else router.push('/dashboard');
+      setError(err?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

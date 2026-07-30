@@ -1,4 +1,5 @@
 import { prisma } from '../../lib/prisma';
+import { emitToUser } from '../../lib/socket';
 
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 
@@ -273,17 +274,17 @@ export const getAdminOrders = async (
 export const assignRiderToOrder = async (orderId: string, riderId: string) => {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error('Order not found.');
-  if (!['PENDING', 'PROCESSING'].includes(order.status)) {
-    throw new Error(`Cannot assign rider to order with status ${order.status}.`);
+  if (['DELIVERED', 'CANCELLED', 'REJECTED'].includes(order.status)) {
+    throw new Error(`Cannot assign rider to completed or cancelled order with status ${order.status}.`);
   }
 
   const rider = await prisma.user.findUnique({
     where: { id: riderId },
-    select: { id: true, name: true, role: true },
+    select: { id: true, name: true, phone: true, role: true },
   });
   if (!rider || rider.role !== 'RIDER') throw new Error('Invalid rider selected.');
 
-  return prisma.order.update({
+  const updatedOrder = await prisma.order.update({
     where: { id: orderId },
     data: {
       riderId,
@@ -291,18 +292,27 @@ export const assignRiderToOrder = async (orderId: string, riderId: string) => {
       status: 'RIDER_ASSIGNED',
     },
     include: {
-      customer: { select: { name: true } },
+      customer: { select: { id: true, name: true } },
       rider:    { select: { name: true, phone: true } },
     },
   });
+
+  // Socket notifications
+  emitToUser(riderId, 'RIDER_ORDER_ASSIGNED', { order: updatedOrder });
+  emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'RIDER_ASSIGNED', riderName: rider.name });
+
+  return updatedOrder;
 };
 
 export const unassignRider = async (orderId: string) => {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error('Order not found.');
 
-  return prisma.order.update({
+  const updated = await prisma.order.update({
     where: { id: orderId },
-    data: { riderId: null, riderName: null, status: 'PENDING' },
+    data: { riderId: null, riderName: null, status: 'READY_FOR_RIDER' },
   });
+
+  emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'READY_FOR_RIDER' });
+  return updated;
 };

@@ -66,6 +66,9 @@ export const uploadMultipleImages = async (req: Request, res: Response, next: Ne
 
     const urls: string[] = [];
 
+    const protocol = req.protocol || 'http';
+    const host = req.get('host') || 'localhost:5000';
+
     for (const file of files) {
       if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== 'your-cloud-name') {
         const b64 = Buffer.from(file.buffer).toString('base64');
@@ -75,8 +78,11 @@ export const uploadMultipleImages = async (req: Request, res: Response, next: Ne
         });
         urls.push(result.secure_url);
       } else {
-        const b64 = Buffer.from(file.buffer).toString('base64');
-        urls.push(`data:${file.mimetype};base64,${b64}`);
+        const ext = file.mimetype.split('/')[1] || 'jpg';
+        const filename = `img_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+        const filepath = path.join(uploadsDir, filename);
+        fs.writeFileSync(filepath, file.buffer);
+        urls.push(`${protocol}://${host}/uploads/${filename}`);
       }
     }
 

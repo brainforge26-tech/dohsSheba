@@ -71,8 +71,8 @@ export default function CustomerOrdersPage() {
   }, []);
 
   // Combine DB orders with store orders (avoiding duplicate IDs)
-  const storeOrderIds = new Set(storeOrders.map((o) => o.id.toUpperCase()));
-  const filteredApiOrders = apiOrders.filter((o) => !storeOrderIds.has(o.id.toUpperCase()));
+  const storeOrderIds = new Set(storeOrders.map((o: any) => o.id.toUpperCase()));
+  const filteredApiOrders = apiOrders.filter((o: any) => !storeOrderIds.has(o.id.toUpperCase()));
   const allOrders = [...storeOrders, ...filteredApiOrders];
 
   const filteredOrders = allOrders.filter((order) => {
@@ -80,7 +80,7 @@ export default function CustomerOrdersPage() {
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.seller.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      order.items.some((item: any) => item?.name?.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesStatus && matchesSearch;
   });
 
@@ -289,7 +289,7 @@ export default function CustomerOrdersPage() {
 
               {/* Products Shelf */}
               <div className="space-y-2.5">
-                {order.items.map((item, idx) => (
+                {order.items.map((item: any, idx: number) => (
                   <div
                     key={idx}
                     className="flex items-center justify-between gap-4 bg-white/5 hover:bg-white/10 p-3.5 rounded-2xl border border-white/5 transition-all"

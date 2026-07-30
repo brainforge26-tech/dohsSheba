@@ -147,8 +147,11 @@ const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
+import { useSocket } from '@/hooks/useSocket';
+
 export default function SellerDashboardPage() {
   const { orders: storeOrders } = useOrderStore();
+  const { socket } = useSocket();
 
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [chartData, setChart] = useState<any[]>([]);
@@ -373,6 +376,17 @@ export default function SellerDashboardPage() {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleUpdate = () => { load(false); };
+    socket.on('ORDER_CREATED', handleUpdate);
+    socket.on('ORDER_STATUS_UPDATED', handleUpdate);
+    return () => {
+      socket.off('ORDER_CREATED', handleUpdate);
+      socket.off('ORDER_STATUS_UPDATED', handleUpdate);
+    };
+  }, [socket]);
 
   // ─── Merge: API + wallet + inventory + store ─────────────────────────────────
   const s = stats;

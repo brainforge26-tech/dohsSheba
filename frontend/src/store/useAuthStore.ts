@@ -9,17 +9,12 @@ interface AuthState {
   setRole: (role: UserRole) => void;
   setUser: (user: UserProfile) => void;
   setAuth: (user: UserProfile, token?: string) => void;
-  loginAs: (role: UserRole) => void;
   logout: () => void;
 }
 
 function parseTokenRole(token: string | null): UserRole {
   if (!token) return 'GUEST';
   try {
-    if (token.startsWith('demo-token-')) {
-      const rawRole = token.replace('demo-token-', '').toUpperCase();
-      return (rawRole as UserRole) || 'GUEST';
-    }
     const parts = token.split('.');
     if (parts.length === 3) {
       const base64Url = parts[1];
@@ -102,32 +97,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user, role: user.role, token: token || null, isAuthenticated: true });
   },
 
-  loginAs: (role) => {
-    const nameMap: Record<UserRole, string> = {
-      SUPER_ADMIN: 'Super Administrator',
-      ADMIN: 'Platform Administrator',
-      SELLER: 'Fresh Bazaar Seller',
-      PROVIDER: 'Karim Services Provider',
-      CUSTOMER: 'Sharmin Sultana Customer',
-      GUEST: 'Guest User',
-    };
-    const mockUser: UserProfile = {
-      id: 'usr_101',
-      name: nameMap[role] || 'John Doe',
-      email: `${role.toLowerCase()}@example.com`,
-      role: role,
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      phone: '+880 1712-345678',
-    };
-    const demoToken = `demo-token-${role.toLowerCase()}`;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', demoToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      document.cookie = `token=${demoToken}; path=/; max-age=604800; SameSite=Lax`;
-    }
-    set({ user: mockUser, role, token: demoToken, isAuthenticated: true });
-  },
-
   logout: async () => {
     if (typeof window !== 'undefined') {
       try {
@@ -146,7 +115,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       // Thoroughly clear non-HttpOnly cookies
       const cookiesToClear = ['token', 'user', 'auth', 'refreshToken'];
-      const paths = ['/', '/dashboard', '/admin', '/seller', '/provider'];
+      const paths = ['/', '/dashboard', '/admin', '/seller', '/provider', '/rider'];
       const hostname = window.location.hostname;
       const domains = ['', hostname, `.${hostname}`];
 

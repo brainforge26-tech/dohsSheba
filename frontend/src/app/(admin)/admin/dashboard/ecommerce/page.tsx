@@ -27,8 +27,11 @@ const INITIAL_CATEGORIES = [
   { id: 'c5', name: 'Fruits & Veggies', slug: 'fruits-veggies', count: 55, status: 'Active' },
 ];
 
+import { useSocket } from '@/hooks/useSocket';
+
 export default function AdminEcommercePage() {
   const { language } = useLanguageStore();
+  const { socket } = useSocket();
   const isBn = language === 'BN';
 
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'categories'>('products');
@@ -132,6 +135,22 @@ export default function AdminEcommercePage() {
     loadOrders();
     loadAvailableRiders();
   }, [loadOrders, loadAvailableRiders]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleRefresh = () => {
+      loadOrders();
+      loadAvailableRiders();
+    };
+    socket.on('ORDER_CREATED', handleRefresh);
+    socket.on('ORDER_STATUS_UPDATED', handleRefresh);
+    socket.on('RIDER_ACCEPTED', handleRefresh);
+    return () => {
+      socket.off('ORDER_CREATED', handleRefresh);
+      socket.off('ORDER_STATUS_UPDATED', handleRefresh);
+      socket.off('RIDER_ACCEPTED', handleRefresh);
+    };
+  }, [socket, loadOrders, loadAvailableRiders]);
 
   const handleDeleteProduct = (id: string) => {
     if (!confirm(isBn ? 'আপনি কি এই পণ্যটি মুছে ফেলতে চান?' : 'Delete this product?')) return;

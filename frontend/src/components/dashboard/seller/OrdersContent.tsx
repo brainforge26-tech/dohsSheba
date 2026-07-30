@@ -13,17 +13,21 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export const ALL_STATUSES = ['PENDING', 'PROCESSING', 'PACKED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED'] as const;
+export const ALL_STATUSES = ['PENDING', 'SELLER_ACCEPTED', 'READY_FOR_RIDER', 'RIDER_ASSIGNED', 'PICKUP_STARTED', 'PICKED_UP', 'ON_THE_WAY', 'ARRIVED', 'DELIVERED', 'CANCELLED', 'REJECTED'] as const;
 export type OrderStatus = typeof ALL_STATUSES[number];
 
 const STATUS_META: Record<OrderStatus, { label: string; cls: string; icon: React.ReactNode }> = {
   PENDING: { label: 'Pending', cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30', icon: <Clock className="w-3 h-3" /> },
-  PROCESSING: { label: 'Processing', cls: 'bg-blue-500/20 text-blue-300 border-blue-500/30', icon: <RefreshCw className="w-3 h-3" /> },
-  PACKED: { label: 'Packed', cls: 'bg-purple-500/20 text-purple-300 border-purple-500/30', icon: <Package className="w-3 h-3" /> },
-  SHIPPED: { label: 'Shipped', cls: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30', icon: <Truck className="w-3 h-3" /> },
+  SELLER_ACCEPTED: { label: 'Accepted', cls: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', icon: <CheckCircle2 className="w-3 h-3" /> },
+  READY_FOR_RIDER: { label: 'Ready for Rider', cls: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30', icon: <Truck className="w-3 h-3" /> },
+  RIDER_ASSIGNED: { label: 'Rider Assigned', cls: 'bg-purple-500/20 text-purple-300 border-purple-500/30', icon: <Truck className="w-3 h-3" /> },
+  PICKUP_STARTED: { label: 'Store Pickup', cls: 'bg-blue-500/20 text-blue-300 border-blue-500/30', icon: <Package className="w-3 h-3" /> },
+  PICKED_UP: { label: 'Picked Up', cls: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30', icon: <Package className="w-3 h-3" /> },
+  ON_THE_WAY: { label: 'On the Way', cls: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', icon: <Truck className="w-3 h-3" /> },
+  ARRIVED: { label: 'Arrived Doorstep', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', icon: <CheckCircle2 className="w-3 h-3" /> },
   DELIVERED: { label: 'Delivered', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', icon: <CheckCircle2 className="w-3 h-3" /> },
   CANCELLED: { label: 'Cancelled', cls: 'bg-red-500/20 text-red-300 border-red-500/30', icon: <XCircle className="w-3 h-3" /> },
-  RETURNED: { label: 'Returned', cls: 'bg-orange-500/20 text-orange-300 border-orange-500/30', icon: <RotateCcw className="w-3 h-3" /> },
+  REJECTED: { label: 'Rejected', cls: 'bg-rose-500/20 text-rose-300 border-rose-500/30', icon: <XCircle className="w-3 h-3" /> },
 };
 
 export function StatusBadge({ status }: { status: string }) {
@@ -163,30 +167,32 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
 
   // ─── Next status map ─────────────────────────────────────────────────────────
   const NEXT_STATUS: Record<string, string | null> = {
-    PENDING:    'PROCESSING',
-    PROCESSING: 'PACKED',
-    PACKED:     'SHIPPED',
-    SHIPPED:    'DELIVERED',
-    DELIVERED:  null,
-    CANCELLED:  null,
-    RETURNED:   null,
+    PENDING:         'SELLER_ACCEPTED',
+    SELLER_ACCEPTED: 'READY_FOR_RIDER',
+    READY_FOR_RIDER: null,
+    RIDER_ASSIGNED:  null,
+    PICKUP_STARTED:  null,
+    PICKED_UP:       null,
+    ON_THE_WAY:      null,
+    ARRIVED:         null,
+    DELIVERED:       null,
+    CANCELLED:       null,
+    REJECTED:        null,
   };
 
   const NEXT_LABEL: Record<string, string> = {
-    PROCESSING: 'Mark as Packed',
-    PACKED:     'Mark as Shipped',
-    SHIPPED:    'Mark as Delivered',
-    PENDING:    'Mark as Processing',
-    DELIVERED:  '',
-    CANCELLED:  '',
-    RETURNED:   '',
+    PENDING:         'Accept Order',
+    SELLER_ACCEPTED: 'Dispatch to Rider Fleet',
+    READY_FOR_RIDER: 'Rider Broadcast Active',
+    RIDER_ASSIGNED:  'Rider Assigned',
+    DELIVERED:       '',
+    CANCELLED:       '',
+    REJECTED:        '',
   };
 
   const NEXT_COLOR: Record<string, string> = {
-    PENDING:    'bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30',
-    PROCESSING: 'bg-purple-500/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/30',
-    PACKED:     'bg-cyan-500/20 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/30',
-    SHIPPED:    'bg-emerald-500/20 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30',
+    PENDING:         'bg-emerald-600 hover:bg-emerald-500 text-white font-bold',
+    SELLER_ACCEPTED: 'bg-cyan-600 hover:bg-cyan-500 text-white font-bold',
   };
 
   const handleQuickStatus = async (orderId: string, currentStatus: string) => {

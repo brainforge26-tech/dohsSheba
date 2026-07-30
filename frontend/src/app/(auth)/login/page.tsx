@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,7 +11,7 @@ import { User, Lock, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setAuth, loginAs } = useAuthStore();
+  const { setAuth } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,39 +30,24 @@ export default function LoginPage() {
       });
 
       if (res.success && res.data) {
-        const { user, token } = res.data;
-        if (typeof window !== 'undefined' && token) {
-          document.cookie = `token=${token}; path=/; max-age=604800; SameSite=Lax`;
+        const { user, token, accessToken } = res.data;
+        const validToken = token || accessToken;
+        if (typeof window !== 'undefined' && validToken) {
+          document.cookie = `token=${validToken}; path=/; max-age=604800; SameSite=Lax`;
         }
-        setAuth(user, token);
+        setAuth(user, validToken);
         const userRole = user.role;
         if (userRole === 'SUPER_ADMIN') router.push('/dashboard/super-admin');
-        else if (userRole === 'ADMIN') router.push('/admin/dashboard');
+        else if (userRole === 'ADMIN') router.push('/admin/dashboard/ecommerce');
         else if (userRole === 'PROVIDER') router.push('/provider/dashboard');
         else if (userRole === 'SELLER') router.push('/seller/dashboard');
         else if (userRole === 'RIDER') router.push('/rider/dashboard');
-        else router.push('/dashboard/customer');
+        else router.push('/dashboard');
       } else {
         setError(res.message || 'Invalid email or password');
       }
     } catch (err: any) {
-      // Fallback for seed demo credentials if backend service endpoint is unavailable
-      const lower = email.toLowerCase();
-      if (lower.includes('super')) {
-        loginAs('SUPER_ADMIN'); router.push('/dashboard/super-admin');
-      } else if (lower.includes('rider')) {
-        loginAs('RIDER'); router.push('/rider/dashboard');
-      } else if (lower.includes('seller')) {
-        loginAs('SELLER'); router.push('/seller/dashboard');
-      } else if (lower.includes('admin')) {
-        loginAs('ADMIN'); router.push('/admin/dashboard');
-      } else if (lower.includes('provider')) {
-        loginAs('PROVIDER'); router.push('/provider/dashboard');
-      } else if (lower.includes('customer')) {
-        loginAs('CUSTOMER'); router.push('/dashboard/customer');
-      } else {
-        setError(err?.message || 'Invalid email or password. Please try again.');
-      }
+      setError(err?.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -79,7 +66,7 @@ export default function LoginPage() {
             </span>
           </Link>
           <h1 className="text-2xl font-black">Welcome Back</h1>
-          <p className="text-xs text-muted-foreground">Sign in to manage your bookings and orders.</p>
+          <p className="text-xs text-muted-foreground">Sign in to manage your orders and business workspace.</p>
         </div>
 
         {error && (

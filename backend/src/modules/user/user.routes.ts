@@ -18,10 +18,14 @@ router.get('/profile',        userController.getProfile);
 router.put('/profile',        updateProfileValidator, validate, userController.updateProfile);
 
 // Addresses
-router.get('/addresses',      userController.getAddresses);
-router.post('/addresses',     addAddressValidator,  validate, userController.addAddress);
-router.put('/addresses/:id',  addressIdValidator,   validate, userController.updateAddress);
+router.get('/addresses',        userController.getAddresses);
+router.get('/me/addresses',     userController.getAddresses);
+router.post('/addresses',       addAddressValidator,  validate, userController.addAddress);
+router.post('/me/addresses',      addAddressValidator,  validate, userController.addAddress);
+router.put('/addresses/:id',    addressIdValidator,   validate, userController.updateAddress);
+router.put('/me/addresses/:id', addressIdValidator,   validate, userController.updateAddress);
 router.delete('/addresses/:id', addressIdValidator, validate, userController.deleteAddress);
+router.delete('/me/addresses/:id', addressIdValidator, validate, userController.deleteAddress);
 
 // Notifications
 router.get('/notifications',                  userController.getNotifications);

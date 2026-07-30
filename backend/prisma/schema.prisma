@@ -33,11 +33,16 @@ enum BookingStatus {
 
 enum OrderStatus {
   PENDING
+  SELLER_ACCEPTED
+  READY_FOR_RIDER
   RIDER_ASSIGNED
-  PROCESSING
-  SHIPPED
+  PICKUP_STARTED
+  PICKED_UP
+  ON_THE_WAY
+  ARRIVED
   DELIVERED
   CANCELLED
+  REJECTED
   REFUNDED
 }
 
@@ -86,6 +91,7 @@ model User {
   products         Product[]
   riderProfile     RiderProfile?
   riderOrders      Order[]         @relation("RiderOrders")
+  refreshTokens    RefreshToken[]
 
   @@map("users")
 }
@@ -490,7 +496,10 @@ model RiderProfile {
   userId        String   @unique
   vehicleType   String   @default("Bicycle")
   vehicleNo     String?
+  isOnline      Boolean  @default(false)
   isAvailable   Boolean  @default(true)
+  lat           Float?
+  lng           Float?
   totalTrips    Int      @default(0)
   totalEarnings Float    @default(0)
   rating        Float    @default(5.0)
@@ -500,4 +509,17 @@ model RiderProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("rider_profiles")
+}
+
+// ─── Refresh Token ───────────────────────────────────────────────────────────
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
 }

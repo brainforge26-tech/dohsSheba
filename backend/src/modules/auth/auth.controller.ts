@@ -51,8 +51,12 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 // POST /api/v1/auth/logout
-export const logout = async (_req: Request, res: Response, next: NextFunction) => {
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const refreshToken = req.cookies?.refreshToken;
+    if (refreshToken) {
+      await authService.logoutUserToken(refreshToken);
+    }
     const clearOpts = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -82,15 +86,16 @@ export const getMe = async (req: AuthRequest, res: Response, next: NextFunction)
 // POST /api/v1/auth/refresh
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.cookies?.refreshToken;
+    const token = req.cookies?.refreshToken || req.body?.refreshToken;
     if (!token) return next(new AppError('No refresh token provided.', 401));
 
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { id: string };
-    const result = await authService.refreshUserToken(decoded.id);
+    const result = await authService.refreshUserToken(token);
+    res.cookie('token', result.accessToken, TOKEN_COOKIE_OPTIONS);
+    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
 
-    return sendResponse(res, 200, 'Token refreshed', result);
+    return sendResponse(res, 200, 'Token refreshed successfully', result);
   } catch (error) {
-    next(new AppError('Invalid or expired refresh token.', 401));
+    next(error);
   }
 };
 

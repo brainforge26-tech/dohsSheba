@@ -329,8 +329,8 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
             <div className="text-xs font-bold text-white leading-tight" suppressHydrationWarning>
               {(mounted && user?.name) || 'Account Workspace'}
             </div>
-            <div className="text-[10px] text-indigo-300 capitalize">
-              {role && role !== 'GUEST' ? role.toLowerCase() : 'Account'}
+            <div className="text-[10px] text-indigo-300 capitalize" suppressHydrationWarning>
+              {(mounted && role && role !== 'GUEST') ? role.toLowerCase() : 'Account'}
             </div>
           </div>
         </div>

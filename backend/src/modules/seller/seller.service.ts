@@ -18,7 +18,7 @@ export const getSellerDashboardStats = async (sellerId: string) => {
   ] = await Promise.all([
     prisma.order.count({ where: sellerItemFilter }),
     prisma.order.count({ where: { status: 'PENDING',     ...sellerItemFilter } }),
-    prisma.order.count({ where: { status: 'PROCESSING',  ...sellerItemFilter } }),
+    prisma.order.count({ where: { status: { in: ['SELLER_ACCEPTED', 'READY_FOR_RIDER', 'RIDER_ASSIGNED', 'PICKUP_STARTED', 'PICKED_UP', 'ON_THE_WAY', 'ARRIVED'] }, ...sellerItemFilter } }),
     prisma.order.count({ where: { status: 'DELIVERED',   ...sellerItemFilter } }),
     prisma.order.count({ where: { status: 'CANCELLED',   ...sellerItemFilter } }),
     prisma.product.count({ where: { sellerId, isActive: true, stock: { gt: 10 } } }),

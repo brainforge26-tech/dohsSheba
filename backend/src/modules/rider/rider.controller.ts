@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import * as riderService from './rider.service';
 import { sendResponse, getPaginationMeta } from '../../utils/response.util';
@@ -19,27 +19,36 @@ export const getStats = async (req: AuthRequest, res: Response, next: NextFuncti
   } catch (e) { next(e); }
 };
 
-// ─── GET /rider/orders/assigned ───────────────────────────────────────────────
-export const getAssignedOrders = async (req: AuthRequest, res: Response, next: NextFunction) => {
+// ─── PATCH /rider/duty ────────────────────────────────────────────────────────
+export const toggleDuty = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const data = await riderService.getAssignedOrders(req.user!.id);
-    return sendResponse(res, 200, 'Assigned orders fetched', data);
+    const { isOnline } = req.body;
+    const profile = await riderService.toggleDuty(req.user!.id, isOnline);
+    return sendResponse(res, 200, `Rider duty updated. Online: ${profile.isOnline}`, profile);
   } catch (e) { next(e); }
 };
 
-// ─── GET /rider/orders/pending ────────────────────────────────────────────────
-export const getPendingOrders = async (req: AuthRequest, res: Response, next: NextFunction) => {
+// ─── GET /rider/orders/open ───────────────────────────────────────────────────
+export const getOpenOrders = async (_req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const data = await riderService.getPendingAssignedOrders(req.user!.id);
-    return sendResponse(res, 200, 'Pending assigned orders fetched', data);
+    const data = await riderService.getOpenOrders();
+    return sendResponse(res, 200, 'Open dispatch orders fetched', data);
   } catch (e) { next(e); }
 };
 
-// ─── PATCH /rider/orders/:id/accept ──────────────────────────────────────────
+// ─── POST /rider/orders/:id/accept ───────────────────────────────────────────
 export const acceptOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const order = await riderService.acceptOrder(req.params.id as string, req.user!.id);
+    const order = await riderService.acceptOpenOrder(req.params.id as string, req.user!.id);
     return sendResponse(res, 200, 'Order accepted successfully', order);
+  } catch (e) { next(e); }
+};
+
+// ─── GET /rider/orders/active ─────────────────────────────────────────────────
+export const getActiveMissions = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const data = await riderService.getActiveMissions(req.user!.id);
+    return sendResponse(res, 200, 'Active missions fetched', data);
   } catch (e) { next(e); }
 };
 
@@ -47,16 +56,8 @@ export const acceptOrder = async (req: AuthRequest, res: Response, next: NextFun
 export const updateOrderStatus = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { status } = req.body;
-    const order = await riderService.updateOrderStatus(req.params.id as string, req.user!.id, status);
-    return sendResponse(res, 200, `Order status updated to ${status}`, order);
-  } catch (e) { next(e); }
-};
-
-// ─── PATCH /rider/availability ────────────────────────────────────────────────
-export const toggleAvailability = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  try {
-    const profile = await riderService.toggleAvailability(req.user!.id);
-    return sendResponse(res, 200, `Rider is now ${profile.isAvailable ? 'Online' : 'Offline'}`, profile);
+    const order = await riderService.updateMissionStatus(req.params.id as string, req.user!.id, status);
+    return sendResponse(res, 200, `Mission status updated to ${status}`, order);
   } catch (e) { next(e); }
 };
 

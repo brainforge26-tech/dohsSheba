@@ -11,11 +11,13 @@ export class ApiError extends Error {
   }
 }
 
+let isRefreshing = false;
+
 export async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<{ success: boolean; message: string; data: T; meta?: any }> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  let token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -34,6 +36,36 @@ export async function fetchApi<T>(
     const data = await response.json();
 
     if (!response.ok) {
+      // Automatic Token Refresh on 401 Unauthorized
+      if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/register' && endpoint !== '/auth/refresh' && !isRefreshing) {
+        isRefreshing = true;
+        try {
+          const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const refreshData = await refreshRes.json();
+
+          if (refreshRes.ok && refreshData.data?.accessToken) {
+            const newToken = refreshData.data.accessToken;
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('token', newToken);
+            }
+            isRefreshing = false;
+            // Retry original request with new access token
+            return fetchApi<T>(endpoint, {
+              ...options,
+              headers: {
+                ...options.headers,
+                Authorization: `Bearer ${newToken}`,
+              },
+            });
+          }
+        } catch (_) {}
+        isRefreshing = false;
+      }
+
       throw new ApiError(data.message || 'An error occurred', response.status, data);
     }
 

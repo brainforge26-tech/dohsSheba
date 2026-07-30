@@ -32,38 +32,6 @@ export const protect = async (
       return next(new AppError('Not authorized. No token provided.', 401));
     }
 
-    let userId: string | undefined;
-
-    // Handle demo tokens during dev/testing
-    if (token.startsWith('demo-token-')) {
-      const demoRole = token.replace('demo-token-', '').toUpperCase();
-      const emailMap: Record<string, string> = {
-        SUPER_ADMIN: 'superadmin@example.com',
-        ADMIN:       'admin@example.com',
-        SELLER:      'seller@example.com',
-        CUSTOMER:    'customer@example.com',
-        PROVIDER:    'customer@example.com',
-        RIDER:       'rider@example.com',
-      };
-      const targetEmail = emailMap[demoRole] || 'customer@example.com';
-      let demoUser = await prisma.user.findFirst({ where: { email: targetEmail } });
-      if (!demoUser) {
-        demoUser = await prisma.user.findFirst({ where: { role: demoRole as Role } });
-      }
-      if (!demoUser) {
-        demoUser = await prisma.user.create({
-          data: {
-            name: 'Sharmin Sultana Customer',
-            email: targetEmail,
-            password: 'password123',
-            role: (demoRole as Role) || 'CUSTOMER',
-          },
-        });
-      }
-      req.user = { id: demoUser.id, email: demoUser.email, role: demoUser.role };
-      return next();
-    }
-
     const secret = process.env.JWT_SECRET || 'dohssheba_jwt_secret_dev_key_2026';
     const decoded = jwt.verify(token, secret) as {
       id: string;

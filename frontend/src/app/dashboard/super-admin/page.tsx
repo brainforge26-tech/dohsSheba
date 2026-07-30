@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShieldAlert, Users, Store, Server, ShieldCheck, Database, Key, Activity, BarChart2 } from 'lucide-react';
+import { ShieldAlert, Users, Store, Server, ShieldCheck, Database, Activity, BarChart2 } from 'lucide-react';
 import { formatCurrency } from '@/utils/cn';
 
 const SUPER_ADMIN_METRICS = [
@@ -50,7 +50,7 @@ export default function SuperAdminDashboardPage() {
         {[
           { title: 'User & Role Manager', desc: 'Promote, demote, or suspend platform accounts', icon: Users, href: '/admin/dashboard/users', badge: '1,420 users' },
           { title: 'Database & Migrations', desc: 'Prisma schema state, migrations, and backups', icon: Database, href: '#', badge: 'PostgreSQL' },
-          { title: 'Security & Access Logs', desc: 'Audit trail, JWT secret rotation, and active sessions', icon: Key, href: '#', badge: 'Active' },
+          { title: 'Security & Access Logs', desc: 'Audit trail, JWT secret rotation, and active sessions', icon: ShieldCheck, href: '#', badge: 'Active' },
         ].map((c) => (
           <Link key={c.title} href={c.href}
             className="group rounded-2xl bg-[#1e1f32] border border-white/10 hover:border-purple-500/50 p-5 flex flex-col justify-between transition-all hover:bg-white/5 space-y-4">
@@ -66,35 +66,6 @@ export default function SuperAdminDashboardPage() {
             </div>
           </Link>
         ))}
-      </div>
-
-      {/* Demo Credentials Box */}
-      <div className="rounded-2xl bg-[#1e1f32] border border-purple-500/30 p-5 space-y-3">
-        <h2 className="font-bold text-white text-sm flex items-center gap-2">
-          <Key className="w-4 h-4 text-purple-400" /> Active Demo Credentials
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
-          <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-            <p className="font-bold text-purple-300">SUPER ADMIN</p>
-            <p className="text-white text-[11px] mt-1">superadmin@example.com</p>
-            <p className="text-slate-400 text-[10px]">SuperAdmin@123</p>
-          </div>
-          <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
-            <p className="font-bold text-indigo-300">ADMIN</p>
-            <p className="text-white text-[11px] mt-1">admin@example.com</p>
-            <p className="text-slate-400 text-[10px]">Admin@123</p>
-          </div>
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-            <p className="font-bold text-emerald-300">SELLER</p>
-            <p className="text-white text-[11px] mt-1">seller@example.com</p>
-            <p className="text-slate-400 text-[10px]">Seller@123</p>
-          </div>
-          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <p className="font-bold text-amber-300">CUSTOMER</p>
-            <p className="text-white text-[11px] mt-1">customer@example.com</p>
-            <p className="text-slate-400 text-[10px]">Customer@123</p>
-          </div>
-        </div>
       </div>
     </div>
   );

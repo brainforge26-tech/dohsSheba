@@ -12,11 +12,6 @@ function parseJwt(token: string): JwtPayload | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) {
-      // Fallback for demo dev tokens
-      if (token.startsWith('demo-token-')) {
-        const rolePart = token.replace('demo-token-', '').toUpperCase();
-        return { role: rolePart, exp: Math.floor(Date.now() / 1000) + 86400 * 30 };
-      }
       return null;
     }
     const base64Url = parts[1];
@@ -41,8 +36,9 @@ export function middleware(request: NextRequest) {
   const isDashboardRoot = pathname === '/dashboard' || pathname === '/dashboard/';
   
   const isSuperAdminRoute = pathname.startsWith('/dashboard/super-admin');
-  const isAdminRoute      = pathname.startsWith('/dashboard/admin') || (pathname.startsWith('/admin') && !pathname.startsWith('/admin/dashboard'));
+  const isAdminRoute      = pathname.startsWith('/dashboard/admin') || pathname.startsWith('/admin');
   const isSellerRoute     = pathname.startsWith('/dashboard/seller') || pathname.startsWith('/seller');
+  const isRiderRoute      = pathname.startsWith('/dashboard/rider') || pathname.startsWith('/rider');
   const isCustomerRoute   = pathname.startsWith('/dashboard/customer');
   const isProviderRoute   = pathname.startsWith('/dashboard/provider') || pathname.startsWith('/provider');
 
@@ -71,11 +67,12 @@ export function middleware(request: NextRequest) {
   const getRoleDashboard = (userRole?: string) => {
     switch (userRole) {
       case 'SUPER_ADMIN': return '/dashboard/super-admin';
-      case 'ADMIN':       return '/admin/dashboard';
+      case 'ADMIN':       return '/admin/dashboard/ecommerce';
       case 'SELLER':      return '/seller/dashboard';
-      case 'CUSTOMER':    return '/dashboard/customer';
+      case 'RIDER':       return '/rider/dashboard';
+      case 'CUSTOMER':    return '/dashboard';
       case 'PROVIDER':    return '/provider/dashboard';
-      default:            return '/dashboard/customer';
+      default:            return '/dashboard';
     }
   };
 
@@ -84,18 +81,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(getRoleDashboard(role), request.url));
   }
 
-  // 2. Redirect /dashboard to the correct role dashboard
+  // 2. Redirect /dashboard root to the correct role dashboard if not customer
   if (isDashboardRoot) {
     if (!tokenCookie || !payload || isExpired) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
       return NextResponse.redirect(loginUrl);
     }
-    return NextResponse.redirect(new URL(getRoleDashboard(role), request.url));
+    if (role && role !== 'CUSTOMER') {
+      return NextResponse.redirect(new URL(getRoleDashboard(role), request.url));
+    }
   }
 
   // 3. Protect Role Dashboard Routes & Prevent Unauthorized Role Access
-  const isProtectedRoute = isSuperAdminRoute || isAdminRoute || isSellerRoute || isCustomerRoute || isProviderRoute;
+  const isProtectedRoute = isSuperAdminRoute || isAdminRoute || isSellerRoute || isRiderRoute || isCustomerRoute || isProviderRoute;
 
   if (isProtectedRoute) {
     if (!tokenCookie || !payload || isExpired) {
@@ -104,7 +103,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Role Enforcement Rules
+    // Strict Role Enforcement Rules
     if (isSuperAdminRoute && role !== 'SUPER_ADMIN') {
       return NextResponse.redirect(new URL(getRoleDashboard(role), request.url));
     }
@@ -112,6 +111,9 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(getRoleDashboard(role), request.url));
     }
     if (isSellerRoute && role !== 'SELLER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+      return NextResponse.redirect(new URL(getRoleDashboard(role), request.url));
+    }
+    if (isRiderRoute && role !== 'RIDER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
       return NextResponse.redirect(new URL(getRoleDashboard(role), request.url));
     }
     if (isCustomerRoute && role !== 'CUSTOMER' && role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
@@ -132,6 +134,7 @@ export const config = {
     '/dashboard',
     '/dashboard/:path*',
     '/seller/:path*',
+    '/rider/:path*',
     '/admin/:path*',
     '/provider/:path*',
   ],

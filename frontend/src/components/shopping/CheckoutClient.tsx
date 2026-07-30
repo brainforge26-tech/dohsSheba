@@ -52,12 +52,12 @@ export function CheckoutClient() {
       let addressId: string | null = null;
 
       // Try to get existing addresses
-      const addrRes = await fetchApi<any[]>('/users/me/addresses').catch(() => null);
+      const addrRes = await fetchApi<any[]>('/users/addresses').catch(() => null);
       if (addrRes?.success && Array.isArray(addrRes.data) && addrRes.data.length > 0) {
         addressId = addrRes.data[0].id;
       } else {
         // Auto-create an address from the form input
-        const createAddrRes = await fetchApi<any>('/users/me/addresses', {
+        const createAddrRes = await fetchApi<any>('/users/addresses', {
           method: 'POST',
           body: JSON.stringify({
             label: 'Home',
@@ -67,7 +67,10 @@ export function CheckoutClient() {
             phone: phone,
             isDefault: true,
           }),
-        }).catch(() => null);
+        }).catch((err) => {
+          console.warn('Address creation notice:', err);
+          return null;
+        });
         if (createAddrRes?.success && createAddrRes.data?.id) {
           addressId = createAddrRes.data.id;
         }

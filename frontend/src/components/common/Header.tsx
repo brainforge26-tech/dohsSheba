@@ -40,7 +40,7 @@ export function Header() {
   }, []);
 
   const { getTotalCount, openCart } = useCartStore();
-  const { user, role, loginAs, logout } = useAuthStore();
+  const { user, role, logout } = useAuthStore();
   const { language, toggleLanguage } = useLanguageStore();
   const cartCount = getTotalCount();
 
