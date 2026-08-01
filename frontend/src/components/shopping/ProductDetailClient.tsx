@@ -215,6 +215,25 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           </div>
         </div>
       </div>
+
+      {/* ── Mobile Sticky Bottom Action Bar ── */}
+      <div className="lg:hidden fixed bottom-16 left-0 right-0 z-30 p-3 bg-background/95 backdrop-blur-md border-t border-border/80 shadow-2xl flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className="flex-1 py-3 px-4 rounded-2xl bg-secondary border border-border text-foreground font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
+        >
+          <ShoppingBag className="w-4 h-4 text-emerald-600" />
+          <span>Add to Basket</span>
+        </button>
+        <Link
+          href="/services/shopping/checkout"
+          onClick={handleAddToCart}
+          className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs text-center shadow-lg active:scale-95 transition-all"
+        >
+          Buy Now (৳{formatCurrency(product.price * quantity)})
+        </Link>
+      </div>
     </div>
   );
 }

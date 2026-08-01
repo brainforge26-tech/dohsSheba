@@ -7,10 +7,17 @@ import { formatCurrency } from '@/utils/cn';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export function CartDrawer() {
+  const router = useRouter();
   const { items, isOpen, closeCart, updateQuantity, removeItem, getSubtotal, clearCart } =
     useCartStore();
+
+  const handleProceedToCheckout = () => {
+    closeCart();
+    router.push('/services/shopping/checkout');
+  };
   const { t, isBn } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
@@ -198,14 +205,14 @@ export function CartDrawer() {
                 >
                   {isBn ? 'কার্ট খালি করুন' : 'Clear Cart'}
                 </button>
-                <Link
-                  href="/services/shopping/checkout"
-                  onClick={closeCart}
-                  className="py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all active:scale-95"
+                <button
+                  type="button"
+                  onClick={handleProceedToCheckout}
+                  className="py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all active:scale-95 cursor-pointer"
                 >
                   <span>{isBn ? 'চেকআউট' : 'Checkout'}</span>
                   <ArrowRight className="w-4 h-4" />
-                </Link>
+                </button>
               </div>
             </div>
           )}
