@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { ProductItem } from '@/types/shopping';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
@@ -26,10 +27,11 @@ interface ProductDetailClientProps {
 }
 
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const { addItem } = useCartStore();
+  const { addItem, closeCart } = useCartStore();
   const { toggleWishlist, isInWishlist } = useWishlistStore();
 
   // Save viewed product to recently-viewed localStorage history
@@ -57,7 +59,14 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const images = product.galleryImages || [product.image];
 
   const handleAddToCart = () => {
-    addItem(product, quantity);
+    addItem(product, quantity, true);
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addItem(product, quantity, false); // Add item without opening cart drawer
+    closeCart();
+    router.push('/services/shopping/checkout');
   };
 
   return (
@@ -199,13 +208,13 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                 <ShoppingBag className="w-4 h-4" />
                 <span>Add to Basket ({formatCurrency(product.price * quantity)})</span>
               </button>
-              <Link
-                href="/services/shopping/checkout"
-                onClick={handleAddToCart}
-                className="py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold text-sm text-center shadow-md transition-all hover:opacity-95"
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm text-center shadow-md transition-all hover:opacity-95 cursor-pointer"
               >
                 Buy Now Express
-              </Link>
+              </button>
             </div>
 
             <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
@@ -226,13 +235,13 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           <ShoppingBag className="w-4 h-4 text-emerald-600" />
           <span>Add to Basket</span>
         </button>
-        <Link
-          href="/services/shopping/checkout"
-          onClick={handleAddToCart}
-          className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs text-center shadow-lg active:scale-95 transition-all"
+        <button
+          type="button"
+          onClick={handleBuyNow}
+          className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs text-center shadow-lg active:scale-95 transition-all cursor-pointer"
         >
           Buy Now (৳{formatCurrency(product.price * quantity)})
-        </Link>
+        </button>
       </div>
     </div>
   );
