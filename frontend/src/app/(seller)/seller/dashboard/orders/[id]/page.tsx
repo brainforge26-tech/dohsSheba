@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { fetchApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/cn';
 import { StatusBadge } from '@/components/dashboard/seller/OrdersContent';
+import { useSocket } from '@/hooks/useSocket';
 
 const FALLBACK_ORDERS = [
   {
@@ -54,10 +55,37 @@ const NEXT_STATUS: Record<string, string | null> = {
   RETURNED:   null,
 };
 
+const getStatusIndex = (status: string): number => {
+  switch (status) {
+    case 'PENDING':
+      return 0;
+    case 'SELLER_ACCEPTED':
+    case 'PROCESSING':
+      return 1;
+    case 'PACKED':
+    case 'READY_FOR_RIDER':
+    case 'WAITING_FOR_MANUAL_ASSIGNMENT':
+      return 2;
+    case 'RIDER_ASSIGNED':
+    case 'ARRIVED_AT_STORE':
+    case 'PICKUP_STARTED':
+    case 'PICKED_UP':
+    case 'ON_THE_WAY':
+    case 'ARRIVED':
+    case 'ARRIVED_DESTINATION':
+    case 'SHIPPED':
+      return 3;
+    case 'DELIVERED':
+      return 4;
+    default:
+      return 0;
+  }
+};
+
 // ─── Timeline ─────────────────────────────────────────────────────────────────
 
 function OrderTimeline({ status }: { status: string }) {
-  const currentIdx = STATUS_FLOW.indexOf(status as any);
+  const currentIdx = getStatusIndex(status);
   const isCancelled = status === 'CANCELLED';
   const isReturned  = status === 'RETURNED';
 
@@ -145,8 +173,9 @@ function InvoiceSection({ order }: { order: any }) {
         <div>
           <p className="font-bold text-slate-400 mb-1">Deliver To</p>
           <p className="text-slate-300">{order.address?.line1}</p>
+          {order.address?.area && <p className="text-slate-300">{order.address.area}</p>}
           <p className="text-slate-300">{order.address?.city}</p>
-          <p className="text-slate-400">PIN: {order.address?.zip}</p>
+          <p className="text-slate-400">PIN: {order.address?.zip || '1216'}</p>
         </div>
       </div>
 
@@ -192,11 +221,43 @@ export default function OrderDetailPage() {
   const router = useRouter();
   const id     = params?.id as string;
   const { orders: storeOrders, updateOrderStatus } = useOrderStore();
+  const { socket } = useSocket();
 
   const [order,    setOrder]    = useState<any>(null);
   const [loading,  setLoading]  = useState(true);
   const [updating, setUpdating] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
+
+  // Real-time socket sync for rider status updates
+  useEffect(() => {
+    if (!id) return;
+
+    if (socket) {
+      socket.emit('join_order', id);
+      const handleStatusUpdate = (data: any) => {
+        console.log('⚡ [SELLER ORDER DETAIL] Received ORDER_STATUS_UPDATED:', data);
+        setOrder((prev: any) => (prev ? { ...prev, status: data.status || prev.status } : prev));
+      };
+      socket.on('ORDER_STATUS_UPDATED', handleStatusUpdate);
+      return () => {
+        socket.off('ORDER_STATUS_UPDATED', handleStatusUpdate);
+      };
+    }
+  }, [socket, id]);
+
+  // Periodic status poll (3s) while viewing order details page to guarantee real-time sync
+  useEffect(() => {
+    if (!id) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetchApi<any>(`/orders/${id}`).catch(() => null);
+        if (res?.success && res.data?.status) {
+          setOrder((prev: any) => (prev && prev.status !== res.data.status ? { ...prev, status: res.data.status } : prev));
+        }
+      } catch (_) {}
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -458,10 +519,13 @@ export default function OrderDetailPage() {
               </div>
               <div className="space-y-2 text-xs">
                 <div className="flex items-center gap-2 text-slate-300">
-                  <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />{order.customer?.email}
+                  <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />{order.customer?.email || 'customer@dohssheba.com'}
                 </div>
-                <div className="flex items-center gap-2 text-slate-300">
-                  <PhoneCall className="w-3.5 h-3.5 text-slate-500 shrink-0" />{order.customer?.phone}
+                <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                  <PhoneCall className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <a href={`tel:${order.customerPhone || order.customer?.phone || order.address?.phone || '01306031982'}`} className="hover:underline">
+                    {order.customerPhone || order.customer?.phone || order.address?.phone || '01306031982'}
+                  </a>
                 </div>
               </div>
             </div>
@@ -473,10 +537,89 @@ export default function OrderDetailPage() {
                 <p className="font-bold text-white">{order.customer?.name}</p>
                 <p>{order.address?.line1}</p>
                 {order.address?.line2 && <p>{order.address.line2}</p>}
+                {order.address?.area && <p>{order.address.area}</p>}
                 <p>{order.address?.city}</p>
-                <p className="text-slate-400">PIN: {order.address?.zip}</p>
-                <p className="text-slate-400 flex items-center gap-1 mt-1"><PhoneCall className="w-3 h-3" />{order.address?.phone ?? order.customer?.phone}</p>
+                <p className="text-slate-400">PIN: {order.address?.zip || '1216'}</p>
+                <div className="text-emerald-400 font-bold flex items-center gap-1 mt-1">
+                  <PhoneCall className="w-3 h-3 text-emerald-400" />
+                  <a href={`tel:${order.customerPhone || order.address?.phone || order.customer?.phone || '01306031982'}`} className="hover:underline">
+                    {order.customerPhone || order.address?.phone || order.customer?.phone || '01306031982'}
+                  </a>
+                </div>
               </div>
+            </div>
+
+            {/* Assigned Rider Card */}
+            <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 shadow-xl space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h2 className="font-bold text-sm text-white flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-emerald-400" />
+                  <span>Assigned Rider</span>
+                </h2>
+                {order.riderName || order.rider?.name ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Assigned to {order.riderName || order.rider?.name}
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Awaiting Rider
+                  </span>
+                )}
+              </div>
+
+              {order.riderName || order.rider?.name ? (
+                <div className="space-y-3 text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-indigo-500 p-0.5 shrink-0 overflow-hidden shadow-md">
+                      {order.rider?.avatar ? (
+                        <img src={order.rider.avatar} alt="" className="w-full h-full object-cover rounded-2xl" />
+                      ) : (
+                        <div className="w-full h-full rounded-2xl bg-[#181928] flex items-center justify-center text-white font-black text-sm">
+                          {(order.riderName || order.rider?.name)?.[0] || 'R'}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-white text-sm truncate">{order.riderName || order.rider?.name}</p>
+                      <p className="text-[11px] text-emerald-400 font-semibold">Active Dispatch Partner</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t border-white/10 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Rider Phone:</span>
+                      <a
+                        href={`tel:${order.rider?.phone || '01306031982'}`}
+                        className="font-bold text-emerald-400 hover:underline flex items-center gap-1"
+                      >
+                        <PhoneCall className="w-3 h-3" />
+                        <span>{order.rider?.phone || '01306031982'}</span>
+                      </a>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Assignment Time:</span>
+                      <span className="text-slate-300 font-mono">
+                        {order.acceptedAt || order.assignedAt
+                          ? new Date(order.acceptedAt || order.assignedAt).toLocaleTimeString('en-BD', { hour: '2-digit', minute: '2-digit' })
+                          : 'Just now'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Delivery Status:</span>
+                      <StatusBadge status={order.status} />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-[#181928] border border-dashed border-white/10 text-center space-y-1 text-xs">
+                  <Clock className="w-5 h-5 text-amber-400 mx-auto" />
+                  <p className="font-bold text-slate-300">Rider Assignment Pending</p>
+                  <p className="text-[11px] text-slate-500">Nearby riders in Savar DOHS are being notified for store pickup.</p>
+                </div>
+              )}
             </div>
 
             {/* Danger Zone (Cancel) */}

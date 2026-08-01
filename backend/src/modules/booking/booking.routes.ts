@@ -9,8 +9,9 @@ const router = Router();
 // All booking routes require authentication
 router.use(protect);
 
-router.get('/',          bookingController.getBookings);
-router.get('/:id',       bookingController.getBooking);
+router.get('/',               bookingController.getBookings);
+router.get('/provider/stats', authorize('PROVIDER', 'ADMIN'), bookingController.getProviderStats);
+router.get('/:id',            bookingController.getBooking);
 
 router.post('/',
   authorize('CUSTOMER'),

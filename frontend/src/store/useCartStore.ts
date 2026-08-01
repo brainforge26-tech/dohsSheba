@@ -4,6 +4,7 @@ import { ProductItem, CartItem } from '@/types/shopping';
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
+  appliedCoupon: string | null;
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
@@ -11,6 +12,8 @@ interface CartState {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  applyCoupon: (code: string) => void;
+  removeCoupon: () => void;
   getTotalCount: () => number;
   getSubtotal: () => number;
 }
@@ -18,9 +21,12 @@ interface CartState {
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   isOpen: false,
+  appliedCoupon: null,
   openCart: () => set({ isOpen: true }),
   closeCart: () => set({ isOpen: false }),
   toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
+  applyCoupon: (code) => set({ appliedCoupon: code, isOpen: true }),
+  removeCoupon: () => set({ appliedCoupon: null }),
 
   addItem: (product, quantity = 1) => {
     set((state) => {

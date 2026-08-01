@@ -18,11 +18,13 @@ import cartRoutes                              from './modules/cart/cart.routes'
 import orderRoutes                             from './modules/order/order.routes';
 import reviewRoutes                            from './modules/review/review.routes';
 import adminRoutes                             from './modules/admin/admin.routes';
+import * as adminController                    from './modules/admin/admin.controller';
 import sellerRoutes                            from './modules/seller/seller.routes';
 import walletRoutes                            from './modules/wallet/wallet.routes';
 import uploadRoutes                            from './modules/upload/upload.routes';
 import couponRoutes                            from './modules/coupon/coupon.routes';
 import riderRoutes                             from './modules/rider/rider.routes';
+import bannerRoutes                            from './modules/banner/banner.routes';
 
 const app = express();
 
@@ -99,6 +101,8 @@ app.use(`${API}/wallet`,              walletRoutes);
 app.use(`${API}/upload`,              uploadRoutes);
 app.use(`${API}/coupons`,             couponRoutes);
 app.use(`${API}/rider`,               riderRoutes);
+app.use(`${API}/banners`,             bannerRoutes);
+app.get(`${API}/settings`,            adminController.getSiteSettings);
 
 // ─── 404 & Error ─────────────────────────────────────────────────────────────
 app.use(notFound);

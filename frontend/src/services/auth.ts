@@ -89,6 +89,30 @@ export class AuthService {
     }
   }
 
+  static async googleLogin(idToken: string): Promise<AuthSession> {
+    const response = await fetchApi<{ user: any; accessToken: string }>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ credential: idToken }),
+    });
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', response.data.accessToken);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+
+    return {
+      user: {
+        id: response.data.user.id,
+        name: response.data.user.name,
+        email: response.data.user.email,
+        role: response.data.user.role,
+        phone: response.data.user.phone || '',
+        avatar: response.data.user.avatar || '',
+      },
+      token: response.data.accessToken,
+    };
+  }
+
   static validateRoleAccess(userRole: UserRole, requiredRole: UserRole): boolean {
     if (requiredRole === 'GUEST') return true;
     if (userRole === 'ADMIN') return true;

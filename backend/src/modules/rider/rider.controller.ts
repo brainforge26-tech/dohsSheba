@@ -70,3 +70,19 @@ export const getHistory = async (req: AuthRequest, res: Response, next: NextFunc
     return sendResponse(res, 200, 'Delivery history fetched', orders, getPaginationMeta(total, page, limit));
   } catch (e) { next(e); }
 };
+
+// ─── GET /rider/orders/:id/assigned-rider ─────────────────────────────────────
+export const getAssignedRiderByOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const data = await riderService.getAssignedRiderByOrder(req.params.id as string);
+    return sendResponse(res, 200, 'Assigned rider details fetched', data);
+  } catch (e) { next(e); }
+};
+
+// ─── GET /rider/orders/:id/location-history ──────────────────────────────────
+export const getLocationHistory = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const data = await riderService.getLocationHistory(req.params.id as string);
+    return sendResponse(res, 200, 'Rider location history fetched', data);
+  } catch (e) { next(e); }
+};

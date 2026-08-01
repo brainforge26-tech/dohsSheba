@@ -8,21 +8,11 @@ import {
   UserCheck, UserX, CheckCircle2, ShieldAlert, Key, Edit2, Loader2, Check
 } from 'lucide-react';
 
-const INITIAL_USERS = [
-  { id: 'u1', name: 'Super Administrator', email: 'superadmin@example.com', phone: '01700-000000', role: 'SUPER_ADMIN', verified: true, isActive: true, createdAt: '2026-01-01' },
-  { id: 'u2', name: 'Platform Admin', email: 'admin@example.com', phone: '01700-000001', role: 'ADMIN', verified: true, isActive: true, createdAt: '2026-01-05' },
-  { id: 'u3', name: 'Fresh Bazaar Seller', email: 'seller@example.com', phone: '01711-000001', role: 'SELLER', verified: true, isActive: true, createdAt: '2026-02-10' },
-  { id: 'u4', name: 'Sharmin Sultana', email: 'customer@example.com', phone: '01811-000002', role: 'CUSTOMER', verified: true, isActive: true, createdAt: '2026-03-12' },
-  { id: 'u5', name: 'Apex Climate Care Ltd.', email: 'provider@example.com', phone: '01911-000003', role: 'PROVIDER', verified: true, isActive: true, createdAt: '2026-03-15' },
-  { id: 'u6', name: 'Engr. Tanvir Islam', email: 'tanvir@example.com', phone: '01712-334455', role: 'CUSTOMER', verified: true, isActive: true, createdAt: '2026-04-01' },
-  { id: 'u7', name: 'ShineSheba Cleaning Pros', email: 'cleaning@example.com', phone: '01819-112233', role: 'PROVIDER', verified: true, isActive: false, createdAt: '2026-05-18' },
-];
-
 export default function AdminUsersPage() {
   const { language } = useLanguageStore();
   const isBn = language === 'BN';
 
-  const [users, setUsers] = useState(INITIAL_USERS);
+  const [users, setUsers] = useState<any[]>([]);
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -43,10 +33,10 @@ export default function AdminUsersPage() {
           isActive: u.isActive ?? true,
           createdAt: new Date(u.createdAt).toLocaleDateString(),
         }));
-        if (mapped.length > 0) setUsers(mapped);
+        setUsers(mapped);
       }
     } catch (err) {
-      console.warn('Fallback to demo users list:', err);
+      console.error('Error loading users:', err);
     } finally {
       setLoading(false);
     }
@@ -76,7 +66,7 @@ export default function AdminUsersPage() {
       prev.map((u) => (u.id === userId ? { ...u, isActive: nextStatus } : u))
     );
     try {
-      await fetchApi(`/admin/users/${userId}/status`, {
+      await fetchApi(`/admin/users/${userId}/toggle`, {
         method: 'PATCH',
       }).catch(() => null);
     } catch {}

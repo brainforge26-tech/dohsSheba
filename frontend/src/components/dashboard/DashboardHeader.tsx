@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useLanguageStore } from '@/store/useLanguageStore';
@@ -47,6 +48,45 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
     { sender: 'support', text: 'Hello resident! How can DOHS Sheba support team assist you today?', time: 'Just now' },
   ]);
 
+  const [activeThreadId, setActiveThreadId] = useState('cust_1');
+  const [customerThreads, setCustomerThreads] = useState([
+    {
+      id: 'cust_1',
+      name: 'Lt. Col. Rahman',
+      sub: 'Order #ORD-9945 (Grocery)',
+      lastMsg: 'Is my Basmati Rice order shipped?',
+      time: '10:45 AM',
+      unread: 1,
+      messages: [
+        { sender: 'customer', text: 'Hello seller! Is my Basmati Rice and Milk order ready?', time: '10:30 AM' },
+        { sender: 'seller', text: 'Hello sir! Your order is packed and assigned to rider Tariqul.', time: '10:35 AM' },
+        { sender: 'customer', text: 'Is my Basmati Rice order shipped?', time: '10:45 AM' },
+      ],
+    },
+    {
+      id: 'cust_2',
+      name: 'Major Eahsanol',
+      sub: 'Inquiry (Fresh Broiler Chicken)',
+      lastMsg: 'Do you have fresh organic eggs in stock?',
+      time: '09:20 AM',
+      unread: 0,
+      messages: [
+        { sender: 'customer', text: 'Do you have fresh organic eggs in stock?', time: '09:20 AM' },
+      ],
+    },
+    {
+      id: 'cust_3',
+      name: 'DOHS Admin Support Desk',
+      sub: 'Platform Helpline Desk',
+      lastMsg: 'Your store profile is verified and active.',
+      time: 'Yesterday',
+      unread: 0,
+      messages: [
+        { sender: 'support', text: 'Your store profile is verified and active.', time: 'Yesterday' },
+      ],
+    },
+  ]);
+
   const { notifications, markAsRead, markAllAsRead } = useNotificationStore();
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -77,23 +117,44 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
     }
   };
 
-  const handleSendChatMessage = (e: React.FormEvent) => {
+  const handleSendChatMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
     const userMsg = chatInput.trim();
-    setChatMessages((prev) => [...prev, { sender: 'user', text: userMsg, time: 'Just now' }]);
     setChatInput('');
 
-    setTimeout(() => {
+    if (role === 'SELLER') {
+      setCustomerThreads((prev) =>
+        prev.map((thread) => {
+          if (thread.id === activeThreadId) {
+            return {
+              ...thread,
+              lastMsg: userMsg,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              messages: [
+                ...thread.messages,
+                { sender: 'seller', text: userMsg, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+              ],
+            };
+          }
+          return thread;
+        })
+      );
+    } else {
       setChatMessages((prev) => [
         ...prev,
-        {
-          sender: 'support',
-          text: `Thank you for your message: "${userMsg}". DOHS Sheba agent is looking into your inquiry.`,
-          time: 'Just now',
-        },
+        { sender: 'user', text: userMsg, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
       ]);
-    }, 1000);
+    }
+
+    try {
+      await fetchApi('/admin/chat/send', {
+        method: 'POST',
+        body: JSON.stringify({ message: userMsg }),
+      }).catch(() => null);
+    } catch (err) {
+      console.error('Error sending chat msg:', err);
+    }
   };
 
   const handleSignOut = async () => {
@@ -104,7 +165,7 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
   };
 
   return (
-    <header className="shrink-0 w-full bg-[#181928] border-b border-white/10 text-white px-4 py-3 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-md z-30">
+    <header className="sticky top-0 z-40 shrink-0 w-full bg-[#181928]/95 backdrop-blur-xl border-b border-white/10 text-white px-3 sm:px-4 py-2.5 pt-safe flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 shadow-xl transition-all">
       {/* Top Left Navigation Icons & Mobile Toggle */}
       <div className="flex items-center gap-3">
         <button
@@ -341,72 +402,160 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
         </button>
       </div>
 
-      {/* Live Support Chat Modal */}
-      {showChatModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1e1f32] border border-white/10 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col h-[480px]">
-            {/* Header */}
-            <div className="p-4 bg-emerald-950/40 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-emerald-400" />
-                <div>
-                  <h3 className="font-bold text-white text-xs">Resident Live Support</h3>
-                  <span className="text-[10px] text-emerald-300 font-semibold">● Online Helpline Agent</span>
+      {/* Live Customer & Support Chat Modal (React Portal to document.body for guaranteed screen centering) */}
+      {showChatModal && mounted && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-200">
+          <div className="bg-[#1e1f32] border border-white/10 rounded-3xl max-w-3xl w-full h-[560px] max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
+            
+            {/* If Seller, show customer threads left sidebar */}
+            {role === 'SELLER' && (
+              <div className="w-full md:w-64 bg-[#181928] border-r border-white/10 flex flex-col shrink-0">
+                <div className="p-4 border-b border-white/10">
+                  <h4 className="font-bold text-white text-xs flex items-center gap-1.5">
+                    <MessageSquare className="w-4 h-4 text-emerald-400" />
+                    <span>Customer Messages</span>
+                  </h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Select a customer to reply</p>
+                </div>
+                <div className="flex-1 overflow-y-auto divide-y divide-white/5 custom-scrollbar">
+                  {customerThreads.map((th) => (
+                    <button
+                      key={th.id}
+                      onClick={() => setActiveThreadId(th.id)}
+                      className={`w-full p-3 text-left transition-all flex items-start gap-2.5 ${
+                        activeThreadId === th.id ? 'bg-emerald-600/20 border-l-4 border-emerald-500' : 'hover:bg-white/5'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">
+                        {th.name.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-bold text-xs text-white truncate">{th.name}</h5>
+                          <span className="text-[9px] text-slate-500">{th.time}</span>
+                        </div>
+                        <p className="text-[10px] text-emerald-400 font-medium truncate">{th.sub}</p>
+                        <p className="text-[11px] text-slate-400 truncate mt-0.5">{th.lastMsg}</p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
-              <button
-                onClick={() => setShowChatModal(false)}
-                className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 text-xs"
-              >
-                ✕
-              </button>
-            </div>
+            )}
 
-            {/* Chat Body */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3">
-              {chatMessages.map((m, i) => (
-                <div
-                  key={i}
-                  className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-2xl text-xs ${
-                      m.sender === 'user'
-                        ? 'bg-emerald-600 text-white rounded-tr-none'
-                        : 'bg-white/10 text-slate-200 rounded-tl-none'
-                    }`}
-                  >
-                    {m.text}
+            {/* Main Chat Thread Area */}
+            <div className="flex-1 flex flex-col min-w-0 bg-[#1e1f32]">
+              {/* Header */}
+              <div className="p-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                    <MessageSquare className="w-5 h-5" />
                   </div>
-                  <span className="text-[9px] text-slate-500 mt-1">{m.time}</span>
+                  <div>
+                    <h3 className="font-bold text-white text-sm">
+                      {role === 'SELLER'
+                        ? (customerThreads.find((t) => t.id === activeThreadId)?.name || 'Customer Message Reply')
+                        : 'DOHS Resident Live Support'}
+                    </h3>
+                    <p className="text-[10px] text-emerald-300 font-semibold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>{role === 'SELLER' ? 'Customer Inquiry Channel' : 'Online Support Helpline'}</span>
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Chat Input */}
-            <form onSubmit={handleSendChatMessage} className="p-3 border-t border-white/10 bg-[#181928] flex gap-2">
-              <input
-                type="text"
-                placeholder="Type your message to DOHS support..."
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white"
-              >
-                Send
-              </button>
-            </form>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://wa.me/8801306031982"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition-colors text-xs font-bold"
+                  >
+                    WhatsApp
+                  </a>
+                  <button
+                    onClick={() => setShowChatModal(false)}
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors text-xs font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* Chat Body */}
+              <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#181928] custom-scrollbar">
+                {role === 'SELLER' ? (
+                  customerThreads
+                    .find((t) => t.id === activeThreadId)
+                    ?.messages.map((m, i) => {
+                      const isMe = m.sender === 'seller';
+                      return (
+                        <div key={i} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                          <span className="text-[9px] text-slate-400 font-semibold mb-0.5 px-1">{isMe ? 'You (Store Owner)' : 'Customer'}</span>
+                          <div
+                            className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed ${
+                              isMe
+                                ? 'bg-emerald-600 text-white rounded-br-none shadow-md'
+                                : 'bg-[#282a44] text-slate-200 border border-white/10 rounded-bl-none'
+                            }`}
+                          >
+                            {m.text}
+                          </div>
+                          <span className="text-[9px] text-slate-500 mt-1 px-1">{m.time}</span>
+                        </div>
+                      );
+                    })
+                ) : (
+                  chatMessages.map((m, i) => (
+                    <div key={i} className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div
+                        className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed ${
+                          m.sender === 'user'
+                            ? 'bg-gradient-to-r from-emerald-600 to-indigo-600 text-white rounded-br-none shadow-md'
+                            : 'bg-[#282a44] text-slate-200 border border-white/10 rounded-bl-none'
+                        }`}
+                      >
+                        {m.text}
+                      </div>
+                      <span className="text-[9px] text-slate-500 mt-1 px-1">{m.time}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Chat Input */}
+              <form onSubmit={handleSendChatMessage} className="p-3 border-t border-white/10 bg-[#1f2136] flex gap-2">
+                <input
+                  type="text"
+                  placeholder={
+                    role === 'SELLER'
+                      ? 'কাস্টমারকে উত্তর দিন (Type reply to customer)...'
+                      : language === 'BN'
+                      ? 'মেসেজ টাইপ করুন...'
+                      : 'Type message to support...'
+                  }
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={!chatInput.trim()}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg transition-all disabled:opacity-50"
+                >
+                  {role === 'SELLER' ? 'Reply' : 'Send'}
+                </button>
+              </form>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Community Calendar Modal */}
-      {showCalendarModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1e1f32] border border-white/10 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      {showCalendarModal && mounted && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-200">
+          <div className="bg-[#1e1f32] border border-white/10 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl my-auto">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-bold text-white text-sm flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-purple-400" /> DOHS Community Calendar
@@ -453,7 +602,8 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

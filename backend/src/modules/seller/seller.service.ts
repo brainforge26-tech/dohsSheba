@@ -188,12 +188,33 @@ export const getStoreProfile = async (userId: string) => {
 
 export const updateStoreProfile = async (
   userId: string,
-  data: { shopName?: string; description?: string; logo?: string }
+  data: {
+    shopName?: string;
+    description?: string;
+    logo?: string;
+    banner?: string;
+    address?: string;
+    openingHours?: string;
+    phone?: string;
+    email?: string;
+  }
 ) => {
-  return prisma.sellerProfile.upsert({
+  const { phone, email, ...profileData } = data;
+
+  if (phone || email) {
+    const userUpdate: any = {};
+    if (phone) userUpdate.phone = phone;
+    if (email) userUpdate.email = email;
+    await prisma.user.update({
+      where: { id: userId },
+      data: userUpdate,
+    }).catch(() => {});
+  }
+
+  return (prisma.sellerProfile as any).upsert({
     where: { userId },
-    create: { userId, shopName: data.shopName || 'Fresh Bazaar', ...data },
-    update: data,
+    create: { userId, shopName: profileData.shopName || 'Fresh Bazaar', ...profileData },
+    update: profileData,
   });
 };
 

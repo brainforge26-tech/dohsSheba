@@ -16,49 +16,23 @@ import {
   Star,
 } from 'lucide-react';
 
-const INITIAL_WISHLIST = [
-  {
-    id: 'w1',
-    name: 'Sony WH-1000XM5 Wireless Headphones',
-    price: 34500,
-    originalPrice: 38000,
-    seller: 'GadgetZone DOHS',
-    image: '🎧',
-    inStock: true,
-    priceDrop: true,
-    rating: 4.9,
-  },
-  {
-    id: 'w2',
-    name: 'Organic Honey (500g)',
-    price: 850,
-    originalPrice: 850,
-    seller: 'Pure Spices Store',
-    image: '🍯',
-    inStock: true,
-    priceDrop: false,
-    rating: 4.8,
-  },
-  {
-    id: 'w3',
-    name: 'Cold Pressed Coconut Oil (500ml)',
-    price: 450,
-    originalPrice: 500,
-    seller: 'Organic Farm BD',
-    image: '🥥',
-    inStock: false,
-    priceDrop: true,
-    rating: 4.7,
-  },
-];
+import { useWishlistStore } from '@/store/useWishlistStore';
 
 export default function WishlistPage() {
-  const [items, setItems] = useState(INITIAL_WISHLIST);
+  const { items: storeItems, removeItem } = useWishlistStore();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
+  const items = storeItems.map((prod: any) => ({
+    id: prod.id,
+    name: prod.title || prod.name,
+    price: prod.price,
+    originalPrice: prod.originalPrice || prod.price,
+    seller: prod.shopName || prod.seller || 'DOHS Market',
+    image: prod.image || '🛍️',
+    inStock: (prod.stock ?? 1) > 0,
+    priceDrop: false,
+    rating: prod.rating || 4.8,
+  }));
 
   return (
     <div className="space-y-6">

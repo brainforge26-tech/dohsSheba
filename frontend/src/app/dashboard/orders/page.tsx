@@ -42,12 +42,17 @@ export default function CustomerOrdersPage() {
   const [copiedId, setCopiedId] = useState('');
 
   useEffect(() => {
+    // Clear any old mock orders from local storage
+    try {
+      localStorage.removeItem('dohssheba-customer-orders');
+    } catch (_) {}
+
     setLoading(true);
     fetchApi<any[]>('/orders')
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
           const mapped = res.data.map((o: any) => ({
-            id: o.orderNumber || `#ORD-${o.id.slice(0, 6).toUpperCase()}`,
+            id: o.orderNumber || `#ORD-${o.id.slice(-6).toUpperCase()}`,
             date: new Date(o.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
             status: o.status,
             seller: o.items?.[0]?.product?.sellerProfile?.shopName || 'Marketplace Seller',
@@ -64,16 +69,15 @@ export default function CustomerOrdersPage() {
             estDelivery: '1-2 Days Express',
           }));
           setApiOrders(mapped);
+        } else {
+          setApiOrders([]);
         }
       })
-      .catch(() => {})
+      .catch(() => { setApiOrders([]); })
       .finally(() => setLoading(false));
   }, []);
 
-  // Combine DB orders with store orders (avoiding duplicate IDs)
-  const storeOrderIds = new Set(storeOrders.map((o: any) => o.id.toUpperCase()));
-  const filteredApiOrders = apiOrders.filter((o: any) => !storeOrderIds.has(o.id.toUpperCase()));
-  const allOrders = [...storeOrders, ...filteredApiOrders];
+  const allOrders = apiOrders;
 
   const filteredOrders = allOrders.filter((order) => {
     const matchesStatus = activeStatus === 'ALL' || order.status === activeStatus;

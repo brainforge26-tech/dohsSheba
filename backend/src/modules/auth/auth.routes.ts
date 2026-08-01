@@ -13,6 +13,7 @@ const router = Router();
 // Public routes
 router.post('/register', registerValidator, validate, authController.register);
 router.post('/login',    loginValidator,    validate, authController.login);
+router.post('/google',                               authController.googleLogin);
 router.post('/logout',                               authController.logout);
 router.post('/refresh',                              authController.refreshToken);
 

@@ -20,11 +20,30 @@ export function ProductCard({ product }: ProductCardProps) {
   const inCart = items.find((i) => i.product.id === product.id);
   const isFavorite = isInWishlist(product.id);
 
+  const handleProductClick = () => {
+    try {
+      const stored = localStorage.getItem('dohssheba-recently-viewed');
+      const list = stored ? JSON.parse(stored) : [];
+      const itemToSave = {
+        id: product.id,
+        name: product.title || (product as any).name,
+        price: product.price,
+        seller: product.shopName || 'DOHS Market',
+        image: product.image,
+        rating: product.rating || 4.8,
+        slug: product.slug,
+      };
+      const filtered = list.filter((item: any) => item.id !== product.id);
+      const updated = [itemToSave, ...filtered].slice(0, 10);
+      localStorage.setItem('dohssheba-recently-viewed', JSON.stringify(updated));
+    } catch (_) {}
+  };
+
   return (
     <div className="group rounded-2xl border border-border/80 bg-card overflow-hidden shadow-card hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between p-3">
       {/* Image & Wishlist Container */}
       <div className="relative h-44 w-full rounded-xl overflow-hidden bg-secondary mb-3">
-        <Link href={`/services/shopping/product/${product.slug}`}>
+        <Link href={`/services/shopping/product/${product.slug}`} onClick={handleProductClick}>
           <Image
             src={product.image}
             alt={product.title}
@@ -72,7 +91,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
 
-          <Link href={`/services/shopping/product/${product.slug}`}>
+          <Link href={`/services/shopping/product/${product.slug}`} onClick={handleProductClick}>
             <h3 className="font-bold text-xs leading-snug line-clamp-2 mt-1 group-hover:text-emerald-600 transition-colors">
               {product.title}
             </h3>
@@ -94,23 +113,27 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
 
           <button
-            onClick={() => addItem(product)}
-            className={`p-2 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 text-xs font-bold ${
+            onClick={() => {
+              if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
+                try { navigator.vibrate(10); } catch (_) {}
+              }
+              addItem(product);
+            }}
+            className={`min-h-[44px] px-3 py-2 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 text-xs font-bold active:scale-95 ${
               inCart
                 ? 'bg-emerald-600 text-white shadow-md'
-                : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 hover:bg-emerald-600 hover:text-white'
+                : 'bg-emerald-500/10 hover:bg-emerald-600 hover:text-white text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
             }`}
-            title="Add to Basket"
           >
             {inCart ? (
               <>
                 <Check className="w-4 h-4" />
-                <span className="text-[10px]">In Cart</span>
+                <span>{inCart.quantity} in Cart</span>
               </>
             ) : (
               <>
                 <Plus className="w-4 h-4" />
-                <span className="text-[10px]">Add</span>
+                <span>Add</span>
               </>
             )}
           </button>

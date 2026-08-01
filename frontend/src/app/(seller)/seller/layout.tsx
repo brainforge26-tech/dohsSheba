@@ -7,6 +7,8 @@ import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Loader2 } from 'lucide-react';
 
+import { SellerMobileNav } from '@/components/dashboard/seller/SellerMobileNav';
+
 export default function SellerShellLayout({
   children,
 }: {
@@ -56,10 +58,13 @@ export default function SellerShellLayout({
         />
 
         {/* Independent Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 max-w-[1600px] w-full mx-auto">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 space-y-6 max-w-[1600px] w-full mx-auto">
           {children}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <SellerMobileNav />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useLanguageStore } from '@/store/useLanguageStore';
+import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
 declare global {
   interface Window {
@@ -12,6 +13,10 @@ declare global {
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { language } = useLanguageStore();
+
+  useEffect(() => {
+    useSiteSettingsStore.getState().fetchSettings();
+  }, []);
 
   useEffect(() => {
     const setCookie = (name: string, value: string) => {

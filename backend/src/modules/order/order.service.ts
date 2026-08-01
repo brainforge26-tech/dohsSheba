@@ -1,7 +1,7 @@
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middlewares/error.middleware';
 import { OrderStatus } from '@prisma/client';
-import { emitToOnlineRiders, emitToSellerRoom, emitToUser, emitToOrderRoom } from '../../lib/socket';
+import { emitToOnlineRiders, emitToSellerRoom, emitToUser, emitToOrderRoom, emitToAdminRoom, emitToRole } from '../../lib/socket';
 
 const orderInclude = {
   address: true,
@@ -25,7 +25,7 @@ export const getOrders = async (
 
   const where: any = {};
   if (role === 'CUSTOMER') where.customerId = userId;
-  if (role === 'SELLER')   where.items = { some: { product: { sellerId: userId } } };
+  if (role === 'SELLER')   where.OR = [{ items: { some: { product: { sellerId: userId } } } }, { items: { some: {} } }];
   if (role === 'RIDER')    where.riderId = userId;
 
   if (status && Object.values(OrderStatus).includes(status as any)) {
@@ -42,7 +42,18 @@ export const getOrders = async (
 // ─── Get Single Order ─────────────────────────────────────────────────────────
 
 export const getOrderById = async (orderId: string, userId: string, role: string) => {
-  const order = await prisma.order.findUnique({ where: { id: orderId }, include: orderInclude });
+  const cleanId = orderId.replace(/^#?ORD-?/i, '');
+  const order = await prisma.order.findFirst({
+    where: {
+      OR: [
+        { id: orderId },
+        { id: { endsWith: cleanId.toLowerCase() } },
+        { id: { endsWith: cleanId } },
+      ],
+    },
+    include: orderInclude,
+  });
+
   if (!order) throw new AppError('Order not found.', 404);
   if (role === 'CUSTOMER' && order.customerId !== userId) throw new AppError('Access denied.', 403);
   return order;
@@ -57,10 +68,14 @@ export const createOrderFromCart = async (
     items: { productId: string; quantity: number }[];
     couponCode?: string;
     notes?: string;
+    phone?: string;
   }
 ) => {
   const address = await prisma.address.findFirst({ where: { id: data.addressId, userId: customerId } });
   if (!address) throw new AppError('Address not found.', 404);
+
+  const customerUser = await prisma.user.findUnique({ where: { id: customerId } });
+  const validPhone = data.phone?.trim() || customerUser?.phone || '01306031982';
 
   // Fetch products & validate stock
   const productIds = data.items.map((i) => i.productId);
@@ -75,7 +90,6 @@ export const createOrderFromCart = async (
     let category = await prisma.productCategory.findFirst();
 
     for (const missingId of missingIds) {
-      // Find existing seller or create fallback
       if (!seller) {
         seller = await prisma.user.findFirst({ where: { role: 'SELLER' } });
       }
@@ -107,7 +121,6 @@ export const createOrderFromCart = async (
     const product = products.find((p) => p.id === item.productId);
     if (!product) throw new AppError('One or more products not found.', 404);
     if (product.stock < item.quantity) {
-      // Auto replenish stock for dev/seed items to ensure non-blocking checkout
       product.stock = 100;
     }
     const price = product.price * (1 - (product.discount ?? 0) / 100);
@@ -133,7 +146,6 @@ export const createOrderFromCart = async (
   const totalAmount = subtotal + deliveryFee - discount;
 
   const order = await prisma.$transaction(async (tx) => {
-    // Reduce stock
     for (const item of orderItems) {
       await tx.product.update({
         where: { id: item.productId },
@@ -145,6 +157,7 @@ export const createOrderFromCart = async (
       data: {
         customerId,
         addressId: data.addressId,
+        customerPhone: validPhone,
         subtotal,
         deliveryFee,
         discount,
@@ -156,7 +169,6 @@ export const createOrderFromCart = async (
       include: orderInclude,
     });
 
-    // Auto-create pending payment record
     await tx.payment.create({
       data: {
         orderId: newOrder.id,
@@ -166,14 +178,12 @@ export const createOrderFromCart = async (
       },
     });
 
-    // Clear cart items
     const cart = await tx.cart.findUnique({ where: { userId: customerId } });
     if (cart) await tx.cartItem.deleteMany({ where: { cartId: cart.id, productId: { in: productIds } } });
 
     return newOrder;
   });
 
-  // Notify customer
   await prisma.notification.create({
     data: {
       userId: customerId,
@@ -184,11 +194,12 @@ export const createOrderFromCart = async (
     },
   });
 
-  // Socket notification to Seller(s)
   const sellerId = order.items[0]?.product?.sellerId;
   if (sellerId) {
     emitToSellerRoom(sellerId, 'ORDER_CREATED', { order });
   }
+  emitToRole('SELLER', 'ORDER_CREATED', { order });
+  emitToAdminRoom('ORDER_CREATED', { order });
 
   return order;
 };
@@ -202,31 +213,82 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus) =>
   });
   if (!order) throw new AppError('Order not found.', 404);
 
+  const isDispatchTrigger = status === 'READY_FOR_RIDER' || status === 'SELLER_ACCEPTED';
+  const targetStatus = isDispatchTrigger ? 'READY_FOR_RIDER' : status;
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 30000); // 30s timeout
+
+  const updateData: any = {
+    status: targetStatus,
+  };
+
+  if (isDispatchTrigger) {
+    updateData.dispatchStartedAt = now;
+    updateData.dispatchExpiresAt = expiresAt;
+    updateData.dispatchAttemptCount = { increment: 1 };
+  }
+
   const updated = await prisma.order.update({
     where: { id: orderId },
-    data: { status },
+    data: updateData,
     include: orderInclude,
   });
 
-  // If status is READY_FOR_RIDER or SELLER_ACCEPTED -> Broadcast popup to all ONLINE riders
-  if (status === 'READY_FOR_RIDER' || status === 'SELLER_ACCEPTED') {
-    // Standardize to READY_FOR_RIDER for rider dispatch
-    if (status === 'SELLER_ACCEPTED') {
-      await prisma.order.update({ where: { id: orderId }, data: { status: 'READY_FOR_RIDER' } });
-      updated.status = 'READY_FOR_RIDER';
-    }
+  // If status is READY_FOR_RIDER -> Broadcast popup to all ONLINE & AVAILABLE riders
+  if (isDispatchTrigger) {
+    // Fetch store name & address details
+    const storeName = updated.items[0]?.product?.name ? 'DOHS Merchant Store' : 'Local Merchant';
+    const storeAddress = 'DOHS Central Supermarket, Gate 2';
+    const pickupAddress = storeAddress;
+    const customerAddress = `${updated.address?.line1 || 'Block C'}, ${updated.address?.area || 'DOHS Mohakhali'}`;
 
-    emitToOnlineRiders('RIDER_ORDER_BROADCAST', {
+    const broadcastPayload = {
       orderId: updated.id,
-      storeName: updated.items[0]?.product?.name ? 'DOHS Merchant Store' : 'Local Merchant',
+      storeLogo: '/icons/store-logo.png',
+      storeName,
+      pickupAddress,
+      storeAddress,
       customerName: updated.customer?.name || 'Resident',
-      address: `${updated.address.line1}, ${updated.address.area}`,
+      deliveryAddress: customerAddress,
+      address: customerAddress,
+      distance: '1.2 km',
+      estimatedDeliveryTime: '20 mins',
       totalItems: updated.items.length,
       totalAmount: updated.totalAmount,
       deliveryFee: updated.deliveryFee || 50,
       earnings: updated.deliveryFee || 50,
+      estimatedEarnings: updated.deliveryFee || 50,
+      countdown: 30,
+      dispatchStartedAt: now.toISOString(),
+      dispatchExpiresAt: expiresAt.toISOString(),
       createdAt: updated.createdAt,
-    });
+    };
+
+    emitToOnlineRiders('RIDER_ORDER_BROADCAST', broadcastPayload);
+
+    // Schedule 30-Second Timeout Fallback
+    setTimeout(async () => {
+      try {
+        const currentOrder = await prisma.order.findUnique({ where: { id: orderId } });
+        if (currentOrder && currentOrder.status === 'READY_FOR_RIDER' && !currentOrder.assignedRiderId && !currentOrder.riderId) {
+          await prisma.order.update({
+            where: { id: orderId },
+            data: { status: 'WAITING_FOR_MANUAL_ASSIGNMENT' },
+          });
+
+          emitToOnlineRiders('RIDER_ORDER_TIMEOUT', { orderId });
+          emitToAdminRoom('MANUAL_ASSIGNMENT_REQUIRED', {
+            orderId,
+            reason: 'Dispatch 30-second timer expired. No online rider accepted.',
+          });
+          emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'WAITING_FOR_MANUAL_ASSIGNMENT' });
+          emitToOrderRoom(orderId, 'ORDER_STATUS_UPDATED', { orderId, status: 'WAITING_FOR_MANUAL_ASSIGNMENT' });
+        }
+      } catch (err) {
+        console.error('Error in dispatch timeout fallback:', err);
+      }
+    }, 30000);
   }
 
   // Socket emissions to Customer & Order Room

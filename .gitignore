@@ -26,3 +26,7 @@ yarn-error.log*
 # Prisma
 backend/prisma/*.db
 backend/prisma/*.db-journal
+
+# Ignore Documentation / Markdown files as requested
+*.md
+**/*.md

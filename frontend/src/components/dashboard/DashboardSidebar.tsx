@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { UserRole } from '@/types/user';
 import { useOrderStore } from '@/store/useOrderStore';
 import { useNotificationStore } from '@/store/useNotificationStore';
+import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 import {
   LayoutDashboard,
   Calendar,
@@ -38,6 +39,7 @@ import {
   Percent,
   Zap,
   TrendingUp,
+  Radio,
   Bike,
   Navigation,
   Globe,
@@ -85,6 +87,7 @@ export function DashboardSidebar({
   const pathname = usePathname();
   const { user, role, setRole, logout } = useAuthStore();
   const { language } = useLanguageStore();
+  const { siteName } = useSiteSettingsStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -169,7 +172,7 @@ export function DashboardSidebar({
             },
             {
               label: 'Email & Chat',
-              href: '/admin/dashboard',
+              href: '/admin/dashboard/email-chat',
               icon: <Mail className="w-4 h-4" />,
             },
           ],
@@ -183,6 +186,11 @@ export function DashboardSidebar({
               icon: <Users className="w-4 h-4" />,
             },
             {
+              label: 'Rider Dispatch Queue',
+              href: '/dashboard/admin/dispatch',
+              icon: <Radio className="w-4 h-4 text-amber-400" />,
+            },
+            {
               label: 'Banners & CMS',
               href: '/admin/dashboard/cms',
               icon: <ImageIcon className="w-4 h-4" />,
@@ -192,35 +200,48 @@ export function DashboardSidebar({
               href: '/admin/dashboard/cms#coupons',
               icon: <Tag className="w-4 h-4" />,
             },
+            {
+              label: 'Website Settings',
+              href: '/admin/dashboard/settings',
+              icon: <Globe className="w-4 h-4 text-indigo-400" />,
+            },
           ],
         },
       ];
     } else if (effectiveRole === 'PROVIDER') {
       return [
         {
-          sectionTitle: 'MENU',
+          sectionTitle: 'OVERVIEW',
           items: [
             {
-              label: 'Dashboard',
+              label: 'Command Center',
               href: '/provider/dashboard',
-              icon: <LayoutDashboard className="w-4 h-4" />,
-              badge: 'Live',
-              badgeBg: 'bg-emerald-500',
+              icon: <LayoutDashboard className="w-4 h-4 text-emerald-400" />,
             },
             {
-              label: 'Booking Requests',
-              href: '/provider/dashboard',
-              icon: <Calendar className="w-4 h-4" />,
+              label: 'Live Job Bookings',
+              href: '/provider/dashboard/bookings',
+              icon: <Calendar className="w-4 h-4 text-blue-400" />,
             },
+            {
+              label: 'My Listed Services',
+              href: '/provider/dashboard/services',
+              icon: <Wrench className="w-4 h-4 text-amber-400" />,
+            },
+          ],
+        },
+        {
+          sectionTitle: 'MANAGEMENT',
+          items: [
             {
               label: 'Earnings & Wallet',
-              href: '/provider/dashboard',
-              icon: <DollarSign className="w-4 h-4" />,
+              href: '/provider/dashboard/finance',
+              icon: <DollarSign className="w-4 h-4 text-emerald-400" />,
             },
             {
-              label: 'My Services',
-              href: '/provider/dashboard',
-              icon: <Wrench className="w-4 h-4" />,
+              label: 'Customer Chat & Support',
+              href: '/dashboard/messages',
+              icon: <Mail className="w-4 h-4 text-indigo-400" />,
             },
           ],
         },
@@ -228,19 +249,17 @@ export function DashboardSidebar({
     } else if (effectiveRole === 'RIDER') {
       return [
         {
-          sectionTitle: 'RIDER FLEET',
+          sectionTitle: 'MENU',
           items: [
             {
-              label: 'Rider Dashboard',
+              label: 'Rider Command',
               href: '/rider/dashboard',
               icon: <Bike className="w-4 h-4" />,
-              badge: 'On Duty',
-              badgeBg: 'bg-emerald-500',
             },
             {
-              label: 'Active Missions',
-              href: '/rider/dashboard',
-              icon: <Navigation className="w-4 h-4" />,
+              label: 'Live Mission Mode',
+              href: '/dashboard/current-mission',
+              icon: <Navigation className="w-4 h-4 text-emerald-400" />,
             },
             {
               label: 'Trip Earnings',
@@ -323,6 +342,7 @@ export function DashboardSidebar({
               icon: <Users className="w-4 h-4" />,
               subItems: [
                 { label: 'Customer List', href: '/seller/dashboard/customers' },
+                { label: 'Customer Messages', href: '/seller/dashboard/messages' },
                 { label: 'Reviews', href: '/seller/dashboard/customers/reviews' },
                 { label: 'Wishlist', href: '/seller/dashboard/customers/wishlist' },
               ],
@@ -531,13 +551,13 @@ export function DashboardSidebar({
         <div className="p-4 border-b border-white/10 flex items-center justify-between shrink-0">
           <Link href="/" className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-black text-sm shadow-lg shrink-0">
-              M
+              {siteName.charAt(0)}
             </div>
             {!isCollapsed && (
               <div className="min-w-0">
-                <span className="font-black text-lg tracking-wider text-white">MORVIN</span>
+                <span className="font-black text-base tracking-wider text-white truncate block">{siteName}</span>
                 <span className="block text-[9px] uppercase font-bold text-indigo-400 tracking-widest truncate">
-                  dohsSheba CMS
+                  Platform Workspace
                 </span>
               </div>
             )}
@@ -669,32 +689,8 @@ export function DashboardSidebar({
         </nav>
       </div>
 
-      {/* Role Switcher & Signout Footer */}
+      {/* Signout Footer */}
       <div className="p-3 border-t border-white/10 bg-[#181928]/50 shrink-0 space-y-2">
-        {!isCollapsed && (
-          <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
-            <span>Switch Role:</span>
-            <select
-              value={effectiveRole}
-              onChange={(e) => {
-                setRole(e.target.value as any);
-                if (e.target.value === 'RIDER') window.location.href = '/rider/dashboard';
-                else if (e.target.value === 'ADMIN') window.location.href = '/admin/dashboard';
-                else if (e.target.value === 'SELLER') window.location.href = '/seller/dashboard';
-                else if (e.target.value === 'PROVIDER') window.location.href = '/provider/dashboard';
-                else window.location.href = '/dashboard';
-              }}
-              className="bg-[#202237] text-white border border-white/10 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-indigo-500 font-bold"
-            >
-              <option value="CUSTOMER">CUSTOMER</option>
-              <option value="SELLER">SELLER</option>
-              <option value="PROVIDER">PROVIDER</option>
-              <option value="RIDER">RIDER 🛵</option>
-              <option value="ADMIN">ADMIN</option>
-            </select>
-          </div>
-        )}
-
         <button
           onClick={handleSignOut}
           className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-white/10 text-xs font-semibold text-slate-300 hover:text-red-400 hover:bg-red-500/10 transition-colors ${isCollapsed ? 'p-2' : ''

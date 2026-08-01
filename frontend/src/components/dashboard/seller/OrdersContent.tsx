@@ -41,6 +41,7 @@ export function StatusBadge({ status }: { status: string }) {
 
 
 import { useOrderStore } from '@/store/useOrderStore';
+import { useSocket } from '@/hooks/useSocket';
 
 // ─── Order List Component ─────────────────────────────────────────────────────
 
@@ -62,7 +63,9 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
   const [sortKey, setSortKey] = useState('newest');
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
+  const { socket } = useSocket();
+
+  const fetchOrders = () => {
     setLoading(true);
     const params = new URLSearchParams({ page: '1', limit: '100' });
     if (defaultStatus) params.set('status', defaultStatus);
@@ -79,7 +82,22 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
       })
       .catch((err) => console.error('Orders fetch failed:', err))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, [defaultStatus]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleUpdate = () => fetchOrders();
+    socket.on('ORDER_STATUS_UPDATED', handleUpdate);
+    socket.on('ORDER_CREATED', handleUpdate);
+    return () => {
+      socket.off('ORDER_STATUS_UPDATED', handleUpdate);
+      socket.off('ORDER_CREATED', handleUpdate);
+    };
+  }, [socket]);
 
   const mappedStoreOrders = useMemo(() => {
     return storeOrders.map((o) => {
@@ -167,32 +185,36 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
 
   // ─── Next status map ─────────────────────────────────────────────────────────
   const NEXT_STATUS: Record<string, string | null> = {
-    PENDING:         'SELLER_ACCEPTED',
-    SELLER_ACCEPTED: 'READY_FOR_RIDER',
-    READY_FOR_RIDER: null,
-    RIDER_ASSIGNED:  null,
-    PICKUP_STARTED:  null,
-    PICKED_UP:       null,
-    ON_THE_WAY:      null,
-    ARRIVED:         null,
-    DELIVERED:       null,
-    CANCELLED:       null,
-    REJECTED:        null,
+    PENDING:                       'SELLER_ACCEPTED',
+    SELLER_ACCEPTED:               'READY_FOR_RIDER',
+    READY_FOR_RIDER:               'WAITING_FOR_MANUAL_ASSIGNMENT',
+    WAITING_FOR_MANUAL_ASSIGNMENT: 'READY_FOR_RIDER',
+    RIDER_ASSIGNED:                null,
+    PICKUP_STARTED:                null,
+    PICKED_UP:                     null,
+    ON_THE_WAY:                    null,
+    ARRIVED:                       null,
+    DELIVERED:                     null,
+    CANCELLED:                     null,
+    REJECTED:                      null,
   };
 
   const NEXT_LABEL: Record<string, string> = {
-    PENDING:         'Accept Order',
-    SELLER_ACCEPTED: 'Dispatch to Rider Fleet',
-    READY_FOR_RIDER: 'Rider Broadcast Active',
-    RIDER_ASSIGNED:  'Rider Assigned',
-    DELIVERED:       '',
-    CANCELLED:       '',
-    REJECTED:        '',
+    PENDING:                       'Accept Order',
+    SELLER_ACCEPTED:               'Dispatch to Rider Fleet',
+    READY_FOR_RIDER:               'Request Manual Admin Assignment',
+    WAITING_FOR_MANUAL_ASSIGNMENT: 'Re-broadcast to Rider Fleet',
+    RIDER_ASSIGNED:                'Rider Assigned',
+    DELIVERED:                     '',
+    CANCELLED:                     '',
+    REJECTED:                      '',
   };
 
   const NEXT_COLOR: Record<string, string> = {
-    PENDING:         'bg-emerald-600 hover:bg-emerald-500 text-white font-bold',
-    SELLER_ACCEPTED: 'bg-cyan-600 hover:bg-cyan-500 text-white font-bold',
+    PENDING:                       'bg-emerald-600 hover:bg-emerald-500 text-white font-bold',
+    SELLER_ACCEPTED:               'bg-cyan-600 hover:bg-cyan-500 text-white font-bold',
+    READY_FOR_RIDER:               'bg-amber-600 hover:bg-amber-500 text-white font-bold',
+    WAITING_FOR_MANUAL_ASSIGNMENT: 'bg-indigo-600 hover:bg-indigo-500 text-white font-bold',
   };
 
   const handleQuickStatus = async (orderId: string, currentStatus: string) => {
@@ -200,14 +222,20 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
     if (!next || updatingId) return;
     setUpdatingId(orderId);
     try {
-      await fetchApi(`/orders/${orderId}/status`, {
+      const res = await fetchApi<any>(`/orders/${orderId}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status: next }),
-      }).catch(() => {});
+      });
+      if (res?.success) {
+        console.log(`✅ [SELLER] Order ${orderId} status updated to ${next}`);
+        updateOrderStatus(orderId, next as any);
+        fetchOrders();
+      } else {
+        console.error(`❌ [SELLER] Status update error:`, res?.message);
+      }
+    } catch (err) {
+      console.error(`❌ [SELLER] Network error updating status:`, err);
     } finally {
-      updateOrderStatus(orderId, next as any);
-      // Also update apiOrders local state for non-store orders
-      setApiOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status: next } : o));
       setUpdatingId(null);
     }
   };
@@ -290,9 +318,55 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
         </div>
       )}
 
-      {/* ── Table ── */}
+      {/* ── Table & Mobile Cards Container ── */}
       <div className="rounded-3xl bg-[#1f2136] border border-white/10 shadow-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Mobile App Cards View (Visible on viewports < md) */}
+        <div className="md:hidden divide-y divide-white/10">
+          {pageItems.length === 0 ? (
+            <div className="py-12 text-center text-slate-500">
+              <ShoppingBag className="w-10 h-10 mx-auto mb-2 opacity-30" />
+              <p className="font-bold">No orders found</p>
+            </div>
+          ) : (
+            pageItems.map((o) => (
+              <div key={o.id} className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-indigo-400 font-mono text-sm">#{o.id.toUpperCase()}</div>
+                  <StatusBadge status={o.status} />
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-semibold text-white block">{o.customer?.name || 'Customer'}</span>
+                    <span className="text-[11px] text-slate-400">{o.items?.length || 1} item(s) · {o.payment?.method || 'bKash'}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-black text-white block text-sm">৳{formatCurrency(o.total)}</span>
+                    <span className="text-[10px] text-slate-400">{new Date(o.createdAt).toLocaleDateString('en-BD', { day: '2-digit', month: 'short' })}</span>
+                  </div>
+                </div>
+
+                <div className="pt-1 flex items-center gap-2 justify-end">
+                  {!!NEXT_STATUS[o.status] && (
+                    <button
+                      onClick={() => handleQuickStatus(o.id, o.status)}
+                      disabled={updatingId === o.id}
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${NEXT_COLOR[o.status] || 'bg-indigo-600 text-white'}`}
+                    >
+                      {updatingId === o.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                      <span>{NEXT_LABEL[o.status]}</span>
+                    </button>
+                  )}
+                  <Link href={`/seller/dashboard/orders/${o.id}`} className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/10 transition-colors">
+                    View
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table View (Hidden on viewports < md) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-white/10 text-slate-400 font-bold uppercase tracking-wider text-[10px] bg-[#181928]/50">
@@ -332,7 +406,9 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
                   </td>
                   <td className="p-4">
                     <div className="font-semibold text-white">{o.customer?.name}</div>
-                    <div className="text-[10px] text-slate-500 truncate max-w-[160px]">{o.customer?.email}</div>
+                    <div className="text-[10px] text-emerald-400 font-bold truncate max-w-[160px]">
+                      {o.customerPhone || o.customer?.phone || o.customer?.email || '01306031982'}
+                    </div>
                   </td>
                   <td className="p-4 hidden md:table-cell">
                     <div className="text-slate-300">{o.items?.length} item{o.items?.length !== 1 ? 's' : ''}</div>

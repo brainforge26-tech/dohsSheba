@@ -1,244 +1,440 @@
 import 'dotenv/config';
-import { PrismaClient, Role, OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-async function main() {
-  console.log('🌱  Seeding demo data...\n');
+// ─── 1. CLEAR ALL BUSINESS TRANSACTION DATA ──────────────────────────────────
+async function clearBusinessData() {
+  console.log('🧹 Clearing all previous business transaction data...');
 
-  // ── 1. HASH PASSWORDS ───────────────────────────────────────────────────────
-  const superAdminPwd = await bcrypt.hash('SuperAdmin@123', 10);
-  const adminPwd = await bcrypt.hash('Admin@123', 10);
-  const sellerPwd = await bcrypt.hash('Seller@123', 10);
-  const custPwd = await bcrypt.hash('Customer@123', 10);
-  const riderPwd = await bcrypt.hash('Rider@123', 10);
+  await prisma.orderItem.deleteMany({});
+  await prisma.payment.deleteMany({});
+  await prisma.order.deleteMany({});
 
-  // ── 2. USERS ─────────────────────────────────────────────────────────────────
-  console.log('  → Creating users…');
+  await prisma.cartItem.deleteMany({});
+  await prisma.cart.deleteMany({});
 
+  await prisma.wishlistItem.deleteMany({});
+  await prisma.wishlist.deleteMany({});
+
+  await prisma.review.deleteMany({});
+  await prisma.notification.deleteMany({});
+  await prisma.coupon.deleteMany({});
+  await prisma.booking.deleteMany({});
+  await prisma.address.deleteMany({});
+
+  await prisma.transaction.deleteMany({});
+  await prisma.wallet.deleteMany({});
+
+  await prisma.refreshToken.deleteMany({});
+  await prisma.sellerProfile.deleteMany({});
+  await prisma.riderProfile.deleteMany({});
+  await prisma.providerProfile.deleteMany({});
+  await prisma.service.deleteMany({});
+  await prisma.serviceCategory.deleteMany({});
+  await prisma.product.deleteMany({});
+  await prisma.productCategory.deleteMany({});
+  await prisma.user.deleteMany({});
+
+  console.log('   ✓ Business history cleared cleanly (0 Orders, 0 Cart Items, 0 Payments, 0 Missions).');
+}
+
+// ─── 2. SEED ROLE AUTHENTICATION ACCOUNTS ────────────────────────────────────
+async function seedUsers() {
+  console.log('👤 Seeding role authentication accounts...');
+
+  const defaultPassword = await bcrypt.hash('password123', 10);
+  const legacyPassword  = await bcrypt.hash('SuperAdmin@123', 10);
+
+  // SUPER ADMIN
   const superAdmin = await prisma.user.upsert({
+    where: { email: 'superadmin@dohssheba.com' },
+    update: { password: defaultPassword, role: Role.SUPER_ADMIN, isActive: true },
+    create: {
+      name: 'Super Administrator',
+      email: 'superadmin@dohssheba.com',
+      password: defaultPassword,
+      role: Role.SUPER_ADMIN,
+      phone: '+8801700000001',
+      emailVerified: true,
+      isActive: true,
+    },
+  });
+  await prisma.user.upsert({
     where: { email: 'superadmin@example.com' },
-    update: { password: superAdminPwd, role: Role.SUPER_ADMIN },
-    create: { name: 'Super Administrator', email: 'superadmin@example.com', password: superAdminPwd, role: Role.SUPER_ADMIN, emailVerified: true, isActive: true },
+    update: { password: legacyPassword, role: Role.SUPER_ADMIN, isActive: true },
+    create: {
+      name: 'Super Administrator',
+      email: 'superadmin@example.com',
+      password: legacyPassword,
+      role: Role.SUPER_ADMIN,
+      phone: '+8801700000011',
+      emailVerified: true,
+      isActive: true,
+    },
   });
 
+  // ADMIN
   const admin = await prisma.user.upsert({
+    where: { email: 'admin@dohssheba.com' },
+    update: { password: defaultPassword, role: Role.ADMIN, isActive: true },
+    create: {
+      name: 'DOHS Operations Admin',
+      email: 'admin@dohssheba.com',
+      password: defaultPassword,
+      role: Role.ADMIN,
+      phone: '+8801700000002',
+      emailVerified: true,
+      isActive: true,
+    },
+  });
+  await prisma.user.upsert({
     where: { email: 'admin@example.com' },
-    update: {},
-    create: { name: 'Platform Admin', email: 'admin@example.com', password: adminPwd, role: Role.ADMIN, emailVerified: true, isActive: true },
+    update: { password: defaultPassword, role: Role.ADMIN, isActive: true },
+    create: {
+      name: 'DOHS Operations Admin',
+      email: 'admin@example.com',
+      password: defaultPassword,
+      role: Role.ADMIN,
+      phone: '+8801700000012',
+      emailVerified: true,
+      isActive: true,
+    },
   });
 
+  // SELLER
   const seller = await prisma.user.upsert({
+    where: { email: 'seller@dohssheba.com' },
+    update: { password: defaultPassword, role: Role.SELLER, isActive: true },
+    create: {
+      name: 'Green Market DOHS Owner',
+      email: 'seller@dohssheba.com',
+      password: defaultPassword,
+      role: Role.SELLER,
+      phone: '+8801700000003',
+      emailVerified: true,
+      isActive: true,
+    },
+  });
+  await prisma.user.upsert({
     where: { email: 'seller@example.com' },
-    update: {},
-    create: { name: 'Fresh Bazaar Seller', email: 'seller@example.com', password: sellerPwd, role: Role.SELLER, emailVerified: true, isActive: true, phone: '01711-000001' },
+    update: { password: defaultPassword, role: Role.SELLER, isActive: true },
+    create: {
+      name: 'Green Market DOHS Owner',
+      email: 'seller@example.com',
+      password: defaultPassword,
+      role: Role.SELLER,
+      phone: '+8801700000013',
+      emailVerified: true,
+      isActive: true,
+    },
   });
 
-  const customer = await prisma.user.upsert({
-    where: { email: 'customer@example.com' },
-    update: {},
-    create: { name: 'Sharmin Sultana', email: 'customer@example.com', password: custPwd, role: Role.CUSTOMER, emailVerified: true, isActive: true, phone: '01811-000002' },
+  // RIDER
+  const rider = await prisma.user.upsert({
+    where: { email: 'rider@dohssheba.com' },
+    update: { password: defaultPassword, role: Role.RIDER, isActive: true },
+    create: {
+      name: 'Rider Akash (Fleet #04)',
+      email: 'rider@dohssheba.com',
+      password: defaultPassword,
+      role: Role.RIDER,
+      phone: '+8801700000004',
+      emailVerified: true,
+      isActive: true,
+    },
   });
-
-  const customer2 = await prisma.user.upsert({
-    where: { email: 'customer2@example.com' },
-    update: {},
-    create: { name: 'Engr. Tanvir Islam', email: 'customer2@example.com', password: custPwd, role: Role.CUSTOMER, emailVerified: true, isActive: true, phone: '01911-000003' },
-  });
-
-  const rider1 = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'rider@example.com' },
-    update: { password: riderPwd, role: Role.RIDER },
-    create: { name: 'Rider Akash (Fleet #04)', email: 'rider@example.com', password: riderPwd, role: Role.RIDER, emailVerified: true, isActive: true, phone: '01711-889900' },
+    update: { password: defaultPassword, role: Role.RIDER, isActive: true },
+    create: {
+      name: 'Rider Akash (Fleet #04)',
+      email: 'rider@example.com',
+      password: defaultPassword,
+      role: Role.RIDER,
+      phone: '+8801700000014',
+      emailVerified: true,
+      isActive: true,
+    },
   });
 
-  const rider2 = await prisma.user.upsert({
-    where: { email: 'rider2@example.com' },
-    update: { password: riderPwd, role: Role.RIDER },
-    create: { name: 'Rider Tanvir (Fleet #08)', email: 'rider2@example.com', password: riderPwd, role: Role.RIDER, emailVerified: true, isActive: true, phone: '01811-776655' },
+  // CUSTOMER
+  const customer = await prisma.user.upsert({
+    where: { email: 'customer@dohssheba.com' },
+    update: { password: defaultPassword, role: Role.CUSTOMER, isActive: true },
+    create: {
+      name: 'Sharmin Sultana',
+      email: 'customer@dohssheba.com',
+      password: defaultPassword,
+      role: Role.CUSTOMER,
+      phone: '+8801800000005',
+      emailVerified: true,
+      isActive: true,
+    },
+  });
+  await prisma.user.upsert({
+    where: { email: 'customer@example.com' },
+    update: { password: defaultPassword, role: Role.CUSTOMER, isActive: true },
+    create: {
+      name: 'Sharmin Sultana',
+      email: 'customer@example.com',
+      password: defaultPassword,
+      role: Role.CUSTOMER,
+      phone: '+8801800000015',
+      emailVerified: true,
+      isActive: true,
+    },
   });
 
-  console.log(`     ✓ ${superAdmin.email}, ${admin.email}, ${seller.email}, ${customer.email}, ${customer2.email}, ${rider1.email}, ${rider2.email}`);
+  // PROVIDER
+  const provider = await prisma.user.upsert({
+    where: { email: 'provider@dohssheba.com' },
+    update: { password: defaultPassword, role: Role.PROVIDER, isActive: true },
+    create: {
+      name: 'DOHS Home Services Master',
+      email: 'provider@dohssheba.com',
+      password: defaultPassword,
+      role: Role.PROVIDER,
+      phone: '+8801900000006',
+      emailVerified: true,
+      isActive: true,
+    },
+  });
 
-  // ── 3. SELLER PROFILE ────────────────────────────────────────────────────────
+  console.log('   ✓ 6 Role Accounts Created: SUPER_ADMIN, ADMIN, SELLER, RIDER, CUSTOMER, PROVIDER');
+  return { superAdmin, admin, seller, rider, customer, provider };
+}
+
+// ─── 3. SEED ROLE PROFILES ───────────────────────────────────────────────────
+async function seedProfiles(seller: any, rider: any, provider: any) {
+  console.log('📝 Seeding role profiles...');
+
+  // Seller Profile
   await prisma.sellerProfile.upsert({
     where: { userId: seller.id },
-    update: {},
-    create: { userId: seller.id, shopName: 'Fresh Bazaar', description: 'DOHS premium grocery seller', isVerified: true, rating: 4.8 },
-  });
-
-  // ── 3b. RIDER PROFILES ────────────────────────────────────────────────────────
-  await prisma.riderProfile.upsert({
-    where: { userId: rider1.id },
-    update: {},
+    update: { shopName: 'Green Market DOHS', isVerified: true },
     create: {
-      userId: rider1.id,
-      vehicleType: 'Motorcycle',
-      vehicleNo: 'DHK-MA-7744',
-      isAvailable: true,
-      totalTrips: 47,
-      totalEarnings: 2820,
+      userId: seller.id,
+      shopName: 'Green Market DOHS',
+      description: 'DOHS Central Supermarket - Premium Fresh Groceries & Daily Bazaar Supplies',
+      isVerified: true,
       rating: 4.9,
     },
   });
 
+  // Rider Profile (Available & Online by Default)
   await prisma.riderProfile.upsert({
-    where: { userId: rider2.id },
-    update: {},
-    create: {
-      userId: rider2.id,
-      vehicleType: 'Bicycle',
-      vehicleNo: 'BCY-DOHS-08',
+    where: { userId: rider.id },
+    update: {
+      isOnline: true,
+      isOnDuty: true,
       isAvailable: true,
-      totalTrips: 31,
-      totalEarnings: 1860,
-      rating: 4.7,
+      vehicleType: 'Motorbike',
+      vehicleNo: 'DHAKA-METRO-HA-1234',
+    },
+    create: {
+      userId: rider.id,
+      vehicleType: 'Motorbike',
+      vehicleNo: 'DHAKA-METRO-HA-1234',
+      isOnline: true,
+      isOnDuty: true,
+      isAvailable: true,
+      totalTrips: 0,
+      totalEarnings: 0,
+      rating: 5.0,
     },
   });
 
-  // ── 4. ADDRESSES ─────────────────────────────────────────────────────────────
-  console.log('  → Creating addresses…');
-
-  const addr1 = await prisma.address.create({
-    data: { userId: customer.id, label: 'Home', line1: 'H-12, Road-4, Sector-7', area: 'DOHS Mirpur', city: 'Dhaka', postCode: '1216', isDefault: true },
+  // Provider Profile
+  await prisma.providerProfile.upsert({
+    where: { userId: provider.id },
+    update: { isVerified: true },
+    create: {
+      userId: provider.id,
+      bio: 'Expert DOHS Resident Plumbing, Electrical & Appliance Maintenance Technician',
+      experience: 6,
+      nid: '1992269123450011',
+      isVerified: true,
+      rating: 4.9,
+      totalJobs: 0,
+    },
   });
 
-  const addr2 = await prisma.address.create({
-    data: { userId: customer2.id, label: 'Home', line1: 'Q-5, Road-10, Sector-3', area: 'DOHS Dhaka', city: 'Dhaka', postCode: '1206', isDefault: true },
-  });
-
-  // ── 5. PRODUCT CATEGORIES ────────────────────────────────────────────────────
-  console.log('  → Creating product categories…');
-
-  const categories = await Promise.all([
-    prisma.productCategory.upsert({ where: { slug: 'dairy' }, update: {}, create: { name: 'Dairy & Eggs', slug: 'dairy', icon: '🥛', description: 'Fresh milk, eggs, butter and dairy products' } }),
-    prisma.productCategory.upsert({ where: { slug: 'fruits' }, update: {}, create: { name: 'Fresh Fruits', slug: 'fruits', icon: '🍎', description: 'Seasonal and imported fruits' } }),
-    prisma.productCategory.upsert({ where: { slug: 'vegetables' }, update: {}, create: { name: 'Vegetables', slug: 'vegetables', icon: '🥦', description: 'Farm fresh vegetables' } }),
-    prisma.productCategory.upsert({ where: { slug: 'rice' }, update: {}, create: { name: 'Rice & Grains', slug: 'rice', icon: '🌾', description: 'Premium quality rice, flour and grains' } }),
-    prisma.productCategory.upsert({ where: { slug: 'fish' }, update: {}, create: { name: 'Fish & Seafood', slug: 'fish', icon: '🐟', description: 'Fresh water and sea fish' } }),
-    prisma.productCategory.upsert({ where: { slug: 'meat' }, update: {}, create: { name: 'Poultry & Meat', slug: 'meat', icon: '🍗', description: 'Fresh chicken, beef and mutton' } }),
-    prisma.productCategory.upsert({ where: { slug: 'spices' }, update: {}, create: { name: 'Spices & Oils', slug: 'spices', icon: '🧄', description: 'Cooking oil, spices and condiments' } }),
-    prisma.productCategory.upsert({ where: { slug: 'snacks' }, update: {}, create: { name: 'Snacks & Beverages', slug: 'snacks', icon: '🧃', description: 'Beverages, biscuits and snacks' } }),
-  ]);
-
-  const [dairy, fruits, vegetables, rice, fish, meat, spices] = categories;
-
-  // ── 6. PRODUCTS ──────────────────────────────────────────────────────────────
-  console.log('  → Creating products…');
-
-  const productData = [
-    { sellerId: seller.id, categoryId: dairy.id, name: 'Organic Full Cream Milk (1L)', slug: 'organic-full-cream-milk-1l', description: 'Fresh organic full cream milk from certified farms. Rich in calcium and vitamins. Pasteurized and safe for all ages.', price: 120, discount: 0, stock: 45, unit: 'bottle', isFeatured: true, isActive: true, images: ['https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400'] },
-    { sellerId: seller.id, categoryId: fruits.id, name: 'Himsagar Mango (per kg)', slug: 'himsagar-mango-per-kg', description: 'Premium Himsagar mangoes from Rajshahi. Naturally ripened, sweet and aromatic. Perfect for eating fresh or making juice.', price: 240, discount: 10, stock: 28, unit: 'kg', isFeatured: true, isActive: true, images: ['https://images.unsplash.com/photo-1553279768-865429fa0078?w=400'] },
-    { sellerId: seller.id, categoryId: rice.id, name: 'Basmati Rice (5kg Bag)', slug: 'basmati-rice-5kg-bag', description: 'Long grain aged Basmati rice with a delightful aroma. Perfect for biryani, pilaf and everyday cooking.', price: 850, discount: 5, stock: 22, unit: 'bag', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: dairy.id, name: 'Deshi Ghee (500g)', slug: 'deshi-ghee-500g', description: 'Traditional pure clarified butter made from cow milk. Rich golden color with authentic desi flavor. No additives.', price: 420, discount: 0, stock: 3, unit: 'jar', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: spices.id, name: 'Cold Pressed Mustard Oil (1L)', slug: 'cold-pressed-mustard-oil-1l', description: 'Authentic cold pressed mustard oil for cooking and health. Extracted without heat, retaining all natural nutrients.', price: 180, discount: 0, stock: 5, unit: 'bottle', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: meat.id, name: 'Deshi Chicken (per kg)', slug: 'deshi-chicken-per-kg', description: 'Farm fresh country chicken (deshi murgi). Free range, no hormones or antibiotics. Delivered fresh and cleaned.', price: 280, discount: 0, stock: 18, unit: 'kg', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: fish.id, name: 'Fresh Hilsa Fish (per kg)', slug: 'fresh-hilsa-fish-per-kg', description: 'Fresh river Hilsa (Ilish) fish from the Padma river. Bangladesh national fish, famous for its unique taste and aroma.', price: 1200, discount: 0, stock: 9, unit: 'kg', isFeatured: true, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: spices.id, name: 'Organic Turmeric Powder (100g)', slug: 'organic-turmeric-powder-100g', description: 'Pure organic turmeric powder. Rich in curcumin for health benefits. Bright yellow color for cooking.', price: 85, discount: 0, stock: 7, unit: 'pack', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: dairy.id, name: 'Paneer Fresh (200g)', slug: 'paneer-fresh-200g', description: 'Soft and fresh homemade style paneer cheese. Perfect for curry dishes. Made from pure cow milk.', price: 160, discount: 0, stock: 8, unit: 'pack', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: vegetables.id, name: 'Green Chili (250g)', slug: 'green-chili-250g', description: 'Fresh green chili peppers. Medium to hot spice level. Perfect for everyday Bangladeshi cooking.', price: 45, discount: 0, stock: 30, unit: 'pack', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: spices.id, name: 'Soyabean Oil (2L)', slug: 'soyabean-oil-2l', description: 'Premium refined soyabean cooking oil. Light, clear and healthy. Ideal for frying, cooking and baking.', price: 320, discount: 8, stock: 0, unit: 'bottle', isFeatured: false, isActive: true, images: [] },
-    { sellerId: seller.id, categoryId: dairy.id, name: 'Taaza Full Cream Milk Pouch', slug: 'taaza-full-cream-milk-pouch', description: 'Taaza brand full cream milk pouch. Fresh daily delivery. UHT processed for longer shelf life.', price: 65, discount: 0, stock: 60, unit: 'pouch', isFeatured: false, isActive: false, images: [] },
-  ];
-
-  const products: any[] = [];
-  for (const data of productData) {
-    const existing = await prisma.product.findUnique({ where: { slug: data.slug } });
-    if (!existing) {
-      const p = await prisma.product.create({ data });
-      products.push(p);
-    } else {
-      products.push(existing);
-    }
-  }
-
-  console.log(`     ✓ ${products.length} products created`);
-
-  // ── 7. ORDERS ────────────────────────────────────────────────────────────────
-  console.log('  → Orders skipped for real user placement.');
-
-  // ── 8. REVIEWS ───────────────────────────────────────────────────────────────
-  console.log('  → Creating reviews…');
-
-  const reviewDefs = [
-    { userId: customer.id, productId: products[0].id, rating: 5, comment: 'Very fresh and thick milk! Will order again. Best quality in DOHS.' },
-    { userId: customer2.id, productId: products[1].id, rating: 5, comment: 'Sweetest mangoes I have had in years. Pure Rajshahi quality.' },
-    { userId: customer.id, productId: products[4].id, rating: 4, comment: 'Great quality, delivered on time. Will order again.' },
-    { userId: customer2.id, productId: products[3].id, rating: 5, comment: 'Authentic Deshi Ghee. Reminds me of my grandmothers cooking.' },
-    { userId: customer.id, productId: products[6].id, rating: 5, comment: 'Freshest Hilsa I ever had delivered at home. Amazing quality.' },
-    { userId: customer2.id, productId: products[2].id, rating: 4, comment: 'Good quality Basmati. Made perfect biryani. Will reorder.' },
-  ];
-
-  for (const rd of reviewDefs) {
-    const existing = await prisma.review.findFirst({ where: { userId: rd.userId, productId: rd.productId } });
-    if (!existing) {
-      await prisma.review.create({ data: rd });
-    }
-  }
-
-  // Update product ratings
-  for (const p of products) {
-    const reviews = await prisma.review.findMany({ where: { productId: p.id } });
-    if (reviews.length > 0) {
-      const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
-      await prisma.product.update({ where: { id: p.id }, data: { rating: avg, totalReviews: reviews.length } });
-    }
-  }
-
-  console.log(`     ✓ ${reviewDefs.length} reviews created`);
-
-  // ── 9. WALLET ────────────────────────────────────────────────────────────────
-  console.log('  → Creating wallets…');
-
-  const sellerWallet = await prisma.wallet.upsert({
-    where: { userId: seller.id },
-    update: {},
-    create: { userId: seller.id, balance: 42500 },
-  });
-
-  await prisma.transaction.createMany({
-    data: [
-      { walletId: sellerWallet.id, type: 'CREDIT', amount: 18340, description: 'Order earnings — July 28' },
-      { walletId: sellerWallet.id, type: 'CREDIT', amount: 24160, description: 'Order earnings — July 27' },
-      { walletId: sellerWallet.id, type: 'DEBIT', amount: 5000, description: 'Withdrawal — bKash' },
-    ],
-    skipDuplicates: true,
-  });
-
-  // ── 10. NOTIFICATIONS ────────────────────────────────────────────────────────
-  await prisma.notification.createMany({
-    data: [
-      { userId: seller.id, title: 'New Order Received', message: 'You have a new order. Check your order list.', type: 'ORDER', link: '/seller/dashboard/orders' },
-      { userId: seller.id, title: 'Low Stock Alert', message: 'Deshi Ghee has only 3 units left.', type: 'STOCK', link: '/seller/dashboard/inventory' },
-      { userId: seller.id, title: 'Payment Settled', message: '৳18,340 credited to your wallet.', type: 'PAYMENT', link: '/seller/dashboard/finance/wallet' },
-      { userId: seller.id, title: 'New Review Received', message: 'Organic Milk received a 5-star review.', type: 'REVIEW', link: '/seller/dashboard/reviews' },
-    ],
-    skipDuplicates: true,
-  });
-
-  // ── 11. COUPONS ──────────────────────────────────────────────────────────────
-  await prisma.coupon.upsert({
-    where: { code: 'FRESH10' },
-    update: {},
-    create: { code: 'FRESH10', description: '10% off on all groceries', discountType: 'PERCENTAGE', discountValue: 10, minOrderAmount: 200, maxUses: 100, isActive: true, expiresAt: new Date('2026-12-31') },
-  });
-
-  await prisma.coupon.upsert({
-    where: { code: 'DOHS50' },
-    update: {},
-    create: { code: 'DOHS50', description: '৳50 flat discount', discountType: 'FLAT', discountValue: 50, minOrderAmount: 300, maxUses: 50, isActive: true, expiresAt: new Date('2026-12-31') },
-  });
-
-  console.log('\n✅  Seeding complete!\n');
-  console.log('  Demo Credentials:');
-  console.log('  ─────────────────────────────────────────');
-  console.log('  Super Admin  │ superadmin@example.com │ SuperAdmin@123');
-  console.log('  Admin        │ admin@example.com      │ Admin@123');
-  console.log('  Seller       │ seller@example.com     │ Seller@123');
-  console.log('  Customer     │ customer@example.com   │ Customer@123');
-  console.log('  Rider        │ rider@example.com      │ Rider@123');
-  console.log('  ─────────────────────────────────────────\n');
+  console.log('   ✓ Role Profiles Attached (Seller, Rider, Provider)');
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect());
+// ─── 4. SEED PRODUCT CATEGORIES ──────────────────────────────────────────────
+async function seedCategories() {
+  console.log('🏷️  Seeding product categories...');
+
+  const categories = [
+    { name: 'Fresh Meat & Poultry', slug: 'meat-poultry', description: 'Fresh local bazaar chicken, beef, & mutton' },
+    { name: 'Dairy & Eggs',        slug: 'dairy-eggs',   description: 'Organic milk, butter, cheese, and fresh farm eggs' },
+    { name: 'Fruits & Vegetables', slug: 'fruits-veg',   description: 'Fresh organic greens, seasonal fruits, & vegetables' },
+    { name: 'Rice & Grains',       slug: 'rice-grains',  description: 'Premium Nazirshail, Miniket, & Chinigura rice' },
+    { name: 'Edible Oils & Spices', slug: 'oils-spices', description: 'Pure mustard oil, soybean oil, & aromatic spices' },
+  ];
+
+  const createdCategories = [];
+  for (const cat of categories) {
+    const created = await prisma.productCategory.upsert({
+      where: { slug: cat.slug },
+      update: { name: cat.name, description: cat.description },
+      create: {
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description,
+        isActive: true,
+      },
+    });
+    createdCategories.push(created);
+  }
+
+  console.log(`   ✓ ${createdCategories.length} Product Categories Available`);
+  return createdCategories;
+}
+
+// ─── 5. SEED DEMO PRODUCTS ───────────────────────────────────────────────────
+async function seedProducts(seller: any, categories: any[]) {
+  console.log('🛒 Seeding demo product catalog...');
+
+  const catMap = new Map(categories.map((c) => [c.slug, c.id]));
+
+  const demoProducts = [
+    {
+      name: 'Fresh Deshi Broiler Chicken (Cleaned & Cut)',
+      slug: 'fresh-deshi-broiler-chicken',
+      categorySlug: 'meat-poultry',
+      price: 210,
+      discount: 5,
+      unit: 'kg',
+      stock: 150,
+      description: 'Fresh local DOHS bazaar broiler chicken, cleaned and cut into pieces ready for cooking.',
+      images: ['https://images.unsplash.com/photo-1587593810167-a84920ea0781?q=80&w=600'],
+    },
+    {
+      name: 'Farm Fresh Organic Eggs (12 Pcs)',
+      slug: 'farm-fresh-organic-eggs-12',
+      categorySlug: 'dairy-eggs',
+      price: 145,
+      discount: 0,
+      unit: 'dozen',
+      stock: 200,
+      description: 'Healthy, nutrient-dense organic brown eggs collected daily from local poultry farms.',
+      images: ['https://images.unsplash.com/photo-1516467508483-a7212febe31a?q=80&w=600'],
+    },
+    {
+      name: 'Aarong Dairy Pure Pasteurized Liquid Milk (1L)',
+      slug: 'aarong-dairy-pure-liquid-milk-1l',
+      categorySlug: 'dairy-eggs',
+      price: 90,
+      discount: 0,
+      unit: 'liter',
+      stock: 120,
+      description: 'Pure, fresh pasteurized whole milk guaranteed rich in calcium and vitamins.',
+      images: ['https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=600'],
+    },
+    {
+      name: 'Sonali Chicken Whole (Cleaned)',
+      slug: 'sonali-chicken-whole-cleaned',
+      categorySlug: 'meat-poultry',
+      price: 320,
+      discount: 10,
+      unit: 'kg',
+      stock: 80,
+      description: 'Tender and flavorful Sonali chicken, skinless, dressed and freshly prepared.',
+      images: ['https://images.unsplash.com/photo-1604503468506-a8da13d82791?q=80&w=600'],
+    },
+    {
+      name: 'Fresh Red Tomatoes (1kg)',
+      slug: 'fresh-red-tomatoes-1kg',
+      categorySlug: 'fruits-veg',
+      price: 80,
+      discount: 0,
+      unit: 'kg',
+      stock: 300,
+      description: 'Juicy, naturally ripened farm tomatoes essential for curry and fresh salad.',
+      images: ['https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=600'],
+    },
+    {
+      name: 'Ruchi Cold Pressed Mustard Oil (1L)',
+      slug: 'ruchi-cold-pressed-mustard-oil-1l',
+      categorySlug: 'oils-spices',
+      price: 340,
+      discount: 5,
+      unit: 'liter',
+      stock: 90,
+      description: 'Traditional pungent cold pressed mustard oil for rich Bangladeshi culinary taste.',
+      images: ['https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?q=80&w=600'],
+    },
+    {
+      name: 'Chinigura Aromatic Polao Rice (5kg)',
+      slug: 'chinigura-aromatic-polao-rice-5kg',
+      categorySlug: 'rice-grains',
+      price: 650,
+      discount: 8,
+      unit: 'bag',
+      stock: 60,
+      description: 'Premium aromatic long-grain Chinigura rice for biryani, polao, and festive dishes.',
+      images: ['https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=600'],
+    },
+  ];
+
+  for (const prod of demoProducts) {
+    const categoryId = catMap.get(prod.categorySlug) || categories[0].id;
+    await prisma.product.upsert({
+      where: { slug: prod.slug },
+      update: {
+        name: prod.name,
+        price: prod.price,
+        stock: prod.stock,
+        sellerId: seller.id,
+        categoryId,
+      },
+      create: {
+        sellerId: seller.id,
+        categoryId,
+        name: prod.name,
+        slug: prod.slug,
+        description: prod.description,
+        price: prod.price,
+        discount: prod.discount,
+        images: prod.images,
+        stock: prod.stock,
+        unit: prod.unit,
+        isActive: true,
+        isFeatured: true,
+        rating: 4.9,
+      },
+    });
+  }
+
+  console.log(`   ✓ ${demoProducts.length} Demo Products Available in Catalog`);
+}
+
+// ─── MAIN EXECUTION ──────────────────────────────────────────────────────────
+async function main() {
+  console.log('🚀 Starting Clean Production Seed...');
+  console.log('==================================================');
+
+  await clearBusinessData();
+  const users = await seedUsers();
+  await seedProfiles(users.seller, users.rider, users.provider);
+  const categories = await seedCategories();
+  await seedProducts(users.seller, categories);
+
+  console.log('==================================================');
+  console.log('✅ Clean Production Seed Completed Successfully!');
+  console.log('   0 Orders | 0 Cart Items | 0 Payments | 0 Missions');
+  console.log('   Catalog & Authentication Accounts Ready.');
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Seed script error:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

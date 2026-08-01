@@ -34,6 +34,22 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
+// POST /api/v1/auth/google
+export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { user, tokens } = await authService.googleLoginUser(req.body);
+    res.cookie('token', tokens.accessToken, TOKEN_COOKIE_OPTIONS);
+    res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS);
+    return sendResponse(res, 200, 'Google login successful', {
+      user,
+      accessToken: tokens.accessToken,
+      token: tokens.accessToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // POST /api/v1/auth/login
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {

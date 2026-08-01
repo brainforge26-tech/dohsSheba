@@ -36,11 +36,14 @@ enum OrderStatus {
   SELLER_ACCEPTED
   READY_FOR_RIDER
   RIDER_ASSIGNED
+  ARRIVED_AT_STORE
   PICKUP_STARTED
   PICKED_UP
   ON_THE_WAY
   ARRIVED
+  ARRIVED_DESTINATION
   DELIVERED
+  WAITING_FOR_MANUAL_ASSIGNMENT
   CANCELLED
   REJECTED
   REFUNDED
@@ -69,11 +72,15 @@ model User {
   name          String
   email         String    @unique
   phone         String?   @unique
-  password      String
+  password      String?
   avatar        String?
+  googleId      String?   @unique
+  provider      String?   @default("CREDENTIALS")
+  providerId    String?
   role          Role      @default(CUSTOMER)
   emailVerified Boolean   @default(false)
   isActive      Boolean   @default(true)
+  lastLogin     DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -91,6 +98,8 @@ model User {
   products         Product[]
   riderProfile     RiderProfile?
   riderOrders      Order[]         @relation("RiderOrders")
+  riderAssignments RiderAssignment[]
+  riderLocationHistory RiderLocation[] @relation("RiderLocationHistory")
   refreshTokens    RefreshToken[]
 
   @@map("users")
@@ -143,6 +152,9 @@ model SellerProfile {
   shopName    String
   description String?
   logo        String?
+  banner      String?
+  address     String?
+  openingHours String?
   isVerified  Boolean  @default(false)
   rating      Float    @default(0)
   createdAt   DateTime @default(now())
@@ -330,27 +342,52 @@ model WishlistItem {
 // ─── Order ────────────────────────────────────────────────────────────────────
 
 model Order {
-  id          String      @id @default(cuid())
-  customerId  String
-  addressId   String
-  status      OrderStatus @default(PENDING)
-  subtotal    Float
-  deliveryFee Float       @default(0)
-  discount    Float       @default(0)
-  totalAmount Float
-  notes       String?
-  riderId     String?
-  riderName   String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id                   String           @id @default(cuid())
+  customerId           String
+  addressId            String
+  customerPhone        String?
+  status               OrderStatus      @default(PENDING)
+  subtotal             Float
+  deliveryFee          Float            @default(0)
+  discount             Float            @default(0)
+  totalAmount          Float
+  notes                String?
+  riderId              String?
+  assignedRiderId      String?
+  riderName            String?
+  assignedAt           DateTime?
+  dispatchStartedAt    DateTime?
+  dispatchExpiresAt    DateTime?
+  acceptedAt           DateTime?
+  pickupAt             DateTime?
+  deliveredAt          DateTime?
+  dispatchAttemptCount Int              @default(0)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
-  customer User        @relation(fields: [customerId], references: [id])
-  address  Address     @relation(fields: [addressId], references: [id])
-  rider    User?       @relation("RiderOrders", fields: [riderId], references: [id])
-  items    OrderItem[]
-  payment  Payment?
+  customer             User             @relation(fields: [customerId], references: [id])
+  address              Address          @relation(fields: [addressId], references: [id])
+  rider                User?            @relation("RiderOrders", fields: [riderId], references: [id])
+  items                OrderItem[]
+  payment              Payment?
+  riderAssignment      RiderAssignment?
+  riderLocations       RiderLocation[]
 
   @@map("orders")
+}
+
+model RiderAssignment {
+  id         String   @id @default(cuid())
+  orderId    String   @unique
+  riderId    String
+  status     String   @default("ASSIGNED") // ASSIGNED | PICKED_UP | ON_THE_WAY | DELIVERED | CANCELLED
+  acceptedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rider User  @relation(fields: [riderId], references: [id], onDelete: Cascade)
+
+  @@map("rider_assignments")
 }
 
 model OrderItem {
@@ -430,9 +467,11 @@ model Notification {
 model Banner {
   id          String   @id @default(cuid())
   title       String
+  subtitle    String?
   description String?
-  image       String
-  link        String?
+  image       String   @default("🛍️")
+  link        String?  @default("/categories/grocery")
+  category    String   @default("Grocery")
   position    String   @default("home")
   isActive    Boolean  @default(true)
   order       Int      @default(0)
@@ -447,10 +486,12 @@ model Banner {
 model Coupon {
   id             String    @id @default(cuid())
   code           String    @unique
+  discount       String?
   description    String?
-  discountType   String    @default("PERCENTAGE")
-  discountValue  Float
-  minOrderAmount Float?
+  discountType   String    @default("FIXED")
+  discountValue  Float     @default(0)
+  minOrderAmount Float?    @default(0)
+  maxDiscount    Float?
   maxUses        Int?
   usedCount      Int       @default(0)
   isActive       Boolean   @default(true)
@@ -492,23 +533,52 @@ model Transaction {
 // ─── Rider Profile ───────────────────────────────────────────────────────────
 
 model RiderProfile {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  vehicleType   String   @default("Bicycle")
-  vehicleNo     String?
-  isOnline      Boolean  @default(false)
-  isAvailable   Boolean  @default(true)
-  lat           Float?
-  lng           Float?
-  totalTrips    Int      @default(0)
-  totalEarnings Float    @default(0)
-  rating        Float    @default(5.0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  vehicleType      String    @default("Bicycle")
+  vehicleNo        String?
+  isOnline         Boolean   @default(false)
+  isOnDuty         Boolean   @default(false)
+  isAvailable      Boolean   @default(true)
+  currentOrderId   String?
+  lastHeartbeat    DateTime?
+  lat              Float?
+  lng              Float?
+  currentLatitude  Float?
+  currentLongitude Float?
+  heading          Float?
+  speed            Float?
+  accuracy         Float?
+  totalTrips       Int       @default(0)
+  totalEarnings    Float     @default(0)
+  rating           Float     @default(5.0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("rider_profiles")
+}
+
+// ─── Rider Location History (Live GPS Logs) ─────────────────────────────────
+
+model RiderLocation {
+  id        String   @id @default(cuid())
+  orderId   String?
+  riderId   String
+  latitude  Float
+  longitude Float
+  accuracy  Float?
+  heading   Float?
+  speed     Float?
+  createdAt DateTime @default(now())
+
+  rider User   @relation("RiderLocationHistory", fields: [riderId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([riderId])
+  @@map("rider_locations")
 }
 
 // ─── Refresh Token ───────────────────────────────────────────────────────────
@@ -522,4 +592,20 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@map("refresh_tokens")
+}
+
+// ─── Site Settings ────────────────────────────────────────────────────────────
+
+model SiteSetting {
+  id              String   @id @default("default")
+  siteName        String   @default("DOHS Sheba")
+  tagline         String?  @default("Home Services & Express Grocery Marketplace for Savar DOHS")
+  supportPhone    String?  @default("01306031982")
+  supportEmail    String?  @default("support@dohssheba.com")
+  address         String?  @default("Savar DOHS, Dhaka, Bangladesh")
+  currencySymbol  String   @default("৳")
+  maintenanceMode Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_settings")
 }

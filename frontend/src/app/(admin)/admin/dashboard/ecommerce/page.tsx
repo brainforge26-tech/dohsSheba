@@ -11,22 +11,6 @@ import {
   Truck, ArrowUpRight, Check, X, RefreshCw, Loader2, DollarSign, Bike, UserCheck
 } from 'lucide-react';
 
-const INITIAL_PRODUCTS = [
-  { id: 'p1', name: 'Organic Full Cream Milk 2L', category: 'Dairy & Eggs', price: 180, stock: 45, seller: 'DOHS Dairy Store', status: 'Active', sales: 120 },
-  { id: 'p2', name: 'Premium Basmati Rice 5kg', category: 'Rice & Grains', price: 650, stock: 18, seller: 'Super Bazaar DOHS', status: 'Active', sales: 85 },
-  { id: 'p3', name: 'Fresh Hilsa Fish (800g)', category: 'Fish & Seafood', price: 1250, stock: 5, seller: 'Padma Fresh Fish', status: 'Low Stock', sales: 42 },
-  { id: 'p4', name: 'Cold Pressed Mustard Oil 1L', category: 'Spices & Oils', price: 320, stock: 0, seller: 'Shuddh Masola Shop', status: 'Out of Stock', sales: 95 },
-  { id: 'p5', name: 'Fuji Red Apple 1kg', category: 'Fruits & Veggies', price: 280, stock: 60, seller: 'Green Agro DOHS', status: 'Active', sales: 150 },
-];
-
-const INITIAL_CATEGORIES = [
-  { id: 'c1', name: 'Dairy & Eggs', slug: 'dairy-eggs', count: 24, status: 'Active' },
-  { id: 'c2', name: 'Rice & Grains', slug: 'rice-grains', count: 32, status: 'Active' },
-  { id: 'c3', name: 'Fish & Seafood', slug: 'fish-seafood', count: 18, status: 'Active' },
-  { id: 'c4', name: 'Spices & Oils', slug: 'spices-oils', count: 40, status: 'Active' },
-  { id: 'c5', name: 'Fruits & Veggies', slug: 'fruits-veggies', count: 55, status: 'Active' },
-];
-
 import { useSocket } from '@/hooks/useSocket';
 
 export default function AdminEcommercePage() {
@@ -35,10 +19,10 @@ export default function AdminEcommercePage() {
   const isBn = language === 'BN';
 
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'categories'>('products');
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [availableRiders, setAvailableRiders] = useState<any[]>([]);
-  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+  const [categories, setCategories] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -86,9 +70,19 @@ export default function AdminEcommercePage() {
           stock: p.stock || 0,
           seller: p.sellerProfile?.shopName || 'DOHS Merchant',
           status: p.stock === 0 ? 'Out of Stock' : p.stock <= 5 ? 'Low Stock' : 'Active',
-          sales: p.salesCount || Math.floor(Math.random() * 50) + 10,
+          sales: p.salesCount || 0,
         }));
-        if (mapped.length > 0) setProducts(mapped);
+        setProducts(mapped);
+      }
+      if (catRes.status === 'fulfilled' && catRes.value?.success && Array.isArray(catRes.value.data)) {
+        const catMapped = catRes.value.data.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          count: c._count?.products || 0,
+          status: 'Active',
+        }));
+        setCategories(catMapped);
       }
     }).finally(() => setLoading(false));
   }, []);

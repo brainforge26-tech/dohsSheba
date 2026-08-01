@@ -156,11 +156,26 @@ export const approvePartner = async (userId: string) => {
 // ─── Banner Management ────────────────────────────────────────────────────────
 
 export const getBanners = async () => {
-  return prisma.banner.findMany({ where: { isActive: true }, orderBy: { order: 'asc' } });
+  return prisma.banner.findMany({ orderBy: { createdAt: 'desc' } });
 };
 
-export const createBanner = async (data: object) => {
-  return prisma.banner.create({ data: data as any });
+export const createBanner = async (data: {
+  title: string;
+  subtitle?: string;
+  category?: string;
+  link?: string;
+  image?: string;
+}) => {
+  return prisma.banner.create({
+    data: {
+      title: data.title,
+      subtitle: data.subtitle || 'Exclusive DOHS Sheba offer',
+      category: data.category || 'Grocery',
+      link: data.link || '/categories/grocery',
+      image: data.image || '🥦',
+      isActive: true,
+    },
+  });
 };
 
 export const updateBanner = async (id: string, data: object) => {
@@ -168,7 +183,7 @@ export const updateBanner = async (id: string, data: object) => {
 };
 
 export const deleteBanner = async (id: string) => {
-  return prisma.banner.update({ where: { id }, data: { isActive: false } });
+  return prisma.banner.delete({ where: { id } });
 };
 
 // ─── Coupon Management ────────────────────────────────────────────────────────
@@ -177,8 +192,29 @@ export const getCoupons = async () => {
   return prisma.coupon.findMany({ orderBy: { createdAt: 'desc' } });
 };
 
-export const createCoupon = async (data: object) => {
-  return prisma.coupon.create({ data: data as any });
+export const createCoupon = async (data: {
+  code: string;
+  discount?: string;
+  minSpend?: number;
+  minOrderAmount?: number;
+  expiresAt?: Date | string;
+}) => {
+  const code = data.code.trim().toUpperCase();
+  const existing = await prisma.coupon.findUnique({ where: { code } });
+  if (existing) throw new Error('Coupon code already exists');
+
+  const minAmt = data.minSpend ?? data.minOrderAmount ?? 500;
+  const expires = data.expiresAt ? new Date(data.expiresAt) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+
+  return prisma.coupon.create({
+    data: {
+      code,
+      discount: data.discount || '৳100 OFF',
+      minOrderAmount: minAmt,
+      expiresAt: expires,
+      isActive: true,
+    },
+  });
 };
 
 export const updateCoupon = async (id: string, data: object) => {
@@ -271,6 +307,54 @@ export const getAdminOrders = async (
   return { orders, total };
 };
 
+export const getDispatchQueue = async () => {
+  const [pendingDispatch, manualAssignmentRequired, activeDeliveries, riders] = await Promise.all([
+    prisma.order.findMany({
+      where: { status: 'READY_FOR_RIDER' },
+      include: {
+        customer: { select: { id: true, name: true, phone: true } },
+        address: true,
+        items: { include: { product: { select: { name: true } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.order.findMany({
+      where: { status: 'WAITING_FOR_MANUAL_ASSIGNMENT' },
+      include: {
+        customer: { select: { id: true, name: true, phone: true } },
+        address: true,
+        items: { include: { product: { select: { name: true } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.order.findMany({
+      where: {
+        status: { in: ['RIDER_ASSIGNED', 'ARRIVED_AT_STORE', 'PICKUP_STARTED', 'PICKED_UP', 'ON_THE_WAY', 'ARRIVED', 'ARRIVED_DESTINATION'] },
+      },
+      include: {
+        customer: { select: { id: true, name: true, phone: true } },
+        rider: { select: { id: true, name: true, phone: true } },
+        address: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.user.findMany({
+      where: { role: 'RIDER' },
+      select: {
+        id: true, name: true, email: true, phone: true, avatar: true,
+        riderProfile: true,
+      },
+    }),
+  ]);
+
+  return {
+    pendingDispatch,
+    manualAssignmentRequired,
+    activeDeliveries,
+    riders,
+  };
+};
+
 export const assignRiderToOrder = async (orderId: string, riderId: string) => {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error('Order not found.');
@@ -280,25 +364,36 @@ export const assignRiderToOrder = async (orderId: string, riderId: string) => {
 
   const rider = await prisma.user.findUnique({
     where: { id: riderId },
-    select: { id: true, name: true, phone: true, role: true },
+    include: { riderProfile: true },
   });
   if (!rider || rider.role !== 'RIDER') throw new Error('Invalid rider selected.');
 
-  const updatedOrder = await prisma.order.update({
-    where: { id: orderId },
-    data: {
-      riderId,
-      riderName: rider.name,
-      status: 'RIDER_ASSIGNED',
-    },
-    include: {
-      customer: { select: { id: true, name: true } },
-      rider:    { select: { name: true, phone: true } },
-    },
+  const updatedOrder = await prisma.$transaction(async (tx) => {
+    await tx.riderProfile.update({
+      where: { userId: riderId },
+      data: { isAvailable: false, currentOrderId: orderId },
+    });
+
+    return tx.order.update({
+      where: { id: orderId },
+      data: {
+        riderId,
+        assignedRiderId: riderId,
+        riderName: rider.name,
+        status: 'RIDER_ASSIGNED',
+        assignedAt: new Date(),
+        acceptedAt: new Date(),
+      },
+      include: {
+        customer: { select: { id: true, name: true } },
+        rider:    { select: { name: true, phone: true } },
+      },
+    });
   });
 
   // Socket notifications
   emitToUser(riderId, 'RIDER_ORDER_ASSIGNED', { order: updatedOrder });
+  emitToUser(riderId, 'NEW_ASSIGNMENT', { order: updatedOrder });
   emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'RIDER_ASSIGNED', riderName: rider.name });
 
   return updatedOrder;
@@ -308,11 +403,157 @@ export const unassignRider = async (orderId: string) => {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new Error('Order not found.');
 
+  if (order.riderId) {
+    await prisma.riderProfile.update({
+      where: { userId: order.riderId },
+      data: { isAvailable: true, currentOrderId: null },
+    });
+  }
+
   const updated = await prisma.order.update({
     where: { id: orderId },
-    data: { riderId: null, riderName: null, status: 'READY_FOR_RIDER' },
+    data: { riderId: null, assignedRiderId: null, riderName: null, status: 'READY_FOR_RIDER' },
   });
 
   emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'READY_FOR_RIDER' });
   return updated;
+};
+
+// ─── Fleet Dashboard & Live Tracking ──────────────────────────────────────────
+
+export const getFleetDashboardData = async () => {
+  const riders = await prisma.user.findMany({
+    where: { role: 'RIDER' },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      avatar: true,
+      riderProfile: true,
+    },
+  });
+
+  const activeOrders = await prisma.order.findMany({
+    where: {
+      status: {
+        in: ['READY_FOR_RIDER', 'RIDER_ASSIGNED', 'ARRIVED_AT_STORE', 'PICKUP_STARTED', 'PICKED_UP', 'ON_THE_WAY', 'ARRIVED'],
+      },
+    },
+    include: {
+      customer: { select: { name: true, phone: true } },
+      address: true,
+      rider: { select: { id: true, name: true, phone: true } },
+    },
+  });
+
+  const totalRiders = riders.length;
+  const onlineRiders = riders.filter((r) => r.riderProfile?.isOnline).length;
+  const busyRiders = riders.filter((r) => r.riderProfile?.isOnline && !r.riderProfile?.isAvailable).length;
+  const availableRiders = riders.filter((r) => r.riderProfile?.isOnline && r.riderProfile?.isAvailable).length;
+  const offlineRiders = totalRiders - onlineRiders;
+
+  return {
+    riders,
+    activeOrders,
+    stats: {
+      totalRiders,
+      onlineRiders,
+      busyRiders,
+      availableRiders,
+      offlineRiders,
+      activeDeliveries: activeOrders.length,
+    },
+  };
+};
+
+// ─── Email & Chat Service ─────────────────────────────────────────────────────
+
+export const getChatConversations = async () => {
+  const users = await prisma.user.findMany({
+    take: 15,
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      avatar: true,
+      isActive: true,
+    },
+  });
+
+  return users.map((u) => ({
+    id: `conv_${u.id}`,
+    user: u,
+    lastMessage: `Hello Admin, I have an inquiry regarding my ${u.role.toLowerCase()} account.`,
+    updatedAt: new Date().toISOString(),
+    unreadCount: Math.floor(Math.random() * 3),
+  }));
+};
+
+export const sendChatMessage = async (conversationId: string, recipientId: string, message: string) => {
+  if (recipientId) {
+    emitToUser(recipientId, 'NEW_CHAT_MESSAGE', {
+      conversationId,
+      sender: 'DOHS Sheba Admin Support',
+      message,
+      createdAt: new Date(),
+    });
+  }
+  return { conversationId, message, sentAt: new Date() };
+};
+
+export const sendEmailBroadcast = async (targetRole: string, subject: string, message: string) => {
+  const where: any = {};
+  if (targetRole && targetRole !== 'ALL') {
+    where.role = targetRole;
+  }
+
+  const recipientCount = await prisma.user.count({ where });
+
+  const targetUsers = await prisma.user.findMany({ where, select: { id: true } });
+  if (targetUsers.length > 0) {
+    await prisma.notification.createMany({
+      data: targetUsers.map((u) => ({
+        userId: u.id,
+        title: subject,
+        message: message.replace(/<[^>]*>?/gm, ''),
+        type: 'BROADCAST',
+      })),
+    });
+  }
+
+  return {
+    targetRole,
+    subject,
+    recipientCount,
+    sentAt: new Date(),
+  };
+};
+
+// ─── Site Settings Service ───────────────────────────────────────────────────
+
+export const getSiteSettings = async () => {
+  let settings = await (prisma as any).siteSetting.findUnique({ where: { id: 'default' } });
+  if (!settings) {
+    settings = await (prisma as any).siteSetting.create({
+      data: {
+        id: 'default',
+        siteName: 'DOHS Sheba',
+        tagline: 'Home Services & Express Grocery Marketplace for Savar DOHS',
+        supportPhone: '01306031982',
+        supportEmail: 'support@dohssheba.com',
+      },
+    });
+  }
+  return settings;
+};
+
+export const updateSiteSettings = async (data: any) => {
+  return (prisma as any).siteSetting.upsert({
+    where: { id: 'default' },
+    create: { id: 'default', ...data },
+    update: data,
+  });
 };

@@ -11,6 +11,22 @@ export const createOrderValidator = [
 
 export const updateOrderStatusValidator = [
   body('status')
-    .isIn(['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'])
+    .isIn([
+      'PENDING',
+      'SELLER_ACCEPTED',
+      'READY_FOR_RIDER',
+      'RIDER_ASSIGNED',
+      'ARRIVED_AT_STORE',
+      'PICKUP_STARTED',
+      'PICKED_UP',
+      'ON_THE_WAY',
+      'ARRIVED',
+      'ARRIVED_DESTINATION',
+      'DELIVERED',
+      'WAITING_FOR_MANUAL_ASSIGNMENT',
+      'CANCELLED',
+      'REJECTED',
+      'REFUNDED',
+    ])
     .withMessage('Invalid order status'),
 ];

@@ -24,12 +24,14 @@ import {
 import { SERVICE_CATEGORIES } from '@/constants/services';
 import { SHOPPING_CATEGORIES } from '@/constants/products';
 import { useLanguageStore } from '@/store/useLanguageStore';
+import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
 import { useEffect } from 'react';
 
 export function Header() {
+  const { siteName } = useSiteSettingsStore();
   const [mounted, setMounted] = useState(false);
-  const [location, setLocation] = useState('Mohakhali DOHS');
+  const [location, setLocation] = useState('Savar DOHS');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState<'service' | 'shopping' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,10 +60,7 @@ export function Header() {
                 onChange={(e) => setLocation(e.target.value)}
                 className="bg-transparent font-bold text-white focus:outline-none cursor-pointer"
               >
-                <option value="Mohakhali DOHS" className="bg-slate-900">Mohakhali DOHS</option>
-                <option value="Baridhara DOHS" className="bg-slate-900">Baridhara DOHS</option>
-                <option value="Mirpur DOHS" className="bg-slate-900">Mirpur DOHS</option>
-                <option value="Banani DOHS" className="bg-slate-900">Banani DOHS</option>
+                <option value="Savar DOHS" className="bg-slate-900">Savar DOHS</option>
               </select>
             </div>
             <span className="hidden sm:inline text-slate-500">|</span>
@@ -103,7 +102,7 @@ export function Header() {
           </div>
           <div>
             <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-              dohsSheba
+              {siteName}
             </span>
             <span className="block text-[10px] font-medium text-muted-foreground -mt-1 tracking-wider uppercase">
               Services & Grocery
@@ -156,33 +155,35 @@ export function Header() {
 
               {/* Home Services Dropdown */}
               {megaMenuOpen === 'service' && (
-                <div className="absolute top-full left-0 mt-1 w-80 p-3 bg-background border border-border rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="text-xs font-bold text-muted-foreground px-3 py-1 uppercase tracking-wider">
-                    Service Categories
-                  </div>
-                  <div className="grid grid-cols-1 gap-1 mt-1">
-                    {SERVICE_CATEGORIES.slice(0, 6).map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/services/home-service/${cat.slug}`}
-                        onClick={() => setMegaMenuOpen(null)}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary transition-colors group"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className={`p-2 rounded-lg ${cat.colorBg} ${cat.colorText}`}>
-                            <Zap className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="font-semibold text-xs group-hover:text-primary transition-colors">
-                              {cat.name}
+                <div className="absolute top-full left-0 pt-2 w-80 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-3 bg-background border border-border rounded-2xl shadow-xl">
+                    <div className="text-xs font-bold text-muted-foreground px-3 py-1 uppercase tracking-wider">
+                      Service Categories
+                    </div>
+                    <div className="grid grid-cols-1 gap-1 mt-1">
+                      {SERVICE_CATEGORIES.slice(0, 6).map((cat) => (
+                        <Link
+                          key={cat.id}
+                          href={`/services/home-service/${cat.slug}`}
+                          onClick={() => setMegaMenuOpen(null)}
+                          className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary transition-colors group"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className={`p-2 rounded-lg ${cat.colorBg} ${cat.colorText}`}>
+                              <Zap className="w-4 h-4" />
                             </div>
-                            <div className="text-[10px] text-muted-foreground truncate max-w-[170px]">
-                              {cat.description}
+                            <div>
+                              <div className="font-semibold text-xs group-hover:text-primary transition-colors">
+                                {cat.name}
+                              </div>
+                              <div className="text-[10px] text-muted-foreground truncate max-w-[170px]">
+                                {cat.description}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -201,33 +202,35 @@ export function Header() {
 
               {/* Shopping Dropdown */}
               {megaMenuOpen === 'shopping' && (
-                <div className="absolute top-full left-0 mt-1 w-80 p-3 bg-background border border-border rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="text-xs font-bold text-muted-foreground px-3 py-1 uppercase tracking-wider">
-                    Grocery & Daily Needs
-                  </div>
-                  <div className="grid grid-cols-1 gap-1 mt-1">
-                    {SHOPPING_CATEGORIES.slice(0, 6).map((pcat) => (
-                      <Link
-                        key={pcat.id}
-                        href={`/services/shopping/${pcat.slug}`}
-                        onClick={() => setMegaMenuOpen(null)}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary transition-colors group"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600">
-                            <Carrot className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="font-semibold text-xs group-hover:text-emerald-600 transition-colors">
-                              {pcat.name}
+                <div className="absolute top-full left-0 pt-2 w-80 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-3 bg-background border border-border rounded-2xl shadow-xl">
+                    <div className="text-xs font-bold text-muted-foreground px-3 py-1 uppercase tracking-wider">
+                      Grocery & Daily Needs
+                    </div>
+                    <div className="grid grid-cols-1 gap-1 mt-1">
+                      {SHOPPING_CATEGORIES.slice(0, 6).map((pcat) => (
+                        <Link
+                          key={pcat.id}
+                          href={`/services/shopping/${pcat.slug}`}
+                          onClick={() => setMegaMenuOpen(null)}
+                          className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary transition-colors group"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600">
+                              <Carrot className="w-4 h-4" />
                             </div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {pcat.itemCount} items available
+                            <div>
+                              <div className="font-semibold text-xs group-hover:text-emerald-600 transition-colors">
+                                {pcat.name}
+                              </div>
+                              <div className="text-[10px] text-muted-foreground">
+                                {pcat.itemCount} items available
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}

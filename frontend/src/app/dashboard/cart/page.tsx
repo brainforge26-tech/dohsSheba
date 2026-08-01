@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/cn';
 import { CustomerEmptyState } from '@/components/dashboard/customer/CustomerEmptyState';
+import { useCartStore } from '@/store/useCartStore';
 import {
   ShoppingCart,
   Trash2,
@@ -12,33 +13,13 @@ import {
   Minus,
   Tag,
   ArrowRight,
-  ShieldCheck,
-  Truck,
-  Check,
 } from 'lucide-react';
 
-const INITIAL_CART = [
-  { id: 'c1', name: 'Basmati Rice Premium (5kg)', price: 650, qty: 1, image: '🌾', seller: 'Super Bazar DOHS' },
-  { id: 'c2', name: 'Cold Pressed Mustard Oil (1L)', price: 320, qty: 2, image: '🍾', seller: 'Pure Spices Store' },
-  { id: 'c3', name: 'Organic Whole Milk (2L)', price: 180, qty: 1, image: '🥛', seller: 'DOHS Dairy Store' },
-];
-
 export default function CartPage() {
-  const [items, setItems] = useState(INITIAL_CART);
+  const { items: cartItems, updateQuantity, removeItem, getSubtotal } = useCartStore();
   const [couponCode, setCouponCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [couponMsg, setCouponMsg] = useState('');
-
-  const updateQty = (id: string, delta: number) => {
-    setItems((prev) =>
-      prev
-        .map((item) => (item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item))
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
 
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === 'RESIDENT50') {
@@ -52,8 +33,8 @@ export default function CartPage() {
     }
   };
 
-  const subtotal = items.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const shipping = items.length > 0 ? 60 : 0;
+  const subtotal = getSubtotal();
+  const shipping = cartItems.length > 0 ? 60 : 0;
   const tax = subtotal * 0.05;
   const total = Math.max(0, subtotal + shipping + tax - appliedDiscount);
 
@@ -67,26 +48,32 @@ export default function CartPage() {
         <p className="text-xs text-slate-400 mt-0.5">Review items in your cart, apply discount coupons, and proceed to checkout</p>
       </div>
 
-      {items.length === 0 ? (
+      {cartItems.length === 0 ? (
         <CustomerEmptyState
           icon={ShoppingCart}
           title="Your Cart is Empty"
           description="Looks like you haven't added any items to your shopping cart yet."
           actionText="Start Shopping"
-          actionHref="/"
+          actionHref="/services/shopping"
         />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Cart Items List */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <div key={item.id} className="rounded-2xl bg-[#1e1f32] border border-white/10 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {cartItems.map(({ product, quantity }) => (
+              <div key={product.id} className="rounded-2xl bg-[#1e1f32] border border-white/10 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <span className="text-3xl p-3 rounded-2xl bg-white/5">{item.image}</span>
+                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl shrink-0 overflow-hidden">
+                    {product.image && (product.image.startsWith('http') || product.image.startsWith('/')) ? (
+                      <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                    ) : (
+                      product.image || '📦'
+                    )}
+                  </div>
                   <div>
-                    <h3 className="font-bold text-sm text-white">{item.name}</h3>
-                    <p className="text-xs text-slate-400">Seller: <span className="text-indigo-300">{item.seller}</span></p>
-                    <p className="text-xs font-black text-emerald-400 mt-1">৳{formatCurrency(item.price)}</p>
+                    <h3 className="font-bold text-sm text-white">{product.title}</h3>
+                    <p className="text-xs text-slate-400">Seller: <span className="text-indigo-300">{product.shopName || 'DOHS Seller'}</span></p>
+                    <p className="text-xs font-black text-emerald-400 mt-1">৳{formatCurrency(product.price)}</p>
                   </div>
                 </div>
 
@@ -94,14 +81,14 @@ export default function CartPage() {
                 <div className="flex items-center justify-between w-full sm:w-auto gap-4 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/5">
                   <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
                     <button
-                      onClick={() => updateQty(item.id, -1)}
+                      onClick={() => updateQuantity(product.id, quantity - 1)}
                       className="p-1 rounded-lg hover:bg-white/10 text-slate-300 transition-colors"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="w-8 text-center text-xs font-bold text-white">{item.qty}</span>
+                    <span className="w-8 text-center text-xs font-bold text-white">{quantity}</span>
                     <button
-                      onClick={() => updateQty(item.id, 1)}
+                      onClick={() => updateQuantity(product.id, quantity + 1)}
                       className="p-1 rounded-lg hover:bg-white/10 text-slate-300 transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -110,13 +97,7 @@ export default function CartPage() {
 
                   <div className="flex items-center gap-2">
                     <button
-                      title="Save for Later"
-                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
-                    >
-                      <Bookmark className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(product.id)}
                       title="Remove Item"
                       className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
                     >

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
+import { RiderMobileNav } from '@/components/dashboard/rider/RiderMobileNav';
+
 export default function RiderShellLayout({
   children,
 }: {
@@ -30,12 +32,15 @@ export default function RiderShellLayout({
           onToggleSidebar={() => setIsMobileOpen(!isMobileOpen)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#141523] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 bg-[#141523] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           <div className="max-w-7xl mx-auto space-y-6">
             {children}
           </div>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <RiderMobileNav />
     </div>
   );
 }

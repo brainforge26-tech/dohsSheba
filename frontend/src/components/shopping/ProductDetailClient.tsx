@@ -32,6 +32,27 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const { addItem } = useCartStore();
   const { toggleWishlist, isInWishlist } = useWishlistStore();
 
+  // Save viewed product to recently-viewed localStorage history
+  React.useEffect(() => {
+    if (!product || !product.id) return;
+    try {
+      const stored = localStorage.getItem('dohssheba-recently-viewed');
+      const list = stored ? JSON.parse(stored) : [];
+      const itemToSave = {
+        id: product.id,
+        name: product.title || (product as any).name,
+        price: product.price,
+        seller: product.shopName || 'DOHS Market',
+        image: product.image,
+        rating: product.rating || 4.8,
+        slug: product.slug,
+      };
+      const filtered = list.filter((item: any) => item.id !== product.id);
+      const updated = [itemToSave, ...filtered].slice(0, 10);
+      localStorage.setItem('dohssheba-recently-viewed', JSON.stringify(updated));
+    } catch (_) {}
+  }, [product]);
+
   const isFavorite = isInWishlist(product.id);
   const images = product.galleryImages || [product.image];
 

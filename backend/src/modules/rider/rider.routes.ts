@@ -14,11 +14,14 @@ router.patch('/duty',               riderController.toggleDuty);
 router.patch('/availability',       riderController.toggleDuty);
 
 // ─── Orders & Dispatch ────────────────────────────────────────────────────────
-router.get('/orders/open',          riderController.getOpenOrders);
-router.get('/orders/active',        riderController.getActiveMissions);
-router.get('/orders/history',       riderController.getHistory);
-router.post('/orders/:id/accept',   riderController.acceptOrder);
-router.patch('/orders/:id/accept',  riderController.acceptOrder);
-router.patch('/orders/:id/status',  riderController.updateOrderStatus);
+router.get('/available-orders',        riderController.getOpenOrders);
+router.get('/orders/open',             riderController.getOpenOrders);
+router.get('/orders/active',           riderController.getActiveMissions);
+router.get('/orders/history',          riderController.getHistory);
+router.get('/orders/:id/assigned-rider', riderController.getAssignedRiderByOrder);
+router.get('/orders/:id/location-history', riderController.getLocationHistory);
+router.post('/orders/:id/accept',      riderController.acceptOrder);
+router.patch('/orders/:id/accept',     riderController.acceptOrder);
+router.patch('/orders/:id/status',     riderController.updateOrderStatus);
 
 export default router;

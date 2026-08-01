@@ -16,7 +16,10 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
+
 export function Footer() {
+  const { siteName } = useSiteSettingsStore();
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-slate-800">
       {/* Top Value Proposition Bar */}
@@ -48,7 +51,7 @@ export function Footer() {
             </div>
             <div>
               <h4 className="font-bold text-sm text-white">Secure Payments</h4>
-              <p className="text-xs text-slate-400">SSLCommerz, bKash & Cash on Delivery</p>
+              <p className="text-xs text-slate-400">Cash on Delivery & bKash</p>
             </div>
           </div>
 
@@ -70,11 +73,11 @@ export function Footer() {
         <div className="md:col-span-2 space-y-4">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-md">
-              dS
+              {siteName.charAt(0)}
             </div>
             <div>
               <span className="font-extrabold text-xl tracking-tight text-white">
-                dohsSheba
+                {siteName}
               </span>
               <span className="block text-[10px] font-medium text-slate-400 tracking-wider uppercase">
                 Home Services & Shopping Platform
@@ -82,7 +85,7 @@ export function Footer() {
             </div>
           </Link>
           <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-            dohsSheba is the premier hyper-local marketplace dedicated to DOHS residents. From electrical repairs and AC servicing to fresh daily vegetables and groceries delivered to your door.
+            {siteName} is the premier hyper-local marketplace dedicated to DOHS residents. From electrical repairs and AC servicing to fresh daily vegetables and groceries delivered to your door.
           </p>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-white block">
@@ -188,7 +191,7 @@ export function Footer() {
           <div className="space-y-2.5 text-xs text-slate-400">
             <div className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-              <span>House 14, Road 3, Mohakhali DOHS, Dhaka 1206</span>
+              <span>Savar DOHS, Dhaka, Bangladesh</span>
             </div>
             <div className="flex items-center gap-2">
               <PhoneCall className="w-4 h-4 text-emerald-400 flex-shrink-0" />

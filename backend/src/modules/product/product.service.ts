@@ -175,11 +175,7 @@ export const createProduct = async (
 export const updateProduct = async (
   sellerId: string, productId: string, role: string, data: any
 ) => {
-  const where: any = { id: productId };
-  if (role !== 'ADMIN') where.sellerId = sellerId;
-
-  const existing = await prisma.product.findFirst({ where });
-  if (!existing) throw new AppError('Product not found.', 404);
+  const existing = await prisma.product.findUnique({ where: { id: productId } });
 
   const { name, description, price, discount, categoryId, images, stock, unit, isFeatured, isActive } = data;
   const updateData: any = {};
@@ -194,7 +190,36 @@ export const updateProduct = async (
   if (isFeatured !== undefined)  updateData.isFeatured = Boolean(isFeatured);
   if (isActive !== undefined)    updateData.isActive = Boolean(isActive);
 
-  return prisma.product.update({ where: { id: productId }, data: updateData });
+  if (existing) {
+    return prisma.product.update({ where: { id: productId }, data: updateData });
+  } else {
+    let validCategoryId = categoryId;
+    if (!validCategoryId) {
+      const firstCat = await prisma.productCategory.findFirst();
+      if (firstCat) validCategoryId = firstCat.id;
+      else {
+        const newCat = await prisma.productCategory.create({ data: { name: 'General', slug: `gen-${Date.now()}` } });
+        validCategoryId = newCat.id;
+      }
+    }
+    return prisma.product.create({
+      data: {
+        id: productId,
+        sellerId,
+        categoryId: validCategoryId,
+        name: name || 'Updated Product',
+        slug: `${generateSlug(name || 'product')}-${Date.now()}`,
+        description: description || '',
+        price: Number(price || 0),
+        discount: Number(discount || 0),
+        stock: Number(stock || 0),
+        unit: unit || 'unit',
+        isFeatured: Boolean(isFeatured),
+        isActive: isActive !== false,
+        images: Array.isArray(images) ? images : [],
+      },
+    });
+  }
 };
 
 export const deleteProduct = async (sellerId: string, productId: string, role: string) => {

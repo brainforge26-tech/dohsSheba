@@ -1,7 +1,7 @@
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middlewares/error.middleware';
 import { OrderStatus } from '@prisma/client';
-import { emitToOnlineRiders, emitToUser, emitToOrderRoom, emitToSellerRoom } from '../../lib/socket';
+import { emitToOnlineRiders, emitToUser, emitToOrderRoom, emitToSellerRoom, emitToRole, emitToAdminRoom } from '../../lib/socket';
 
 // ─── Get Rider Profile ────────────────────────────────────────────────────────
 
@@ -19,17 +19,20 @@ export const getRiderProfile = async (riderId: string) => {
 
 // ─── Toggle Duty (Online/Offline) ─────────────────────────────────────────────
 
-export const toggleDuty = async (riderId: string, isOnline?: boolean) => {
+export const toggleDuty = async (riderId: string, isOnline?: boolean, isOnDuty?: boolean) => {
   const profile = await prisma.riderProfile.findUnique({ where: { userId: riderId } });
   if (!profile) throw new AppError('Rider profile not found.', 404);
 
-  const newStatus = isOnline !== undefined ? isOnline : !profile.isOnline;
+  const onlineState = isOnline !== undefined ? isOnline : (isOnDuty !== undefined ? isOnDuty : !profile.isOnline);
+  const dutyState   = isOnDuty !== undefined ? isOnDuty : onlineState;
 
   const updated = await prisma.riderProfile.update({
     where: { userId: riderId },
     data: {
-      isOnline: newStatus,
-      isAvailable: newStatus,
+      isOnline: onlineState,
+      isOnDuty: dutyState,
+      isAvailable: onlineState,
+      lastHeartbeat: new Date(),
     },
   });
 
@@ -42,6 +45,7 @@ export const getOpenOrders = async () => {
   return prisma.order.findMany({
     where: {
       status: 'READY_FOR_RIDER',
+      assignedRiderId: null,
       riderId: null,
     },
     orderBy: { createdAt: 'desc' },
@@ -59,34 +63,92 @@ export const getOpenOrders = async () => {
   });
 };
 
-// ─── Accept Open Broadcast Order (Foodpanda First-Come Assignment) ─────────────
+// ─── Accept Open Broadcast Order (Transaction-Safe Assignment) ───────────────
 
 export const acceptOpenOrder = async (orderId: string, riderId: string) => {
   const riderUser = await prisma.user.findUnique({
     where: { id: riderId },
     include: { riderProfile: true },
   });
-  if (!riderUser || !riderUser.riderProfile) throw new AppError('Rider not found.', 404);
-  if (!riderUser.riderProfile.isOnline) throw new AppError('You must be ON DUTY to accept orders.', 400);
+  if (!riderUser) throw new AppError('Rider not found.', 404);
 
-  // Atomic database update to prevent race conditions
+  // Atomic database update to prevent race conditions (2 riders accepting simultaneously)
   const updatedOrder = await prisma.$transaction(async (tx) => {
-    const order = await tx.order.findUnique({ where: { id: orderId } });
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      include: { riderAssignment: true, items: { include: { product: true } } },
+    });
     if (!order) throw new AppError('Order not found.', 404);
-    if (order.status !== 'READY_FOR_RIDER' || order.riderId !== null) {
+    if (order.riderId !== null || order.riderAssignment !== null) {
       throw new AppError('Order has already been accepted by another rider.', 409);
+    }
+
+    if (riderUser.riderProfile) {
+      await tx.riderProfile.update({
+        where: { userId: riderId },
+        data: {
+          isAvailable: false,
+          currentOrderId: orderId,
+        },
+      });
+    }
+
+    // Create RiderAssignment record
+    await tx.riderAssignment.create({
+      data: {
+        orderId,
+        riderId,
+        status: 'ASSIGNED',
+        acceptedAt: new Date(),
+      },
+    });
+
+    // Create notifications for Customer, Rider, and Seller
+    await tx.notification.create({
+      data: {
+        userId: order.customerId,
+        title: 'Rider Assigned to Your Order',
+        message: `Rider ${riderUser.name} (${riderUser.phone || '01306031982'}) has accepted your delivery!`,
+        type: 'INFO',
+      },
+    });
+
+    await tx.notification.create({
+      data: {
+        userId: riderId,
+        title: 'Order Successfully Assigned',
+        message: `You have successfully accepted delivery for Order #${order.id.slice(-6).toUpperCase()}.`,
+        type: 'SUCCESS',
+      },
+    });
+
+    const sellerIds = [...new Set(order.items.map((i) => i.product.sellerId).filter(Boolean))];
+    for (const sId of sellerIds) {
+      await tx.notification.create({
+        data: {
+          userId: sId!,
+          title: 'Rider Assigned to Order',
+          message: `Rider ${riderUser.name} (${riderUser.phone || '01306031982'}) has accepted Order #${order.id.slice(-6).toUpperCase()}.`,
+          type: 'INFO',
+        },
+      });
     }
 
     return tx.order.update({
       where: { id: orderId },
       data: {
         riderId,
+        assignedRiderId: riderId,
         riderName: riderUser.name,
         status: 'RIDER_ASSIGNED',
+        acceptedAt: new Date(),
+        assignedAt: new Date(),
       },
       include: {
         customer: { select: { id: true, name: true, phone: true } },
         address: true,
+        rider: { select: { id: true, name: true, phone: true, avatar: true } },
+        riderAssignment: true,
         items: {
           include: {
             product: { select: { name: true, sellerId: true } },
@@ -96,10 +158,11 @@ export const acceptOpenOrder = async (orderId: string, riderId: string) => {
     });
   });
 
-  // Socket notification: Dismiss from all online riders
-  emitToOnlineRiders('RIDER_ORDER_DISMISS', { orderId });
+  // Socket notifications
+  emitToOnlineRiders('RIDER_ORDER_DISMISS', { orderId, assignedRiderId: riderId });
+  emitToUser(riderId, 'RIDER_ORDER_ACCEPTED', { orderId, order: updatedOrder });
+  emitToUser(riderId, 'MISSION_STARTED', { orderId, order: updatedOrder });
 
-  // Notify customer & seller
   emitToUser(updatedOrder.customerId, 'ORDER_STATUS_UPDATED', {
     orderId,
     status: 'RIDER_ASSIGNED',
@@ -117,6 +180,43 @@ export const acceptOpenOrder = async (orderId: string, riderId: string) => {
   return updatedOrder;
 };
 
+// ─── Get Assigned Rider Details ───────────────────────────────────────────────
+
+export const getAssignedRiderByOrder = async (orderId: string) => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      riderId: true,
+      riderName: true,
+      acceptedAt: true,
+      status: true,
+      rider: {
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          avatar: true,
+          riderProfile: true,
+        },
+      },
+      riderAssignment: true,
+    },
+  });
+  if (!order) throw new AppError('Order not found.', 404);
+  return {
+    orderId: order.id,
+    assigned: Boolean(order.riderId || order.riderAssignment),
+    riderName: order.riderName || order.rider?.name || null,
+    riderPhone: order.rider?.phone || '01306031982',
+    riderAvatar: order.rider?.avatar || null,
+    acceptedAt: order.acceptedAt || order.riderAssignment?.acceptedAt || null,
+    deliveryStatus: order.status,
+    rider: order.rider,
+    riderAssignment: order.riderAssignment,
+  };
+};
+
 // ─── Get Active Assigned Missions ─────────────────────────────────────────────
 
 export const getActiveMissions = async (riderId: string) => {
@@ -124,7 +224,7 @@ export const getActiveMissions = async (riderId: string) => {
     where: {
       riderId,
       status: {
-        in: ['RIDER_ASSIGNED', 'PICKUP_STARTED', 'PICKED_UP', 'ON_THE_WAY', 'ARRIVED'],
+        in: ['RIDER_ASSIGNED', 'ARRIVED_AT_STORE', 'PICKUP_STARTED', 'PICKED_UP', 'ON_THE_WAY', 'ARRIVED', 'ARRIVED_DESTINATION'],
       },
     },
     orderBy: { updatedAt: 'desc' },
@@ -153,14 +253,18 @@ export const updateMissionStatus = async (
   });
 
   if (!order) throw new AppError('Order not found.', 404);
-  if (order.riderId !== riderId) throw new AppError('This mission is not assigned to you.', 403);
+  if (order.riderId !== riderId && order.assignedRiderId !== riderId) {
+    throw new AppError('This mission is not assigned to you.', 403);
+  }
 
   const allowedTransitions: Record<string, OrderStatus[]> = {
-    RIDER_ASSIGNED: ['PICKUP_STARTED', 'CANCELLED'],
+    RIDER_ASSIGNED: ['ARRIVED_AT_STORE', 'PICKUP_STARTED', 'CANCELLED'],
+    ARRIVED_AT_STORE: ['PICKUP_STARTED', 'PICKED_UP'],
     PICKUP_STARTED: ['PICKED_UP'],
     PICKED_UP: ['ON_THE_WAY'],
-    ON_THE_WAY: ['ARRIVED'],
+    ON_THE_WAY: ['ARRIVED', 'ARRIVED_DESTINATION'],
     ARRIVED: ['DELIVERED'],
+    ARRIVED_DESTINATION: ['DELIVERED'],
   };
 
   const valid = allowedTransitions[order.status]?.includes(targetStatus);
@@ -168,39 +272,51 @@ export const updateMissionStatus = async (
     throw new AppError(`Cannot transition order status from ${order.status} to ${targetStatus}.`, 400);
   }
 
+  const updateData: any = { status: targetStatus };
+  if (targetStatus === 'PICKED_UP') {
+    updateData.pickupAt = new Date();
+  }
+  if (targetStatus === 'DELIVERED') {
+    updateData.deliveredAt = new Date();
+  }
+
   const updatedOrder = await prisma.order.update({
     where: { id: orderId },
-    data: { status: targetStatus },
+    data: updateData,
     include: {
       customer: { select: { id: true, name: true } },
       address: true,
     },
   });
 
-  // On DELIVERY completed -> update rider stats & payment
+  // On DELIVERY completed -> update rider stats & payment & reset availability
   if (targetStatus === 'DELIVERED') {
     await prisma.riderProfile.update({
       where: { userId: riderId },
       data: {
+        isAvailable: true,
+        currentOrderId: null,
         totalTrips: { increment: 1 },
         totalEarnings: { increment: order.deliveryFee || 50 },
       },
     });
 
-    // Update payment status to PAID if CASH
     await prisma.payment.updateMany({
       where: { orderId },
       data: { status: 'PAID' },
     });
+
+    emitToUser(riderId, 'MISSION_COMPLETED', { orderId, order: updatedOrder });
   }
 
-  // Socket emissions to Customer, Seller, and Order Room
   emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus });
   const sellerId = order.items[0]?.product?.sellerId;
   if (sellerId) {
     emitToSellerRoom(sellerId, 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus });
   }
   emitToOrderRoom(orderId, 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus, order: updatedOrder });
+  emitToRole('SELLER', 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus, order: updatedOrder });
+  emitToAdminRoom('ORDER_STATUS_UPDATED', { orderId, status: targetStatus, order: updatedOrder });
 
   return updatedOrder;
 };
@@ -262,4 +378,13 @@ export const getDeliveryHistory = async (riderId: string, page = 1, limit = 20) 
   ]);
 
   return { orders, total };
+};
+
+// ─── Get Location History Trajectory ──────────────────────────────────────────
+
+export const getLocationHistory = async (orderId: string) => {
+  return prisma.riderLocation.findMany({
+    where: { orderId },
+    orderBy: { createdAt: 'asc' },
+  });
 };

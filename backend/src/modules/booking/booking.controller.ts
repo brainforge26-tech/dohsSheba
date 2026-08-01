@@ -18,6 +18,14 @@ export const getBookings = async (req: AuthRequest, res: Response, next: NextFun
   } catch (error) { next(error); }
 };
 
+// GET /api/v1/bookings/provider/stats
+export const getProviderStats = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const stats = await bookingService.getProviderDashboardStats(req.user!.id);
+    return sendResponse(res, 200, 'Provider stats fetched', stats);
+  } catch (error) { next(error); }
+};
+
 // GET /api/v1/bookings/:id
 export const getBooking = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {

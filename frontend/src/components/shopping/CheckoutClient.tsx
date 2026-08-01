@@ -41,6 +41,22 @@ export function CheckoutClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [orderError, setOrderError] = useState('');
 
+  // Prefill phone & address from saved user addresses if available
+  React.useEffect(() => {
+    if (user?.phone) setPhone(user.phone);
+
+    fetchApi<any[]>('/users/addresses')
+      .then((res) => {
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          const def = res.data.find((a: any) => a.isDefault) || res.data[0];
+          const formatted = `${def.line1}${def.area ? `, ${def.area}` : ''}${def.city ? `, ${def.city}` : ''}`;
+          setAddress(formatted);
+          if (def.phone) setPhone(def.phone);
+        }
+      })
+      .catch(() => null);
+  }, [user]);
+
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
@@ -48,31 +64,37 @@ export function CheckoutClient() {
     setOrderError('');
 
     try {
-      // ── Step 1: Ensure customer has a saved address ───────────────────────
+      // ── Step 1: Always create/use the address typed by user on checkout form ──
       let addressId: string | null = null;
 
-      // Try to get existing addresses
-      const addrRes = await fetchApi<any[]>('/users/addresses').catch(() => null);
-      if (addrRes?.success && Array.isArray(addrRes.data) && addrRes.data.length > 0) {
-        addressId = addrRes.data[0].id;
+      const addressParts = address.split(',').map((s) => s.trim());
+      const line1 = addressParts[0] || address;
+      const area = addressParts[1] || 'DOHS Mohakhali';
+      const city = addressParts[2] || 'Dhaka';
+
+      // Create a brand-new address record for the specific delivery address typed
+      const createAddrRes = await fetchApi<any>('/users/addresses', {
+        method: 'POST',
+        body: JSON.stringify({
+          label: 'Checkout Delivery Address',
+          line1,
+          area,
+          city,
+          phone,
+          isDefault: true,
+        }),
+      }).catch((err) => {
+        console.warn('Address creation notice:', err);
+        return null;
+      });
+
+      if (createAddrRes?.success && createAddrRes.data?.id) {
+        addressId = createAddrRes.data.id;
       } else {
-        // Auto-create an address from the form input
-        const createAddrRes = await fetchApi<any>('/users/addresses', {
-          method: 'POST',
-          body: JSON.stringify({
-            label: 'Home',
-            line1: address.split(',')[0]?.trim() || 'House 42',
-            area:  address.split(',')[1]?.trim() || 'DOHS Mohakhali',
-            city:  address.split(',')[2]?.trim() || 'Dhaka',
-            phone: phone,
-            isDefault: true,
-          }),
-        }).catch((err) => {
-          console.warn('Address creation notice:', err);
-          return null;
-        });
-        if (createAddrRes?.success && createAddrRes.data?.id) {
-          addressId = createAddrRes.data.id;
+        // Fallback to latest existing address if creation fails
+        const addrRes = await fetchApi<any[]>('/users/addresses').catch(() => null);
+        if (addrRes?.success && Array.isArray(addrRes.data) && addrRes.data.length > 0) {
+          addressId = addrRes.data[0].id;
         }
       }
 
@@ -84,6 +106,7 @@ export function CheckoutClient() {
       // ── Step 2: Build order payload ─────────────────────────────────────────
       const orderPayload = {
         addressId,
+        phone,
         items: items.map((i) => ({
           productId: i.product.id,
           quantity: i.quantity,

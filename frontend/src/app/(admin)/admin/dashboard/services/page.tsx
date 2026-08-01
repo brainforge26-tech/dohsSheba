@@ -9,26 +9,15 @@ import {
   Trash2, Edit2, Clock, CheckCircle2, AlertCircle, Phone, FileText
 } from 'lucide-react';
 
-const INITIAL_SERVICES = [
-  { id: 's1', title: 'AC Master Servicing & Jet Cleaning', category: 'AC & Appliance Repair', price: 1200, provider: 'Apex Climate Care Ltd.', status: 'Active', rating: 4.9, bookings: 142 },
-  { id: 's2', title: 'Full House Deep Cleaning & Sanitization', category: 'Cleaning & Maid', price: 4500, provider: 'ShineSheba Cleaning Pros', status: 'Active', rating: 4.8, bookings: 98 },
-  { id: 's3', title: 'Electrical Wiring & Circuit Breaker Fix', category: 'Electrical & Plumbing', price: 800, provider: 'DOHS Electric Masters', status: 'Active', rating: 4.7, bookings: 76 },
-  { id: 's4', title: 'Plumbing Leak Repair & Pipe Fitting', category: 'Electrical & Plumbing', price: 950, provider: 'Dhaka Pipe & Plumbing Care', status: 'Active', rating: 4.9, bookings: 110 },
-  { id: 's5', title: 'CCTV Camera Setup & Security Configuration', category: 'Security & Automation', price: 2500, provider: 'DOHS SafeHome Tech', status: 'Active', rating: 5.0, bookings: 54 },
-];
-
-const INITIAL_PARTNERS = [
-  { id: '#APP-901', name: 'Modern Climate Solutions', category: 'AC Service & Repair', applicant: 'Engr. Rakibul Hasan', phone: '+880 1711-554433', nid: '1992269412984', date: 'Today' },
-  { id: '#APP-902', name: 'CleanSpace DOHS Specialists', category: 'House Deep Cleaning', applicant: 'Mrs. Selina Begum', phone: '+880 1819-112233', nid: '1988269123847', date: 'Yesterday' },
-];
-
 export default function AdminServicesPage() {
   const { language } = useLanguageStore();
   const isBn = language === 'BN';
 
   const [activeTab, setActiveTab] = useState<'catalog' | 'approvals'>('catalog');
-  const [services, setServices] = useState(INITIAL_SERVICES);
-  const [partnerQueue, setPartnerQueue] = useState(INITIAL_PARTNERS);
+  const [services, setServices] = useState<any[]>([]);
+  const [partnerQueue, setPartnerQueue] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [actionMsg, setActionMsg] = useState('');
 
@@ -39,7 +28,44 @@ export default function AdminServicesPage() {
   const [price, setPrice] = useState('');
   const [provider, setProvider] = useState('DOHS Certified Provider');
 
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [sRes, dRes] = await Promise.all([
+        fetchApi<any>('/services').catch(() => null),
+        fetchApi<any>('/admin/dashboard').catch(() => null),
+      ]);
+
+      if (sRes && sRes.success && Array.isArray(sRes.data)) {
+        const mapped = sRes.data.map((s: any) => ({
+          id: s.id,
+          title: s.title,
+          category: s.category?.name || s.category || 'General',
+          price: s.price || 0,
+          provider: s.providerProfile?.user?.name || s.providerName || 'DOHS Certified Provider',
+          status: s.isActive ? 'Active' : 'Inactive',
+          rating: s.rating || 5.0,
+          bookings: s._count?.bookings || 0,
+        }));
+        setServices(mapped);
+      }
+
+      if (dRes && dRes.success && dRes.data) {
+        setStats(dRes.data.stats);
+        if (Array.isArray(dRes.data.pendingQueue)) {
+          setPartnerQueue(dRes.data.pendingQueue);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading services data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    loadData();
+
     const handleHash = () => {
       if (typeof window !== 'undefined') {
         const hash = window.location.hash.replace('#', '');
@@ -52,36 +78,45 @@ export default function AdminServicesPage() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  const handleApprovePartner = (id: string, name: string) => {
+  const handleApprovePartner = async (id: string, name: string) => {
     setPartnerQueue((prev) => prev.filter((p) => p.id !== id));
+    await fetchApi(`/admin/users/${id}/approve`, { method: 'PATCH' }).catch(() => null);
     setActionMsg(isBn ? `পার্টনার "${name}" অনুমোদিত হয়েছে!` : `Partner "${name}" approved successfully!`);
     setTimeout(() => setActionMsg(''), 4000);
   };
 
-  const handleRejectPartner = (id: string, name: string) => {
+  const handleRejectPartner = async (id: string, name: string) => {
     setPartnerQueue((prev) => prev.filter((p) => p.id !== id));
     setActionMsg(isBn ? `পার্টনার রিকোয়েস্ট "${name}" বাতিল করা হয়েছে।` : `Partner application "${name}" rejected.`);
     setTimeout(() => setActionMsg(''), 4000);
   };
 
-  const handleDeleteService = (id: string) => {
+  const handleDeleteService = async (id: string) => {
     if (!confirm(isBn ? 'আপনি কি এই সার্ভিসটি মুছে ফেলতে চান?' : 'Delete this service?')) return;
     setServices((prev) => prev.filter((s) => s.id !== id));
+    await fetchApi(`/services/${id}`, { method: 'DELETE' }).catch(() => null);
   };
 
-  const handleAddService = () => {
+  const handleAddService = async () => {
     if (!title.trim() || !price) return;
-    const newS = {
-      id: `s_${Date.now()}`,
-      title: title.trim(),
-      category,
-      price: Number(price),
-      provider,
-      status: 'Active',
-      rating: 5.0,
-      bookings: 0,
-    };
-    setServices((prev) => [newS, ...prev]);
+    try {
+      const res = await fetchApi<any>('/services', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: title.trim(),
+          category,
+          price: Number(price),
+          providerName: provider,
+        }),
+      });
+      if (res && res.success && res.data) {
+        setServices((prev) => [res.data, ...prev]);
+      } else {
+        loadData();
+      }
+    } catch (e) {
+      console.error(e);
+    }
     setTitle('');
     setPrice('');
     setShowAddModal(false);
@@ -95,19 +130,22 @@ export default function AdminServicesPage() {
       s.provider.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalProviders = stats?.totalProviders || 0;
+  const totalBookings = stats?.totalBookings || 0;
+
   return (
     <div className="space-y-6 text-white">
 
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <p className="text-xs text-indigo-400 font-semibold mb-0.5">Admin / Services Command</p>
+          <p className="text-xs text-indigo-400 font-semibold mb-0.5">Admin / On-Demand Services</p>
           <h1 className="font-black text-white text-2xl flex items-center gap-2">
             <Wrench className="w-6 h-6 text-indigo-400" />
-            <span>{isBn ? 'সার্ভিসেস ও পার্টনার ম্যানেজমেন্ট' : 'Services & Partner Management'}</span>
+            <span>{isBn ? 'সার্ভিস ক্যাটালগ ও পার্টনারস' : 'Service Catalog & Partner Management'}</span>
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            {isBn ? 'DOHS এলাকার অন-ডিমান্ড হোম সার্ভিস ও সার্ভিস পার্টনার অনুমোদন' : 'On-demand home services catalog, pricing, and partner approvals'}
+            {isBn ? 'ডিএইচএস শেবা ডোরস্টেপ অন-ডিমান্ড সার্ভিস ক্যাটালগ, প্রাইসিং এবং পার্টনার আবেদন ম্যানেজমেন্ট' : 'On-demand home services catalog, pricing, and partner approvals'}
           </p>
         </div>
 
@@ -116,7 +154,7 @@ export default function AdminServicesPage() {
           className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          <span>{isBn ? 'নতুন সার্ভিস যোগ করুন' : 'Add New Service'}</span>
+          <span>{isBn ? 'নতুন সার্ভিস যুক্ত করুন' : 'Add New Service'}</span>
         </button>
       </div>
 
@@ -134,7 +172,7 @@ export default function AdminServicesPage() {
             <Wrench className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="text-2xl font-black text-indigo-400">{services.length} {isBn ? 'টি সার্ভিস' : 'Services'}</div>
-          <div className="text-[11px] text-indigo-300 font-bold">5 Main Categories</div>
+          <div className="text-[11px] text-indigo-300 font-bold">Main Categories</div>
         </div>
 
         <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 space-y-2">
@@ -142,7 +180,9 @@ export default function AdminServicesPage() {
             <span>{isBn ? 'যাচাইকৃত পার্টনার' : 'Verified Partners'}</span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-black text-emerald-400">৫২০ {isBn ? 'জন পার্টনার' : 'Partners'}</div>
+          <div className="text-2xl font-black text-emerald-400">
+            {formatCurrency(totalProviders)} {isBn ? 'জন পার্টনার' : 'Partners'}
+          </div>
           <div className="text-[11px] text-emerald-400 font-bold">NID & Police Vetted</div>
         </div>
 
@@ -160,8 +200,10 @@ export default function AdminServicesPage() {
             <span>{isBn ? 'মোট সম্পন্ন বুকিং' : 'Completed Bookings'}</span>
             <CheckCircle2 className="w-4 h-4 text-cyan-400" />
           </div>
-          <div className="text-2xl font-black text-cyan-400">৪৮০+ {isBn ? 'টি বুকিং' : 'Bookings'}</div>
-          <div className="text-[11px] text-slate-400 font-bold">99.2% Satisfaction</div>
+          <div className="text-2xl font-black text-cyan-400">
+            {formatCurrency(totalBookings)}+ {isBn ? 'টি বুকিং' : 'Bookings'}
+          </div>
+          <div className="text-[11px] text-slate-400 font-bold">Customer Satisfaction</div>
         </div>
       </div>
 

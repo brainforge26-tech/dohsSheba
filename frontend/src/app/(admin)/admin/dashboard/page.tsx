@@ -10,32 +10,13 @@ import { fetchApi } from '@/lib/api-client';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import { Users, DollarSign, ShieldCheck, Store, Check, X, RefreshCw, CheckCircle2, Loader2 } from 'lucide-react';
 
-const INITIAL_QUEUE = [
-  {
-    id: '#APP-901',
-    name: 'Modern Climate Solutions',
-    category: 'AC Service & Repair',
-    applicant: 'Engr. Rakibul Hasan',
-    phone: '+880 1711-554433',
-    nid: '1992269412984',
-  },
-  {
-    id: '#APP-902',
-    name: 'CleanSpace DOHS Specialists',
-    category: 'House Deep Cleaning',
-    applicant: 'Mrs. Selina Begum',
-    phone: '+880 1819-112233',
-    nid: '1988269123847',
-  },
-];
-
 export default function AdminDashboardOverview() {
   const { language } = useLanguageStore();
   const isBn = language === 'BN';
   const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [partnerQueue, setPartnerQueue] = useState(INITIAL_QUEUE);
+  const [partnerQueue, setPartnerQueue] = useState<any[]>([]);
   const [actionMsg, setActionMsg] = useState('');
 
   const loadDashboardData = async () => {
@@ -49,7 +30,7 @@ export default function AdminDashboardOverview() {
         }
       }
     } catch (err) {
-      console.warn('Fallback to default mock dashboard metrics:', err);
+      console.error('Error loading dashboard stats:', err);
     } finally {
       setLoading(false);
     }

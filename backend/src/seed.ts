@@ -95,6 +95,58 @@ async function main() {
     },
   });
 
+  const rider1 = await prisma.user.upsert({
+    where: { email: 'rider@dohssheba.com' },
+    update: {},
+    create: {
+      name: 'Rana Ahmed (Fleet Rider #1)',
+      email: 'rider@dohssheba.com',
+      password: hashedPassword,
+      phone: '+8801700000005',
+      role: Role.RIDER,
+      isActive: true,
+      emailVerified: true,
+      riderProfile: {
+        create: {
+          vehicleType: 'Motorbike',
+          vehicleNo: 'Dhaka Metro L-1234',
+          isOnline: true,
+          isOnDuty: true,
+          isAvailable: true,
+          rating: 4.9,
+          totalTrips: 184,
+          totalEarnings: 9200,
+        },
+      },
+    },
+  });
+
+  const rider2 = await prisma.user.upsert({
+    where: { email: 'rider2@dohssheba.com' },
+    update: {},
+    create: {
+      name: 'Babu Mia (Fleet Rider #2)',
+      email: 'rider2@dohssheba.com',
+      password: hashedPassword,
+      phone: '+8801700000006',
+      role: Role.RIDER,
+      isActive: true,
+      emailVerified: true,
+      riderProfile: {
+        create: {
+          vehicleType: 'Bicycle',
+          vehicleNo: 'Dhaka DOHS-88',
+          isOnline: true,
+          isOnDuty: true,
+          isAvailable: true,
+          rating: 4.8,
+          totalTrips: 96,
+          totalEarnings: 4800,
+        },
+      },
+    },
+  });
+
   // 2. Service Categories
   console.log('🛠️ Creating Service Categories...');
   const serviceCategories = [
@@ -107,11 +159,10 @@ async function main() {
   ];
 
   for (const cat of serviceCategories) {
-    await prisma.serviceCategory.upsert({
-      where: { slug: cat.slug },
-      update: {},
-      create: cat,
-    });
+    const exists = await prisma.serviceCategory.findFirst({ where: { OR: [{ slug: cat.slug }, { name: cat.name }] } });
+    if (!exists) {
+      await prisma.serviceCategory.create({ data: cat });
+    }
   }
 
   // 3. Product Categories
@@ -126,11 +177,10 @@ async function main() {
   ];
 
   for (const cat of productCategories) {
-    await prisma.productCategory.upsert({
-      where: { slug: cat.slug },
-      update: {},
-      create: cat,
-    });
+    const exists = await prisma.productCategory.findFirst({ where: { OR: [{ slug: cat.slug }, { name: cat.name }] } });
+    if (!exists) {
+      await prisma.productCategory.create({ data: cat });
+    }
   }
 
   // 4. Sample Services
@@ -240,6 +290,37 @@ async function main() {
       order: 1,
     },
   });
+
+  // 7. Sample Bookings for Provider
+  const sampleService = await prisma.service.findFirst({ where: { providerId: provider.id } });
+  const dbAddress = await prisma.address.findFirst();
+  if (sampleService && customer && dbAddress) {
+    const existingBookings = await prisma.booking.count({ where: { serviceId: sampleService.id } });
+    if (existingBookings === 0) {
+      await prisma.booking.create({
+        data: {
+          customerId: customer.id,
+          serviceId: sampleService.id,
+          addressId: dbAddress.id,
+          status: 'PENDING',
+          totalAmount: sampleService.price,
+          notes: 'Customer requested emergency afternoon visit.',
+          scheduledAt: new Date(),
+        },
+      });
+      await prisma.booking.create({
+        data: {
+          customerId: customer.id,
+          serviceId: sampleService.id,
+          addressId: dbAddress.id,
+          status: 'CONFIRMED',
+          totalAmount: sampleService.price,
+          notes: 'Regular maintenance schedule.',
+          scheduledAt: new Date(Date.now() + 86400000),
+        },
+      });
+    }
+  }
 
   console.log('✅ Database seed completed successfully!');
 }

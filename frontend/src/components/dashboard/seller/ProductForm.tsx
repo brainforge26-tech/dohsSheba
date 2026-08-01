@@ -11,7 +11,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Category { id: string; name: string; slug: string; children?: Category[] }
+interface Category { id: string; name: string; slug: string; parentId?: string; children?: Category[] }
 
 interface ProductFormData {
   name: string;
@@ -120,6 +120,63 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  // Two-level Category & Subcategory selection state
+  const [selectedParentCatId, setSelectedParentCatId] = useState('');
+  const [selectedSubCatId, setSelectedSubCatId] = useState('');
+
+  // Inline Category / Subcategory creation modal state
+  const [showAddCatModal, setShowAddCatModal] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatParentId, setNewCatParentId] = useState('');
+  const [creatingCat, setCreatingCat] = useState(false);
+
+  // Sync category dropdown state when categoryId or categories change
+  useEffect(() => {
+    if (!form.categoryId || categories.length === 0) return;
+    const matched = categories.find((c: any) => c.id === form.categoryId);
+    if (matched) {
+      if (matched.parentId) {
+        setSelectedParentCatId(matched.parentId);
+        setSelectedSubCatId(matched.id);
+      } else {
+        setSelectedParentCatId(matched.id);
+        setSelectedSubCatId('');
+      }
+    }
+  }, [form.categoryId, categories]);
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    setCreatingCat(true);
+    try {
+      const res = await fetchApi<any>('/product-categories', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: newCatName.trim(),
+          parentId: newCatParentId || undefined,
+        }),
+      });
+      if (res.success && res.data) {
+        setCategories((prev) => [...prev, res.data]);
+        if (res.data.parentId) {
+          setSelectedParentCatId(res.data.parentId);
+          setSelectedSubCatId(res.data.id);
+        } else {
+          setSelectedParentCatId(res.data.id);
+          setSelectedSubCatId('');
+        }
+        set('categoryId', res.data.id);
+        setShowAddCatModal(false);
+        setNewCatName('');
+        setNewCatParentId('');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Failed to create category');
+    } finally {
+      setCreatingCat(false);
+    }
+  };
 
   // Populate form when editing
   useEffect(() => {
@@ -341,15 +398,66 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
 
           {/* Categorization */}
           <Section title="Categorization & Identification" icon={<Tag className="w-4 h-4" />}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-slate-400 font-medium">Select Category and Subcategory separately:</span>
+              <button
+                type="button"
+                onClick={() => setShowAddCatModal(true)}
+                className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> Add Category / Subcategory
+              </button>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* 1. Main Category Select */}
               <div>
-                <Label required>Category</Label>
+                <Label required>Main Category</Label>
                 <div className="relative">
-                  <Select value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)} required>
-                    <option value="">Select category</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
+                  <Select
+                    value={selectedParentCatId}
+                    onChange={(e) => {
+                      const pId = e.target.value;
+                      setSelectedParentCatId(pId);
+                      setSelectedSubCatId('');
+                      set('categoryId', pId);
+                    }}
+                    required
+                  >
+                    <option value="">Select Main Category</option>
+                    {categories
+                      .filter((c: any) => !c.parentId)
+                      .map((c: any) => (
+                        <option key={c.id} value={c.id}>📁 {c.name}</option>
+                      ))}
+                  </Select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* 2. Separate Subcategory Select */}
+              <div>
+                <Label>Subcategory (Optional)</Label>
+                <div className="relative">
+                  <Select
+                    value={selectedSubCatId}
+                    onChange={(e) => {
+                      const subId = e.target.value;
+                      setSelectedSubCatId(subId);
+                      set('categoryId', subId || selectedParentCatId);
+                    }}
+                    disabled={!selectedParentCatId}
+                  >
+                    <option value="">
+                      {!selectedParentCatId
+                        ? 'Select Main Category First'
+                        : 'Select Subcategory (Optional)'}
+                    </option>
+                    {categories
+                      .filter((c: any) => c.parentId === selectedParentCatId)
+                      .map((sub: any) => (
+                        <option key={sub.id} value={sub.id}>🏷️ {sub.name}</option>
+                      ))}
                   </Select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
                 </div>
@@ -628,9 +736,80 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
         </button>
         <button type="submit" disabled={saving} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition-all disabled:opacity-60 shadow-lg">
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-          {saving ? 'Saving...' : mode === 'add' ? 'Publish Product' : 'Save Changes'}
+          <span>{saving ? 'Saving...' : mode === 'add' ? 'Publish Product' : 'Save Changes'}</span>
         </button>
       </div>
+      {/* Quick Add Category / Subcategory Modal */}
+      {showAddCatModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1e1f32] border border-white/10 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="font-black text-white text-sm flex items-center gap-2">
+                <Tag className="w-4 h-4 text-indigo-400" /> Create New Category or Subcategory
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAddCatModal(false)}
+                className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <Label required>Category / Subcategory Name</Label>
+                <Input
+                  autoFocus
+                  required
+                  placeholder="e.g. Organic Cheese, Fresh Milk, Spices..."
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Parent Category (Optional)</Label>
+                <Select
+                  value={newCatParentId}
+                  onChange={(e) => setNewCatParentId(e.target.value)}
+                >
+                  <option value="">None (Main Category)</option>
+                  {categories
+                    .filter((c: any) => !c.parentId)
+                    .map((parent: any) => (
+                      <option key={parent.id} value={parent.id}>
+                        Make subcategory of: {parent.name}
+                      </option>
+                    ))}
+                </Select>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Select a parent category if you want to create a subcategory.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAddCatModal(false)}
+                className="px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/15"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={(e) => handleCreateCategory(e as any)}
+                disabled={creatingCat}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-2"
+              >
+                {creatingCat && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Create & Select
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

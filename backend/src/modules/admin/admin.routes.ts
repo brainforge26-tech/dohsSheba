@@ -28,13 +28,25 @@ router.post('/coupons',        adminController.createCoupon);
 router.put('/coupons/:id',     adminController.updateCoupon);
 router.delete('/coupons/:id',  adminController.deleteCoupon);
 
-// ─── Orders ───────────────────────────────────────────────────────────────────
+// ─── Orders & Dispatch ────────────────────────────────────────────────────────
 router.get('/orders',                       adminController.getAdminOrders);
+router.get('/dispatch-queue',               adminController.getDispatchQueue);
+router.post('/orders/:id/assign-rider',     adminController.assignRider);
 router.patch('/orders/:id/assign-rider',    adminController.assignRider);
 router.patch('/orders/:id/unassign-rider',  adminController.unassignRider);
 
-// ─── Riders ───────────────────────────────────────────────────────────────────
+// ─── Riders & Fleet Dispatch ──────────────────────────────────────────────────
+router.get('/fleet',            adminController.getFleetDashboardData);
 router.get('/riders',           adminController.getAllRiders);
 router.get('/riders/available', adminController.getAvailableRiders);
+
+// ─── Email & Chat ─────────────────────────────────────────────────────────────
+router.get('/chat/conversations', adminController.getChatConversations);
+router.post('/chat/send',         adminController.sendChatMessage);
+router.post('/email/broadcast',   adminController.sendEmailBroadcast);
+
+// ─── Website Settings ─────────────────────────────────────────────────────────
+router.get('/settings', adminController.getSiteSettings);
+router.put('/settings', adminController.updateSiteSettings);
 
 export default router;

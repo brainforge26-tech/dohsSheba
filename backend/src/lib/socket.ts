@@ -42,8 +42,16 @@ export const initSocket = (server: HttpServer): Server => {
       socket.join(`user_${user.id}`);
       socket.join(`role_${user.role}`);
 
+      if (user.role === 'SELLER') {
+        socket.join(`seller_${user.id}`);
+      }
+
       if (user.role === 'RIDER') {
         socket.join('online_riders');
+      }
+
+      if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
+        socket.join('admin_fleet');
       }
     } else {
       console.log(`⚡ Socket connected: Anonymous (${socket.id})`);
@@ -59,6 +67,79 @@ export const initSocket = (server: HttpServer): Server => {
 
     socket.on('join_seller', (sellerId: string) => {
       socket.join(`seller_${sellerId}`);
+    });
+
+    socket.on('register_rider', () => {
+      console.log(`🚴 Rider socket registered into online_riders room: Socket ${socket.id} (User: ${user?.id || 'anonymous'})`);
+      socket.join('online_riders');
+    });
+
+    // ── Real-Time GPS Tracking Listener ──────────────────────────────────────
+    socket.on('RIDER_LOCATION_UPDATED', async (data: {
+      orderId?: string;
+      latitude: number;
+      longitude: number;
+      heading?: number;
+      speed?: number;
+      accuracy?: number;
+      timestamp?: number;
+    }) => {
+      const riderId = user?.id;
+      if (!riderId || !data.latitude || !data.longitude) return;
+
+      const locationPayload = {
+        riderId,
+        orderId: data.orderId || null,
+        latitude: Number(data.latitude),
+        longitude: Number(data.longitude),
+        heading: Number(data.heading || 0),
+        speed: Number(data.speed || 0),
+        accuracy: Number(data.accuracy || 0),
+        timestamp: data.timestamp || Date.now(),
+      };
+
+      // Async database persistence & profile update (non-blocking for fast throughput)
+      const { prisma } = require('./prisma');
+      try {
+        await prisma.riderProfile.updateMany({
+          where: { userId: riderId },
+          data: {
+            currentLatitude: locationPayload.latitude,
+            currentLongitude: locationPayload.longitude,
+            heading: locationPayload.heading,
+            speed: locationPayload.speed,
+            accuracy: locationPayload.accuracy,
+            lastHeartbeat: new Date(),
+          },
+        });
+
+        if (locationPayload.orderId) {
+          await prisma.riderLocation.create({
+            data: {
+              riderId,
+              orderId: locationPayload.orderId,
+              latitude: locationPayload.latitude,
+              longitude: locationPayload.longitude,
+              heading: locationPayload.heading,
+              speed: locationPayload.speed,
+              accuracy: locationPayload.accuracy,
+            },
+          });
+        }
+      } catch (e) {
+        console.warn('⚠️ Rider location persistence warning:', e);
+      }
+
+      // Broadcast to Order Room, Admin Fleet Room, and User
+      if (locationPayload.orderId) {
+        io?.to(`order_${locationPayload.orderId}`).emit('RIDER_LOCATION_UPDATED', locationPayload);
+      }
+      io?.to('admin_fleet').emit('RIDER_LOCATION_UPDATED', locationPayload);
+      io?.to('role_ADMIN').emit('RIDER_LOCATION_UPDATED', locationPayload);
+      io?.to('role_SUPER_ADMIN').emit('RIDER_LOCATION_UPDATED', locationPayload);
+
+      // Acknowledge back to rider
+      socket.emit('LOCATION_SYNC_ACK', { timestamp: locationPayload.timestamp });
     });
 
     socket.on('disconnect', () => {
@@ -89,8 +170,20 @@ export const emitToRole = (role: string, event: string, payload: any) => {
   if (io) io.to(`role_${role}`).emit(event, payload);
 };
 
+export const emitToAdminRoom = (event: string, payload: any) => {
+  if (io) {
+    io.to('role_ADMIN').emit(event, payload);
+    io.to('role_SUPER_ADMIN').emit(event, payload);
+  }
+};
+
 export const emitToOnlineRiders = (event: string, payload: any) => {
-  if (io) io.to('online_riders').emit(event, payload);
+  if (io) {
+    const room = io.sockets.adapter.rooms.get('online_riders');
+    const riderCount = room ? room.size : 0;
+    console.log(`📡 [SOCKET BROADCAST] Event: ${event} | Room: online_riders | Connected Sockets in Room: ${riderCount} | Order ID: ${payload?.orderId || 'N/A'}`);
+    io.to('online_riders').emit(event, payload);
+  }
 };
 
 export const emitToSellerRoom = (sellerId: string, event: string, payload: any) => {
@@ -100,3 +193,4 @@ export const emitToSellerRoom = (sellerId: string, event: string, payload: any) 
 export const emitToOrderRoom = (orderId: string, event: string, payload: any) => {
   if (io) io.to(`order_${orderId}`).emit(event, payload);
 };
+

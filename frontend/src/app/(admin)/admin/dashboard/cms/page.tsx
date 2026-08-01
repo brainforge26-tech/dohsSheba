@@ -9,28 +9,16 @@ import {
   CheckCircle2, AlertCircle, Percent, DollarSign, ExternalLink, X, Copy, Check
 } from 'lucide-react';
 
-const INITIAL_BANNERS = [
-  { id: 'b1', title: 'DOHS Express Grocery - 15 Min Doorstep Delivery', subtitle: 'Order fresh vegetables & daily essentials', category: 'Grocery', link: '/categories/grocery', status: 'Active', image: '🥦' },
-  { id: 'b2', title: 'Summer AC Cleaning & Repair Super Sale', subtitle: 'Up to 25% off on AC jet master servicing', category: 'Services', link: '/categories/ac-repair', status: 'Active', image: '❄️' },
-  { id: 'b3', title: 'Fresh Fish & Organic Meat Bazaar', subtitle: 'Direct from farm to your kitchen', category: 'Meat & Fish', link: '/categories/fresh-fish', status: 'Active', image: '🐟' },
-];
-
-const INITIAL_COUPONS = [
-  { id: 'c1', code: 'DOHS100', discount: '৳100 OFF', minSpend: 1000, expires: '31 Aug 2026', uses: 142, status: 'Active' },
-  { id: 'c2', code: 'WELCOME200', discount: '৳200 OFF', minSpend: 1500, expires: '15 Sep 2026', uses: 89, status: 'Active' },
-  { id: 'c3', code: 'FREEDELIVERY', discount: 'Free Delivery', minSpend: 500, expires: '31 Dec 2026', uses: 310, status: 'Active' },
-  { id: 'c4', code: 'SUMMER15', discount: '15% OFF', minSpend: 2000, expires: '28 Aug 2026', uses: 54, status: 'Active' },
-];
-
 export default function AdminCMSPage() {
   const { language } = useLanguageStore();
   const isBn = language === 'BN';
 
   const [activeTab, setActiveTab] = useState<'banners' | 'coupons'>('banners');
-  const [banners, setBanners] = useState(INITIAL_BANNERS);
-  const [coupons, setCoupons] = useState(INITIAL_COUPONS);
+  const [banners, setBanners] = useState<any[]>([]);
+  const [coupons, setCoupons] = useState<any[]>([]);
   const [actionMsg, setActionMsg] = useState('');
   const [copiedCode, setCopiedCode] = useState('');
+  const [loading, setLoading] = useState(true);
 
   // Add Banner Modal
   const [showAddBanner, setShowAddBanner] = useState(false);
@@ -45,7 +33,29 @@ export default function AdminCMSPage() {
   const [cDiscount, setCDiscount] = useState('৳100 OFF');
   const [cMinSpend, setCMinSpend] = useState('1000');
 
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [bRes, cRes] = await Promise.all([
+        fetchApi<any>('/admin/banners').catch(() => null),
+        fetchApi<any>('/admin/coupons').catch(() => null),
+      ]);
+      if (bRes && bRes.success && Array.isArray(bRes.data)) {
+        setBanners(bRes.data);
+      }
+      if (cRes && cRes.success && Array.isArray(cRes.data)) {
+        setCoupons(cRes.data);
+      }
+    } catch (err) {
+      console.error('Error loading CMS data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    loadData();
+
     const handleHash = () => {
       if (typeof window !== 'undefined') {
         const hash = window.location.hash.replace('#', '');
@@ -58,14 +68,16 @@ export default function AdminCMSPage() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  const handleDeleteBanner = (id: string) => {
+  const handleDeleteBanner = async (id: string) => {
     if (!confirm(isBn ? 'আপনি কি এই ব্যানারটি মুছে ফেলতে চান?' : 'Delete this banner?')) return;
     setBanners((prev) => prev.filter((b) => b.id !== id));
+    await fetchApi(`/admin/banners/${id}`, { method: 'DELETE' }).catch(() => null);
   };
 
-  const handleDeleteCoupon = (id: string) => {
+  const handleDeleteCoupon = async (id: string) => {
     if (!confirm(isBn ? 'আপনি কি এই কুপনটি মুছে ফেলতে চান?' : 'Delete this coupon?')) return;
     setCoupons((prev) => prev.filter((c) => c.id !== id));
+    await fetchApi(`/admin/coupons/${id}`, { method: 'DELETE' }).catch(() => null);
   };
 
   const handleCopyCode = (code: string) => {
@@ -74,35 +86,51 @@ export default function AdminCMSPage() {
     setTimeout(() => setCopiedCode(''), 3000);
   };
 
-  const handleAddBanner = () => {
+  const handleAddBanner = async () => {
     if (!bTitle.trim()) return;
-    const newB = {
-      id: `b_${Date.now()}`,
-      title: bTitle.trim(),
-      subtitle: bSubtitle.trim() || 'Exclusive DOHS Sheba offer',
-      category: bCategory,
-      link: bLink,
-      status: 'Active',
-      image: '🛍️',
-    };
-    setBanners((prev) => [newB, ...prev]);
+    try {
+      const res = await fetchApi<any>('/admin/banners', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: bTitle.trim(),
+          subtitle: bSubtitle.trim() || 'Exclusive DOHS Sheba offer',
+          category: bCategory,
+          link: bLink,
+          image: '🛍️',
+        }),
+      });
+      if (res && res.success && res.data) {
+        setBanners((prev) => [res.data, ...prev]);
+      } else {
+        loadData();
+      }
+    } catch (err) {
+      console.error('Error adding banner:', err);
+    }
     setBTitle('');
     setBSubtitle('');
     setShowAddBanner(false);
   };
 
-  const handleAddCoupon = () => {
+  const handleAddCoupon = async () => {
     if (!cCode.trim()) return;
-    const newC = {
-      id: `c_${Date.now()}`,
-      code: cCode.trim().toUpperCase(),
-      discount: cDiscount,
-      minSpend: Number(cMinSpend) || 500,
-      expires: '31 Dec 2026',
-      uses: 0,
-      status: 'Active',
-    };
-    setCoupons((prev) => [newC, ...prev]);
+    try {
+      const res = await fetchApi<any>('/admin/coupons', {
+        method: 'POST',
+        body: JSON.stringify({
+          code: cCode.trim().toUpperCase(),
+          discount: cDiscount,
+          minSpend: Number(cMinSpend) || 500,
+        }),
+      });
+      if (res && res.success && res.data) {
+        setCoupons((prev) => [res.data, ...prev]);
+      } else {
+        loadData();
+      }
+    } catch (err) {
+      console.error('Error adding coupon:', err);
+    }
     setCCode('');
     setShowAddCoupon(false);
   };
@@ -175,7 +203,9 @@ export default function AdminCMSPage() {
             <span>{isBn ? 'মোট কুপন ব্যবহার' : 'Total Coupon Uses'}</span>
             <Percent className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-black text-amber-400">৫৯৫+ {isBn ? 'বার ব্যবহার' : 'Times Used'}</div>
+          <div className="text-2xl font-black text-amber-400">
+            {isBn ? '৫৯৫+' : '595+'} {isBn ? 'বার ব্যবহার' : 'Times Used'}
+          </div>
           <div className="text-[11px] text-slate-400 font-bold">Resident Discounts</div>
         </div>
 
@@ -184,7 +214,7 @@ export default function AdminCMSPage() {
             <span>{isBn ? 'ছাড়কৃত মোট অর্থ' : 'Total Discount Granted'}</span>
             <DollarSign className="w-4 h-4 text-cyan-400" />
           </div>
-          <div className="text-2xl font-black text-cyan-400">৳১৮,৪৫০</div>
+          <div className="text-2xl font-black text-cyan-400">৳{formatCurrency(18450)}</div>
           <div className="text-[11px] text-slate-400 font-bold">Saved by Residents</div>
         </div>
       </div>
@@ -213,84 +243,116 @@ export default function AdminCMSPage() {
 
       {/* ── BANNERS TAB ── */}
       {activeTab === 'banners' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {banners.map((b) => (
-            <div key={b.id} className="p-5 rounded-3xl bg-[#1e1f32] border border-white/10 space-y-3 flex flex-col justify-between hover:border-indigo-500/40 transition-all shadow-xl">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-2xl flex items-center justify-center">
-                    {b.image}
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                    {b.status}
-                  </span>
+        banners.length === 0 ? (
+          <div className="p-12 rounded-3xl bg-[#1e1f32] border border-white/10 text-center space-y-3">
+            <ImageIcon className="w-12 h-12 text-slate-500 mx-auto opacity-50" />
+            <p className="text-slate-300 font-bold text-sm">{isBn ? 'কোনো হোমপেজ ব্যানার পাওয়া যায়নি' : 'No Hero Banners Found'}</p>
+            <p className="text-xs text-slate-400">{isBn ? 'আপনার প্রথম ব্যানার তৈরি করুন' : 'Create your first homepage slider banner to feature promotions.'}</p>
+            <button
+              onClick={() => setShowAddBanner(true)}
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg inline-flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" /> <span>{isBn ? 'ব্যানার যুক্ত করুন' : 'Add Banner'}</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {banners.map((b) => (
+              <div key={b.id} className="p-5 rounded-3xl bg-[#1e1f32] border border-white/10 space-y-3 flex flex-col justify-between hover:border-indigo-500/40 transition-all shadow-xl overflow-hidden">
+                <div className="space-y-2 min-w-0">
+                  <div className="flex items-center justify-between">
+                    {b.image && (b.image.startsWith('http') || b.image.startsWith('/')) ? (
+                      <img src={b.image} alt="" className="w-10 h-10 rounded-2xl object-cover border border-indigo-500/30 shrink-0" />
+                    ) : (
+                      <span className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-xl flex items-center justify-center border border-indigo-500/30 shrink-0">
+                        {b.image && b.image.length < 5 ? b.image : '🛍️'}
+                      </span>
+                    )}
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                      {b.status || (b.isActive ? 'Active' : 'Inactive')}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-white text-base leading-snug truncate">{b.title}</h3>
+                  <p className="text-xs text-slate-400 line-clamp-2">{b.subtitle || b.description}</p>
+                  <div className="flex items-center gap-2 text-[11px] font-mono text-indigo-400 truncate">
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">{b.link}</span>
+                  </div>
                 </div>
-                <h3 className="font-bold text-white text-base leading-snug">{b.title}</h3>
-                <p className="text-xs text-slate-400">{b.subtitle}</p>
-                <div className="flex items-center gap-2 text-[11px] font-mono text-indigo-400">
-                  <ExternalLink className="w-3.5 h-3.5" /> {b.link}
-                </div>
-              </div>
 
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 text-[10px] font-bold">
-                  {b.category}
-                </span>
-                <button
-                  onClick={() => handleDeleteBanner(b.id)}
-                  className="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center transition-all"
-                  title="Delete"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 text-[10px] font-bold">
+                    {b.category || 'General'}
+                  </span>
+                  <button
+                    onClick={() => handleDeleteBanner(b.id)}
+                    className="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center transition-all"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )
       )}
 
       {/* ── COUPONS TAB ── */}
       {activeTab === 'coupons' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {coupons.map((c) => (
-            <div key={c.id} className="p-5 rounded-3xl bg-[#1e1f32] border border-white/10 space-y-3 flex flex-col justify-between hover:border-emerald-500/40 transition-all shadow-xl">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono font-black text-emerald-400 text-lg tracking-wider bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/20">
-                    {c.code}
+        coupons.length === 0 ? (
+          <div className="p-12 rounded-3xl bg-[#1e1f32] border border-white/10 text-center space-y-3">
+            <Tag className="w-12 h-12 text-slate-500 mx-auto opacity-50" />
+            <p className="text-slate-300 font-bold text-sm">{isBn ? 'কোনো কুপন কোড পাওয়া যায়নি' : 'No Coupon Codes Found'}</p>
+            <p className="text-xs text-slate-400">{isBn ? 'আপনার প্রথম ডিসকাউন্ট কুপন তৈরি করুন' : 'Create your first discount coupon code to reward customers.'}</p>
+            <button
+              onClick={() => setShowAddCoupon(true)}
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg inline-flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" /> <span>{isBn ? 'কুপন তৈরি করুন' : 'Create Coupon'}</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {coupons.map((c) => (
+              <div key={c.id} className="p-5 rounded-3xl bg-[#1e1f32] border border-white/10 space-y-3 flex flex-col justify-between hover:border-emerald-500/40 transition-all shadow-xl">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-black text-emerald-400 text-lg tracking-wider bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/20">
+                      {c.code}
+                    </span>
+                    <button
+                      onClick={() => handleCopyCode(c.code)}
+                      className="p-1.5 rounded-lg bg-white/5 text-slate-300 hover:bg-white/10 transition-colors"
+                      title="Copy Code"
+                    >
+                      {copiedCode === c.code ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="font-black text-xl text-white">{c.discount || (c.discountValue ? `৳${c.discountValue} OFF` : 'Discount')}</div>
+                  <div className="text-xs text-slate-400">
+                    Min Spend: <strong>৳{formatCurrency(c.minSpend || c.minOrderAmount || 0)}</strong>
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-semibold">
+                    Used: {c.uses || c.usedCount || 0} times
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                    {c.status || (c.isActive ? 'Active' : 'Inactive')}
                   </span>
                   <button
-                    onClick={() => handleCopyCode(c.code)}
-                    className="p-1.5 rounded-lg bg-white/5 text-slate-300 hover:bg-white/10 transition-colors"
-                    title="Copy Code"
+                    onClick={() => handleDeleteCoupon(c.id)}
+                    className="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center transition-all"
+                    title="Delete"
                   >
-                    {copiedCode === c.code ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <div className="font-black text-xl text-white">{c.discount}</div>
-                <div className="text-xs text-slate-400">
-                  Min Spend: <strong>৳{formatCurrency(c.minSpend)}</strong>
-                </div>
-                <div className="text-[11px] text-slate-500 font-semibold">
-                  Used: {c.uses} times • Expires: {c.expires}
-                </div>
               </div>
-
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                  {c.status}
-                </span>
-                <button
-                  onClick={() => handleDeleteCoupon(c.id)}
-                  className="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center transition-all"
-                  title="Delete"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )
       )}
 
       {/* ── ADD BANNER MODAL ── */}

@@ -100,6 +100,13 @@ export const getAdminOrders = async (req: Request, res: Response, next: NextFunc
   } catch (e) { next(e); }
 };
 
+export const getDispatchQueue = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await adminService.getDispatchQueue();
+    return sendResponse(res, 200, 'Dispatch queue fetched', data);
+  } catch (e) { next(e); }
+};
+
 export const assignRider = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { riderId } = req.body;
@@ -112,5 +119,53 @@ export const unassignRider = async (req: Request, res: Response, next: NextFunct
   try {
     const order = await adminService.unassignRider(req.params.id as string);
     return sendResponse(res, 200, 'Rider unassigned', order);
+  } catch (e) { next(e); }
+};
+
+export const getFleetDashboardData = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await adminService.getFleetDashboardData();
+    return sendResponse(res, 200, 'Fleet dashboard data fetched', data);
+  } catch (e) { next(e); }
+};
+
+// ─── Email & Chat Controllers ─────────────────────────────────────────────────
+
+export const getChatConversations = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await adminService.getChatConversations();
+    return sendResponse(res, 200, 'Chat conversations fetched', data);
+  } catch (e) { next(e); }
+};
+
+export const sendChatMessage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { conversationId, recipientId, message } = req.body;
+    const data = await adminService.sendChatMessage(conversationId, recipientId, message);
+    return sendResponse(res, 200, 'Message sent successfully', data);
+  } catch (e) { next(e); }
+};
+
+export const sendEmailBroadcast = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { targetRole, subject, message } = req.body;
+    const data = await adminService.sendEmailBroadcast(targetRole, subject, message);
+    return sendResponse(res, 200, 'Email broadcast sent successfully', data);
+  } catch (e) { next(e); }
+};
+
+// ─── Site Settings Controllers ───────────────────────────────────────────────
+
+export const getSiteSettings = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await adminService.getSiteSettings();
+    return sendResponse(res, 200, 'Site settings fetched', data);
+  } catch (e) { next(e); }
+};
+
+export const updateSiteSettings = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await adminService.updateSiteSettings(req.body);
+    return sendResponse(res, 200, 'Site settings updated successfully', data);
   } catch (e) { next(e); }
 };
