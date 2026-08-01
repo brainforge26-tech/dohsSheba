@@ -240,14 +240,23 @@ export default function RiderDashboardPage() {
     setTogglingDuty(true);
     try {
       const nextDuty = !isOnline;
+      setIsOnline(nextDuty);
       const res = await fetchApi<any>('/rider/duty', {
         method: 'PATCH',
         body: JSON.stringify({ isOnline: nextDuty, isOnDuty: nextDuty }),
+      }).catch((err) => {
+        console.error('Error toggling rider duty:', err);
+        return null;
       });
-      if (res?.success) {
-        setIsOnline(nextDuty);
-        if (nextDuty) checkOpenOrders();
+
+      if (res && res.data) {
+        setIsOnline(res.data.isOnline ?? nextDuty);
       }
+      setActionMsg(nextDuty ? (isBn ? 'আপনি এখন সক্রিয় ও অন ডিউটিতে আছেন!' : 'You are now Online & On-Duty!') : (isBn ? 'আপনি এখন অফলাইনে আছেন!' : 'You are now Offline!'));
+      setTimeout(() => setActionMsg(''), 4000);
+      if (nextDuty) checkOpenOrders();
+    } catch (err) {
+      console.error('Error in handleToggleDuty:', err);
     } finally {
       setTogglingDuty(false);
     }

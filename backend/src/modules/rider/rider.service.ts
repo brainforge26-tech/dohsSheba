@@ -6,6 +6,22 @@ import { emitToOnlineRiders, emitToUser, emitToOrderRoom, emitToSellerRoom, emit
 // ─── Get Rider Profile ────────────────────────────────────────────────────────
 
 export const getRiderProfile = async (riderId: string) => {
+  let profile = await prisma.riderProfile.findUnique({ where: { userId: riderId } });
+  if (!profile) {
+    profile = await prisma.riderProfile.create({
+      data: {
+        userId: riderId,
+        vehicleType: 'Motorcycle',
+        vehicleNo: 'DHAKA-METRO-HA-1234',
+        isOnline: false,
+        isOnDuty: false,
+        isAvailable: true,
+        rating: 5.0,
+        totalTrips: 0,
+      },
+    });
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: riderId },
     select: {
@@ -20,8 +36,22 @@ export const getRiderProfile = async (riderId: string) => {
 // ─── Toggle Duty (Online/Offline) ─────────────────────────────────────────────
 
 export const toggleDuty = async (riderId: string, isOnline?: boolean, isOnDuty?: boolean) => {
-  const profile = await prisma.riderProfile.findUnique({ where: { userId: riderId } });
-  if (!profile) throw new AppError('Rider profile not found.', 404);
+  let profile = await prisma.riderProfile.findUnique({ where: { userId: riderId } });
+  if (!profile) {
+    profile = await prisma.riderProfile.create({
+      data: {
+        userId: riderId,
+        vehicleType: 'Motorcycle',
+        vehicleNo: 'DHAKA-METRO-HA-1234',
+        isOnline: true,
+        isOnDuty: true,
+        isAvailable: true,
+        rating: 5.0,
+        totalTrips: 0,
+      },
+    });
+    return profile;
+  }
 
   const onlineState = isOnline !== undefined ? isOnline : (isOnDuty !== undefined ? isOnDuty : !profile.isOnline);
   const dutyState   = isOnDuty !== undefined ? isOnDuty : onlineState;
