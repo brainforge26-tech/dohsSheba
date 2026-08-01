@@ -403,7 +403,7 @@ export function Header() {
                       className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-foreground hover:bg-emerald-500/10 hover:text-emerald-600 transition-all"
                     >
                       <span>{pcat.name}</span>
-                      <span className="text-[10px] font-extrabold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">{pcat.itemCount} Items</span>
+                      <span className="text-[10px] font-extrabold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">{pcat.itemCount} {pcat.itemCount === 1 ? 'Item' : 'Items'}</span>
                     </Link>
                   ))}
                   <Link

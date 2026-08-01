@@ -96,7 +96,7 @@ export function ShoppingCategoriesGrid() {
               {/* Top Item Count & Delivery Pill */}
               <div className="relative z-10 flex items-center justify-between">
                 <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/80 backdrop-blur-md text-white shadow-xs">
-                  {pcat.itemCount}+ Items
+                  {pcat.itemCount} {pcat.itemCount === 1 ? 'Item' : 'Items'}
                 </span>
                 <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
                   <Clock className="w-3 h-3 text-emerald-400" /> 45 Min

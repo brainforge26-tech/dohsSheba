@@ -1,12 +1,12 @@
 import { ProductCategory, ProductItem } from '@/types/shopping';
 
-export const SHOPPING_CATEGORIES: ProductCategory[] = [
+const SHOPPING_CATEGORIES_RAW: ProductCategory[] = [
   {
     id: 'pcat_veg',
     name: 'Fresh Vegetables',
     slug: 'vegetables',
     iconName: 'Carrot',
-    itemCount: 24,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -14,7 +14,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Fresh Fruits',
     slug: 'fruits',
     iconName: 'Apple',
-    itemCount: 18,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -22,7 +22,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Meat & Poultry',
     slug: 'meat',
     iconName: 'Beef',
-    itemCount: 12,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -30,7 +30,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Fresh Water Fish',
     slug: 'fish',
     iconName: 'Fish',
-    itemCount: 15,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1534942519507-769d4679447d?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -38,7 +38,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Milk & Dairy',
     slug: 'dairy',
     iconName: 'Milk',
-    itemCount: 16,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -46,7 +46,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Daily Groceries & Essentials',
     slug: 'groceries',
     iconName: 'ShoppingBag',
-    itemCount: 42,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -54,7 +54,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Rice & Grains',
     slug: 'rice',
     iconName: 'Wheat',
-    itemCount: 10,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -62,7 +62,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Snacks & Bakery',
     slug: 'snacks',
     iconName: 'Cookie',
-    itemCount: 25,
+    itemCount: 0,
     image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&auto=format&fit=crop&q=80',
   },
 ];
@@ -237,5 +237,16 @@ export const ALL_PRODUCTS: ProductItem[] = [
     reviews: [],
   },
 ];
+
+export const SHOPPING_CATEGORIES: ProductCategory[] = SHOPPING_CATEGORIES_RAW.map((cat) => {
+  const realCount = ALL_PRODUCTS.filter(
+    (p) => p.categorySlug === cat.slug || (cat.slug === 'groceries' && p.categorySlug === 'oil')
+  ).length;
+
+  return {
+    ...cat,
+    itemCount: realCount,
+  };
+});
 
 export const DAILY_DEALS_PRODUCTS = ALL_PRODUCTS.slice(0, 6);
