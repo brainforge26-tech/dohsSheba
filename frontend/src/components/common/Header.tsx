@@ -33,6 +33,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const [location, setLocation] = useState('Savar DOHS');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState<'services' | 'shopping' | null>(null);
   const [megaMenuOpen, setMegaMenuOpen] = useState<'service' | 'shopping' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState<'all' | 'services' | 'shopping'>('all');
@@ -315,32 +316,129 @@ export function Header() {
           </div>
 
           <div className="space-y-2">
-            <div className="text-xs font-bold text-muted-foreground uppercase">Navigation</div>
-            <Link
-              href="/services"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block p-2.5 rounded-xl bg-secondary/60 text-sm font-semibold"
-            >
-              All Services & Shopping
-            </Link>
+            <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+              Categories & Navigation
+            </div>
+
+            {/* ── Submenu 1: Home Services Accordion ── */}
+            <div className="border border-border/80 rounded-2xl overflow-hidden bg-card/50">
+              <button
+                type="button"
+                onClick={() => setMobileSubmenuOpen(mobileSubmenuOpen === 'services' ? null : 'services')}
+                className="w-full p-3 flex items-center justify-between font-bold text-sm text-foreground hover:bg-secondary transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                    <Wrench className="w-4 h-4" />
+                  </div>
+                  <span>Home Services</span>
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                    mobileSubmenuOpen === 'services' ? 'rotate-180 text-primary' : ''
+                  }`}
+                />
+              </button>
+
+              {mobileSubmenuOpen === 'services' && (
+                <div className="px-3 pb-3 space-y-1 bg-secondary/30 border-t border-border/50 animate-in fade-in duration-200 pt-2">
+                  {SERVICE_CATEGORIES.map((scat) => (
+                    <Link
+                      key={scat.id}
+                      href={`/services/home-service/${scat.slug}`}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setMobileSubmenuOpen(null);
+                      }}
+                      className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-foreground hover:bg-primary/10 hover:text-primary transition-all"
+                    >
+                      <span>{scat.name}</span>
+                      <span className="text-[10px] font-mono text-muted-foreground">{(scat as any).providerCount || (scat as any).subServicesCount || 12} Experts</span>
+                    </Link>
+                  ))}
+                  <Link
+                    href="/services/home-service"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setMobileSubmenuOpen(null);
+                    }}
+                    className="block text-center p-2 rounded-xl bg-primary text-primary-foreground font-black text-xs mt-2"
+                  >
+                    View All Services ➔
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* ── Submenu 2: Grocery & Daily Needs Accordion ── */}
+            <div className="border border-border/80 rounded-2xl overflow-hidden bg-card/50">
+              <button
+                type="button"
+                onClick={() => setMobileSubmenuOpen(mobileSubmenuOpen === 'shopping' ? null : 'shopping')}
+                className="w-full p-3 flex items-center justify-between font-bold text-sm text-foreground hover:bg-secondary transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
+                  <span>Grocery & Daily Needs</span>
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                    mobileSubmenuOpen === 'shopping' ? 'rotate-180 text-emerald-600' : ''
+                  }`}
+                />
+              </button>
+
+              {mobileSubmenuOpen === 'shopping' && (
+                <div className="px-3 pb-3 space-y-1 bg-secondary/30 border-t border-border/50 animate-in fade-in duration-200 pt-2">
+                  {SHOPPING_CATEGORIES.map((pcat) => (
+                    <Link
+                      key={pcat.id}
+                      href={`/services/shopping/${pcat.slug}`}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setMobileSubmenuOpen(null);
+                      }}
+                      className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-foreground hover:bg-emerald-500/10 hover:text-emerald-600 transition-all"
+                    >
+                      <span>{pcat.name}</span>
+                      <span className="text-[10px] font-mono text-muted-foreground">{pcat.itemCount} items</span>
+                    </Link>
+                  ))}
+                  <Link
+                    href="/services/shopping"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setMobileSubmenuOpen(null);
+                    }}
+                    className="block text-center p-2 rounded-xl bg-emerald-600 text-white font-black text-xs mt-2"
+                  >
+                    Explore Full Market ➔
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* General Direct Links */}
             <Link
               href="/offers"
               onClick={() => setMobileMenuOpen(false)}
-              className="block p-2.5 rounded-xl hover:bg-secondary text-sm font-semibold"
+              className="block p-3 rounded-2xl hover:bg-secondary text-sm font-bold border border-transparent hover:border-border"
             >
-              Special Offers & Discounts
+              🔥 Special Offers & Discounts
             </Link>
             <Link
               href="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="block p-2.5 rounded-xl hover:bg-secondary text-sm font-semibold"
+              className="block p-3 rounded-2xl hover:bg-secondary text-sm font-bold border border-transparent hover:border-border"
             >
               About dohsSheba
             </Link>
             <Link
               href="/contact"
               onClick={() => setMobileMenuOpen(false)}
-              className="block p-2.5 rounded-xl hover:bg-secondary text-sm font-semibold"
+              className="block p-3 rounded-2xl hover:bg-secondary text-sm font-bold border border-transparent hover:border-border"
             >
               Contact Support
             </Link>
