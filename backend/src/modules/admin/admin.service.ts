@@ -140,6 +140,32 @@ export const updateUserRole = async (userId: string, role: string) => {
   return prisma.user.update({ where: { id: userId }, data: { role: role as any } });
 };
 
+export const createUser = async (data: {
+  name: string;
+  email: string;
+  phone?: string;
+  password?: string;
+  role: string;
+}) => {
+  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  if (existing) throw new Error('User with this email already exists');
+
+  const bcrypt = await import('bcryptjs');
+  const hashedPassword = await bcrypt.default.hash(data.password || 'password123', 12);
+  const user = await prisma.user.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      phone: data.phone || '+8801700000000',
+      password: hashedPassword,
+      role: data.role as any,
+      isActive: true,
+      emailVerified: true,
+    },
+  });
+  return user;
+};
+
 export const approvePartner = async (userId: string) => {
   const user = await prisma.user.update({
     where: { id: userId },

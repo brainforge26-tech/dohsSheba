@@ -5,7 +5,7 @@ import { fetchApi } from '@/lib/api-client';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import {
   Users, ShieldCheck, Store, Wrench, Search, Filter,
-  UserCheck, UserX, CheckCircle2, ShieldAlert, Key, Edit2, Loader2, Check
+  UserCheck, UserX, CheckCircle2, ShieldAlert, Key, Edit2, Loader2, Check, UserPlus, Bike, X
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
@@ -17,6 +17,17 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [actionMsg, setActionMsg] = useState('');
+
+  // Create User Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: 'password123',
+    role: 'RIDER',
+  });
 
   const loadUsers = async () => {
     try {
@@ -45,6 +56,30 @@ export default function AdminUsersPage() {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUser.name || !newUser.email) return;
+    try {
+      setCreating(true);
+      const res = await fetchApi<any>('/admin/users/create', {
+        method: 'POST',
+        body: JSON.stringify(newUser),
+      });
+      if (res && res.success) {
+        setActionMsg(isBn ? `নতুন ${newUser.role} "${newUser.name}" সফলভাবে তৈরি করা হয়েছে!` : `New ${newUser.role} "${newUser.name}" created successfully!`);
+        setShowCreateModal(false);
+        setNewUser({ name: '', email: '', phone: '', password: 'password123', role: 'RIDER' });
+        loadUsers();
+      } else {
+        alert(res?.message || 'Failed to create user');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error creating user');
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const handleChangeRole = async (userId: string, newRole: string, userName: string) => {
     setUsers((prev) =>
@@ -94,6 +129,7 @@ export default function AdminUsersPage() {
       case 'ADMIN':       return 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
       case 'SELLER':      return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
       case 'PROVIDER':    return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30';
+      case 'RIDER':       return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold';
       default:            return 'bg-[#181928] text-slate-300 border-white/10';
     }
   };
@@ -110,9 +146,17 @@ export default function AdminUsersPage() {
             <span>{isBn ? 'ইউজার এন্ড রোল ম্যানেজার' : 'User & Role Manager'}</span>
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            {isBn ? 'প্ল্যাটফর্মের ইউজার একাউন্টস, পারমিশন রোলস এবং সিকিউরিটি কন্ট্রোল' : 'System user accounts, role permissions, and access management'}
+            {isBn ? 'প্ল্যাটফর্মের ইউজার একাউন্টস, রাইডার রোলস এবং সিকিউরিটি কন্ট্রোল' : 'System user accounts, rider roles, and access management'}
           </p>
         </div>
+
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs flex items-center gap-2 shadow-lg transition-all"
+        >
+          <UserPlus className="w-4 h-4" />
+          <span>{isBn ? '+ নতুন ইউজার / রাইডার যুক্ত করুন' : '+ Add User / Rider'}</span>
+        </button>
       </div>
 
       {actionMsg && (
@@ -134,13 +178,13 @@ export default function AdminUsersPage() {
 
         <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 space-y-2">
           <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
-            <span>{isBn ? 'রেসিডেন্ট কাস্টমার' : 'Resident Customers'}</span>
-            <UserCheck className="w-4 h-4 text-emerald-400" />
+            <span>{isBn ? 'এক্সপ্রেস রাইডার্স' : 'Delivery Riders'}</span>
+            <Bike className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-black text-emerald-400">
-            {users.filter((u) => u.role === 'CUSTOMER').length} {isBn ? 'জন' : 'Customers'}
+            {users.filter((u) => u.role === 'RIDER').length} {isBn ? 'জন' : 'Riders'}
           </div>
-          <div className="text-[11px] text-emerald-400 font-bold">Active Shopping Accounts</div>
+          <div className="text-[11px] text-emerald-300 font-bold">Active Fleet Partners</div>
         </div>
 
         <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 space-y-2">
@@ -169,7 +213,7 @@ export default function AdminUsersPage() {
       {/* Role Filter Tabs & Search Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2 rounded-2xl bg-[#1e1f32] border border-white/10">
         <div className="flex items-center gap-1 p-1 rounded-xl bg-[#181928] text-xs font-semibold overflow-x-auto">
-          {['ALL', 'CUSTOMER', 'SELLER', 'PROVIDER', 'ADMIN', 'SUPER_ADMIN'].map((r) => (
+          {['ALL', 'CUSTOMER', 'RIDER', 'SELLER', 'PROVIDER', 'ADMIN', 'SUPER_ADMIN'].map((r) => (
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
@@ -242,9 +286,10 @@ export default function AdminUsersPage() {
                     <select
                       value={u.role}
                       onChange={(e) => handleChangeRole(u.id, e.target.value, u.name)}
-                      className="px-3 py-1.5 rounded-xl bg-[#181928] border border-white/10 text-xs text-white focus:outline-none focus:border-indigo-500"
+                      className="px-3 py-1.5 rounded-xl bg-[#181928] border border-white/10 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
                     >
                       <option value="CUSTOMER">CUSTOMER</option>
+                      <option value="RIDER">RIDER (Express Delivery)</option>
                       <option value="SELLER">SELLER</option>
                       <option value="PROVIDER">PROVIDER</option>
                       <option value="ADMIN">ADMIN</option>
@@ -269,6 +314,110 @@ export default function AdminUsersPage() {
           </table>
         </div>
       </div>
+
+      {/* ── Create User / Rider Modal ── */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#1e1f32] border border-white/10 rounded-3xl p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-indigo-400" />
+                <h3 className="font-extrabold text-white text-base">
+                  {isBn ? 'নতুন ইউজার বা রাইডার তৈরি করুন' : 'Create New User / Rider'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="p-1 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateUser} className="space-y-4 text-xs font-semibold">
+              <div>
+                <label className="text-slate-400 block mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Mahfuzur Rahman"
+                  value={newUser.name}
+                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-400 block mb-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. rider1@dohssheba.com"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-400 block mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  placeholder="+8801700000000"
+                  value={newUser.phone}
+                  onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-400 block mb-1">Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Minimum 6 characters"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-400 block mb-1">Assign System Role</label>
+                <select
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white font-bold focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="RIDER">RIDER (Express Delivery Fleet)</option>
+                  <option value="CUSTOMER">CUSTOMER (Resident)</option>
+                  <option value="PROVIDER">PROVIDER (Service Specialist)</option>
+                  <option value="SELLER">SELLER (Grocery Store)</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-lg flex items-center justify-center gap-2"
+                >
+                  {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                  <span>{creating ? 'Creating...' : 'Create Account'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

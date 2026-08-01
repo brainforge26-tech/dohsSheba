@@ -35,6 +35,13 @@ export const updateRole = async (req: Request, res: Response, next: NextFunction
   } catch (error) { next(error); }
 };
 
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await adminService.createUser(req.body);
+    return sendResponse(res, 201, `User ${user.name} created successfully as ${user.role}`, user);
+  } catch (error) { next(error); }
+};
+
 export const approvePartner = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await adminService.approvePartner(req.params.id as string);

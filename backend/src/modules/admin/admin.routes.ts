@@ -12,6 +12,7 @@ router.get('/dashboard',    adminController.getDashboard);
 
 // Users
 router.get('/users',        adminController.getUsers);
+router.post('/users/create', adminController.createUser);
 router.patch('/users/:id/toggle', adminController.toggleUser);
 router.patch('/users/:id/role',   adminController.updateRole);
 router.patch('/users/:id/approve', adminController.approvePartner);
