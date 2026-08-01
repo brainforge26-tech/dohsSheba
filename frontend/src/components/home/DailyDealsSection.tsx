@@ -104,8 +104,8 @@ export function DailyDealsSection() {
           </div>
         </div>
 
-        {/* Product Cards Grid - Spacious 4-Column Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {/* Product Cards Grid - 2 Columns on Mobile, 4 Columns on Desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
           {filteredProducts.map((product) => {
             const inCart = items.find((i) => i.product.id === product.id);
 
@@ -117,80 +117,80 @@ export function DailyDealsSection() {
             return (
               <div
                 key={product.id}
-                className="group relative rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-md overflow-hidden shadow-xl hover:shadow-[0_20px_40px_-10px_rgba(16,185,129,0.2)] hover:border-emerald-500/60 transition-all duration-500 flex flex-col justify-between"
+                className="group relative rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-900/90 backdrop-blur-md overflow-hidden shadow-md hover:shadow-2xl hover:border-emerald-500/60 transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Image Container */}
                 <Link
                   href={`/services/shopping/product/${product.slug}`}
                   onClick={() => handleProductClick(product)}
-                  className="relative h-52 w-full overflow-hidden bg-slate-950 block cursor-pointer"
+                  className="relative h-32 sm:h-52 w-full overflow-hidden bg-slate-950 block cursor-pointer"
                 >
                   <Image
                     src={product.image}
                     alt={product.title}
                     fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-black/30 opacity-80 group-hover:opacity-60 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/20" />
                   
                   {/* Discount Badge */}
                   {discountPercent > 0 && (
-                    <span className="absolute top-3.5 left-3.5 px-3 py-1 rounded-xl text-[11px] font-black bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 text-white shadow-lg shadow-rose-600/40 z-10 tracking-wide animate-pulse">
+                    <span className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-black bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-md z-10 animate-pulse">
                       {discountPercent}% OFF
                     </span>
                   )}
 
                   {/* Organic Badge */}
                   {product.isOrganic && (
-                    <span className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/30 z-10">
+                    <span className="hidden sm:inline-block absolute top-3.5 right-3.5 px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-400 text-slate-950 shadow-md z-10">
                       100% Organic
                     </span>
                   )}
 
                   {/* Shop Name Tag */}
-                  <div className="absolute bottom-3.5 left-3.5 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-emerald-300 text-[11px] font-extrabold border border-emerald-500/30 flex items-center gap-1.5 z-10 shadow-lg">
+                  <div className="hidden sm:flex absolute bottom-3.5 left-3.5 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-emerald-300 text-[11px] font-extrabold border border-emerald-500/30 items-center gap-1.5 z-10 shadow-lg">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{product.shopName}</span>
                   </div>
                 </Link>
 
                 {/* Content */}
-                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold">
-                      <span className="text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/20">
+                <div className="p-2.5 sm:p-5 space-y-2 sm:space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1 sm:space-y-2">
+                    <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold">
+                      <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 text-[9px] sm:text-[11px]">
                         {product.unit}
                       </span>
-                      <span className="flex items-center gap-1 text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-lg border border-amber-400/20">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> 4.9
+                      <span className="flex items-center gap-1 text-amber-300 bg-amber-400/10 px-1.5 sm:px-2 py-0.5 rounded-md border border-amber-400/20 text-[9px] sm:text-xs">
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> 4.9
                       </span>
                     </div>
 
                     <Link
                       href={`/services/shopping/product/${product.slug}`}
                       onClick={() => handleProductClick(product)}
-                      className="block pt-1"
+                      className="block pt-0.5"
                     >
-                      <h3 className="font-extrabold text-base leading-snug text-white group-hover:text-emerald-300 transition-colors line-clamp-2">
+                      <h3 className="font-extrabold text-xs sm:text-base leading-snug text-white group-hover:text-emerald-300 transition-colors line-clamp-2">
                         {product.title}
                       </h3>
                     </Link>
                   </div>
 
                   {/* Price & Action Button */}
-                  <div className="pt-3.5 border-t border-white/10 flex items-center justify-between gap-3">
+                  <div className="pt-2 sm:pt-3.5 border-t border-white/10 flex items-center justify-between gap-1.5">
                     <Link
                       href={`/services/shopping/product/${product.slug}`}
                       onClick={() => handleProductClick(product)}
                       className="block hover:opacity-90 transition-opacity"
                     >
-                      <div className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Offer Price</div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-black text-emerald-400 tracking-tight">
+                      <div className="text-[8px] sm:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider hidden sm:block">Offer Price</div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-sm sm:text-xl font-black text-emerald-400 tracking-tight">
                           {formatCurrency(product.price)}
                         </span>
                         {product.originalPrice && (
-                          <span className="text-xs text-slate-500 line-through font-semibold">
+                          <span className="text-[10px] sm:text-xs text-slate-500 line-through font-semibold">
                             {formatCurrency(product.originalPrice)}
                           </span>
                         )}
@@ -198,24 +198,25 @@ export function DailyDealsSection() {
                     </Link>
 
                     <button
+                      type="button"
                       onClick={() => {
                         addItem(product);
                         openCart();
                       }}
-                      className={`px-4 py-2.5 rounded-2xl font-extrabold text-xs shadow-lg transition-all duration-300 flex items-center gap-2 shrink-0 relative z-20 active:scale-95 ${
+                      className={`px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl font-extrabold text-xs shadow-md transition-all flex items-center gap-1 shrink-0 active:scale-95 cursor-pointer ${
                         inCart
                           ? 'bg-emerald-600 text-white shadow-emerald-600/40'
-                          : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40 hover:border-emerald-500'
+                          : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40'
                       }`}
                     >
                       {inCart ? (
                         <>
-                          <Check className="w-4 h-4" />
-                          <span>In Cart</span>
+                          <Check className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">In Cart</span>
                         </>
                       ) : (
                         <>
-                          <ShoppingCart className="w-4 h-4" />
+                          <ShoppingCart className="w-3.5 h-3.5" />
                           <span>Add</span>
                         </>
                       )}
