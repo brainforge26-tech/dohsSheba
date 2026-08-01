@@ -1,0 +1,48 @@
+name: 🚀 Auto Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to VPS Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🚀 Execute Remote SSH Commands on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_PASSPHRASE }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            echo "🚀 Auto-deploying dohsheba to VPS..."
+
+            # 1. Pull Latest Code
+            cd /var/www/dohsheba
+            git pull origin main
+
+            # 2. Update Backend & Restart PM2
+            echo "📦 Building Backend..."
+            cd /var/www/dohsheba/backend
+            npm install
+            npx prisma db push
+            npm run build
+            pm2 restart project3-api || pm2 start dist/server.js --name "project3-api"
+
+            # 3. Update Frontend & Restart PM2
+            echo "📦 Building Frontend..."
+            cd /var/www/dohsheba/frontend
+            npm install
+            npm run build
+            pm2 restart project3-web || pm2 start npm --name "project3-web" -- start -- -p 3002
+
+            pm2 save
+            echo "🎉 Auto-deployment finished successfully!"
