@@ -50,23 +50,21 @@ export function HeroBanner() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-slate-950 text-white pt-10 pb-16 px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-slate-950 text-white pt-4 pb-8 sm:pt-10 sm:pb-16 px-3 sm:px-6 lg:px-8">
       {/* Ambient background glow effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.2),rgba(255,255,255,0))]" />
-      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-blue-600/15 blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[400px] h-[400px] bg-emerald-500/15 blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[600px] h-[250px] bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-[300px] sm:w-[450px] h-[300px] sm:h-[450px] bg-blue-600/15 blur-[100px] sm:blur-[140px] rounded-full pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto relative z-10 space-y-12">
+      <div className="max-w-7xl mx-auto relative z-10 space-y-6 sm:space-y-12">
         
         {/* Split 2-Column Hero Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-center">
           
           {/* Left Column: Narrative & Search (Cols 7) */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-3 sm:space-y-6">
             
-            {/* Location & Trust Badges */}
-            <div className="flex flex-wrap items-center gap-2.5">
+            {/* Location & Trust Badges (Desktop/Tablet Only) */}
+            <div className="hidden sm:flex flex-wrap items-center gap-2.5">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-xs font-bold text-blue-300 backdrop-blur-md">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
                 <span>Savar DOHS #1 Super-App</span>
@@ -79,43 +77,43 @@ export function HeroBanner() {
             </div>
 
             {/* Headline */}
-            <div className="space-y-3">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.12]">
+            <div className="space-y-1 sm:space-y-3">
+              <h1 className="text-xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-snug sm:leading-[1.12]">
                 Everything Your Home Needs,{' '}
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400">
                   Delivered & Serviced Fast
                 </span>
               </h1>
-              <p className="text-xs sm:text-base text-slate-300 font-normal leading-relaxed max-w-xl">
+              <p className="hidden sm:block text-xs sm:base text-slate-300 font-normal leading-relaxed max-w-xl">
                 Book background-verified technicians in 60 seconds — or order fresh daily vegetables, meat & groceries delivered to your Savar DOHS residence.
               </p>
             </div>
 
             {/* Glassmorphic Search Widget */}
-            <div className="bg-[#121424]/90 backdrop-blur-2xl border border-white/15 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4">
+            <div className="bg-[#121424]/90 backdrop-blur-2xl border border-white/15 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-2xl space-y-3 sm:space-y-4">
               
               {/* Tab Switcher */}
-              <div className="grid grid-cols-2 rounded-2xl bg-slate-950/80 p-1 border border-white/10">
+              <div className="grid grid-cols-2 rounded-xl sm:rounded-2xl bg-slate-950/80 p-1 border border-white/10">
                 <button
                   onClick={() => setActiveTab('service')}
-                  className={`py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg sm:rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all ${
                     activeTab === 'service'
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30'
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <Wrench className="w-4 h-4 text-blue-300" />
+                  <Wrench className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-300" />
                   <span>Book Home Service</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('shopping')}
-                  className={`py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg sm:rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all ${
                     activeTab === 'shopping'
-                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-600/30'
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <ShoppingBag className="w-4 h-4 text-emerald-300" />
+                  <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300" />
                   <span>Express Daily Grocery</span>
                 </button>
               </div>
