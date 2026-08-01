@@ -319,24 +319,50 @@ export const updateMissionStatus = async (
     },
   });
 
-  // On DELIVERY completed -> update rider stats & payment & reset availability
+  // On DELIVERY completed -> update rider stats & payment & credit rider commission
   if (targetStatus === 'DELIVERED') {
+    let settings = await (prisma as any).siteSetting.findUnique({ where: { id: 'default' } });
+    const commissionPercent = settings?.riderCommissionPercent ?? 80;
+    const baseDeliveryFee = order.deliveryFee || 50;
+    const riderEarning = Math.round((baseDeliveryFee * commissionPercent) / 100);
+
     await prisma.riderProfile.update({
       where: { userId: riderId },
       data: {
         isAvailable: true,
         currentOrderId: null,
         totalTrips: { increment: 1 },
-        totalEarnings: { increment: order.deliveryFee || 50 },
+        totalEarnings: { increment: riderEarning },
       },
     });
+
+    const riderWallet = await prisma.wallet.findUnique({ where: { userId: riderId } });
+    if (riderWallet) {
+      await prisma.transaction.create({
+        data: {
+          walletId: riderWallet.id,
+          type: 'CREDIT',
+          amount: riderEarning,
+          description: `Delivery Earning (${commissionPercent}% share of ৳${baseDeliveryFee} delivery fee) for Order #${order.id.slice(-6)}`,
+        },
+      });
+      await prisma.wallet.update({
+        where: { id: riderWallet.id },
+        data: { balance: { increment: riderEarning } },
+      });
+    }
 
     await prisma.payment.updateMany({
       where: { orderId },
       data: { status: 'PAID' },
     });
 
-    emitToUser(riderId, 'MISSION_COMPLETED', { orderId, order: updatedOrder });
+    emitToUser(riderId, 'MISSION_COMPLETED', {
+      orderId,
+      order: updatedOrder,
+      riderEarning,
+      commissionPercent,
+    });
   }
 
   emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus });

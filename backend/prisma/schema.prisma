@@ -597,15 +597,16 @@ model RefreshToken {
 // ─── Site Settings ────────────────────────────────────────────────────────────
 
 model SiteSetting {
-  id              String   @id @default("default")
-  siteName        String   @default("DOHS Sheba")
-  tagline         String?  @default("Home Services & Express Grocery Marketplace for Savar DOHS")
-  supportPhone    String?  @default("01306031982")
-  supportEmail    String?  @default("support@dohssheba.com")
-  address         String?  @default("Savar DOHS, Dhaka, Bangladesh")
-  currencySymbol  String   @default("৳")
-  maintenanceMode Boolean  @default(false)
-  updatedAt       DateTime @updatedAt
+  id                     String   @id @default("default")
+  siteName               String   @default("DOHS Sheba")
+  tagline                String?  @default("Home Services & Express Grocery Marketplace for Savar DOHS")
+  supportPhone           String?  @default("01306031982")
+  supportEmail           String?  @default("support@dohssheba.com")
+  address                String?  @default("Savar DOHS, Dhaka, Bangladesh")
+  currencySymbol         String   @default("৳")
+  riderCommissionPercent Float    @default(80)
+  maintenanceMode        Boolean  @default(false)
+  updatedAt              DateTime @updatedAt
 
   @@map("site_settings")
 }

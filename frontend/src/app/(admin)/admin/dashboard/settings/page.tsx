@@ -7,7 +7,7 @@ import { useLanguageStore } from '@/store/useLanguageStore';
 import {
   Settings, Save, Globe, PhoneCall, Mail, MapPin,
   ShieldCheck, CheckCircle2, Loader2, AlertCircle, RefreshCw,
-  DollarSign, Wrench, ToggleLeft, ToggleRight, Sparkles
+  DollarSign, Wrench, ToggleLeft, ToggleRight, Sparkles, Bike
 } from 'lucide-react';
 
 export default function AdminWebsiteSettingsPage() {
@@ -28,6 +28,7 @@ export default function AdminWebsiteSettingsPage() {
     supportEmail: siteSettings.supportEmail || 'support@dohssheba.com',
     address: siteSettings.address || 'Savar DOHS, Dhaka, Bangladesh',
     currencySymbol: siteSettings.currencySymbol || '৳',
+    riderCommissionPercent: (siteSettings as any).riderCommissionPercent || 80,
     maintenanceMode: siteSettings.maintenanceMode || false,
   });
 
@@ -44,6 +45,7 @@ export default function AdminWebsiteSettingsPage() {
             supportEmail: d.supportEmail || 'support@dohssheba.com',
             address: d.address || 'Savar DOHS, Dhaka, Bangladesh',
             currencySymbol: d.currencySymbol || '৳',
+            riderCommissionPercent: d.riderCommissionPercent ?? 80,
             maintenanceMode: Boolean(d.maintenanceMode),
           });
           useSiteSettingsStore.getState().updateSettingsLocally(d);
@@ -226,6 +228,66 @@ export default function AdminWebsiteSettingsPage() {
                 placeholder="৳"
                 className="w-full px-4 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Rider Commission & Fee Share Settings ── */}
+        <div className="p-6 rounded-3xl bg-[#1f2136] border border-emerald-500/30 shadow-xl space-y-4">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Bike className="w-5 h-5 text-emerald-400" />
+              <h2 className="font-bold text-white text-sm">
+                {isBn ? 'রাইডার ডেলিভারি ফি কমিশন পার্সেন্টেজ' : 'Rider Delivery Fee Share Rate'}
+              </h2>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-black text-xs border border-emerald-500/30">
+              RIDER GETS {form.riderCommissionPercent}% OF DELIVERY FEE
+            </span>
+          </div>
+
+          <div className="space-y-4 text-xs">
+            <div className="flex items-center justify-between">
+              <label className="font-bold text-slate-300 uppercase">
+                {isBn ? 'রাইডারের কমিশন পার্সেন্টেজ (Rider Fee Share)' : 'Rider Fee Share Percentage'}
+              </label>
+              <div className="font-mono text-emerald-400 font-black text-lg">
+                {form.riderCommissionPercent}%
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="10"
+                max="100"
+                step="5"
+                value={form.riderCommissionPercent}
+                onChange={(e) => setForm({ ...form, riderCommissionPercent: Number(e.target.value) })}
+                className="flex-1 accent-emerald-500 cursor-pointer h-2 bg-[#181928] rounded-lg"
+              />
+              <input
+                type="number"
+                min="10"
+                max="100"
+                value={form.riderCommissionPercent}
+                onChange={(e) => setForm({ ...form, riderCommissionPercent: Number(e.target.value) })}
+                className="w-20 px-3 py-2 rounded-xl bg-[#181928] border border-white/10 text-white font-mono font-bold text-center text-xs"
+              />
+            </div>
+
+            <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-300 text-xs space-y-1.5">
+              <div className="font-extrabold text-emerald-200">
+                💡 {isBn ? 'হিসাব উদাহরণ (ডেলিভারি ফি ৳৫০ হলে):' : 'Earning Calculation Breakdown (Assuming ৳50 Delivery Fee):'}
+              </div>
+              <div className="text-[11px] text-slate-300 flex items-center justify-between">
+                <span>{isBn ? 'রাইডারের ইনকাম (Rider Balance):' : 'Rider Net Earning (Credited to Wallet):'}</span>
+                <span className="font-mono font-extrabold text-emerald-400">৳{Math.round(50 * (form.riderCommissionPercent / 100))} ({form.riderCommissionPercent}%)</span>
+              </div>
+              <div className="text-[11px] text-slate-300 flex items-center justify-between">
+                <span>{isBn ? 'প্ল্যাটফর্মের কমিশন রিটেনশন (Platform Retention):' : 'Platform Retention / Admin Share:'}</span>
+                <span className="font-mono font-extrabold text-indigo-400">৳{50 - Math.round(50 * (form.riderCommissionPercent / 100))} ({100 - form.riderCommissionPercent}%)</span>
+              </div>
             </div>
           </div>
         </div>
