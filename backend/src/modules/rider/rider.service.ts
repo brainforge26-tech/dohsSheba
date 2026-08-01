@@ -72,7 +72,10 @@ export const toggleDuty = async (riderId: string, isOnline?: boolean, isOnDuty?:
 // ─── Get Open Broadcast Orders (Ready for Rider) ──────────────────────────────
 
 export const getOpenOrders = async () => {
-  return prisma.order.findMany({
+  let settings = await (prisma as any).siteSetting.findUnique({ where: { id: 'default' } });
+  const commissionPercent = settings?.riderCommissionPercent ?? 80;
+
+  const rawOrders = await prisma.order.findMany({
     where: {
       status: 'READY_FOR_RIDER',
       assignedRiderId: null,
@@ -90,6 +93,18 @@ export const getOpenOrders = async () => {
         },
       },
     },
+  });
+
+  return rawOrders.map((o) => {
+    const baseFee = o.deliveryFee || 50;
+    const netEarning = Math.round((baseFee * commissionPercent) / 100);
+    return {
+      ...o,
+      riderCommissionPercent: commissionPercent,
+      netEarning,
+      earnings: netEarning,
+      estimatedEarnings: netEarning,
+    };
   });
 };
 

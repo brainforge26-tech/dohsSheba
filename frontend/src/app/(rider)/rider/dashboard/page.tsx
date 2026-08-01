@@ -134,7 +134,8 @@ export default function RiderDashboardPage() {
             address: `${order.address?.line1 || 'Block C'}, ${order.address?.area || 'Mohakhali DOHS'}`,
             totalItems: order.items?.length || 1,
             totalAmount: order.totalAmount,
-            earnings: order.deliveryFee || 50,
+            deliveryFee: order.deliveryFee || 50,
+            earnings: order.netEarning || order.earnings || Math.round((order.deliveryFee || 50) * 0.8),
             distance: '1.2 km',
             estimatedTime: '20 mins',
             paymentType: 'Cash on Delivery (COD)',
@@ -588,7 +589,7 @@ export default function RiderDashboardPage() {
                       const customerPhone = order.customerPhone || order.customer?.phone || '01306031982';
                       const customerName = order.customer?.name || 'Resident Customer';
                       const orderSummary = order.items?.map((i: any) => `${i.product?.name || 'Item'} (x${i.quantity})`).join(', ') || 'Grocery / Home Items';
-                      const earnings = order.deliveryFee || 50;
+                      const earnings = order.netEarning || order.earnings || order.estimatedEarnings || Math.round((order.deliveryFee || 50) * 0.8);
 
                       return (
                         <div key={order.id} className="bg-slate-900 border-2 border-slate-800 hover:border-amber-500/50 p-6 rounded-3xl space-y-4 shadow-xl transition-all flex flex-col justify-between">
@@ -746,8 +747,8 @@ export default function RiderDashboardPage() {
                       <p><strong className="text-slate-400">Completed:</strong> {new Date(item.updatedAt || item.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
-                      <span className="text-slate-400 font-bold">Delivery Fee Earned</span>
-                      <span className="text-emerald-400 font-black text-base">{formatCurrency(item.deliveryFee || 50)}</span>
+                      <span className="text-slate-400 font-bold">Net Payout Earned</span>
+                      <span className="text-emerald-400 font-black text-base">{formatCurrency(item.netEarning || item.earnings || Math.round((item.deliveryFee || 50) * 0.8))}</span>
                     </div>
                   </div>
                 ))}

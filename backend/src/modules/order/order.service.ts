@@ -243,6 +243,11 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus) =>
     const pickupAddress = storeAddress;
     const customerAddress = `${updated.address?.line1 || 'Block C'}, ${updated.address?.area || 'DOHS Mohakhali'}`;
 
+    let siteSettings = await (prisma as any).siteSetting.findUnique({ where: { id: 'default' } });
+    const commissionPercent = siteSettings?.riderCommissionPercent ?? 80;
+    const baseFee = updated.deliveryFee || 50;
+    const netEarning = Math.round((baseFee * commissionPercent) / 100);
+
     const broadcastPayload = {
       orderId: updated.id,
       storeLogo: '/icons/store-logo.png',
@@ -256,9 +261,10 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus) =>
       estimatedDeliveryTime: '20 mins',
       totalItems: updated.items.length,
       totalAmount: updated.totalAmount,
-      deliveryFee: updated.deliveryFee || 50,
-      earnings: updated.deliveryFee || 50,
-      estimatedEarnings: updated.deliveryFee || 50,
+      deliveryFee: baseFee,
+      riderCommissionPercent: commissionPercent,
+      earnings: netEarning,
+      estimatedEarnings: netEarning,
       countdown: 30,
       dispatchStartedAt: now.toISOString(),
       dispatchExpiresAt: expiresAt.toISOString(),
