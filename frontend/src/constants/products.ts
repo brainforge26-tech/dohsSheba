@@ -6,7 +6,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Fresh Vegetables',
     slug: 'vegetables',
     iconName: 'Carrot',
-    itemCount: 140,
+    itemCount: 24,
     image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -14,7 +14,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Fresh Fruits',
     slug: 'fruits',
     iconName: 'Apple',
-    itemCount: 95,
+    itemCount: 18,
     image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -22,7 +22,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Meat & Poultry',
     slug: 'meat',
     iconName: 'Beef',
-    itemCount: 45,
+    itemCount: 12,
     image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -30,7 +30,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Fresh Water Fish',
     slug: 'fish',
     iconName: 'Fish',
-    itemCount: 60,
+    itemCount: 15,
     image: 'https://images.unsplash.com/photo-1534942519507-769d4679447d?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -38,7 +38,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Milk & Dairy',
     slug: 'dairy',
     iconName: 'Milk',
-    itemCount: 80,
+    itemCount: 16,
     image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -46,7 +46,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Daily Groceries & Essentials',
     slug: 'groceries',
     iconName: 'ShoppingBag',
-    itemCount: 350,
+    itemCount: 42,
     image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -54,7 +54,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Rice & Grains',
     slug: 'rice',
     iconName: 'Wheat',
-    itemCount: 50,
+    itemCount: 10,
     image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80',
   },
   {
@@ -62,7 +62,7 @@ export const SHOPPING_CATEGORIES: ProductCategory[] = [
     name: 'Snacks & Bakery',
     slug: 'snacks',
     iconName: 'Cookie',
-    itemCount: 180,
+    itemCount: 25,
     image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&auto=format&fit=crop&q=80',
   },
 ];

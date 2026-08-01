@@ -353,7 +353,7 @@ export function Header() {
                       className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-foreground hover:bg-primary/10 hover:text-primary transition-all"
                     >
                       <span>{scat.name}</span>
-                      <span className="text-[10px] font-mono text-muted-foreground">{(scat as any).providerCount || (scat as any).subServicesCount || 12} Experts</span>
+                      <span className="text-[10px] font-extrabold text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Verified</span>
                     </Link>
                   ))}
                   <Link
@@ -403,7 +403,7 @@ export function Header() {
                       className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-foreground hover:bg-emerald-500/10 hover:text-emerald-600 transition-all"
                     >
                       <span>{pcat.name}</span>
-                      <span className="text-[10px] font-mono text-muted-foreground">{pcat.itemCount} items</span>
+                      <span className="text-[10px] font-extrabold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">{pcat.itemCount} Items</span>
                     </Link>
                   ))}
                   <Link
