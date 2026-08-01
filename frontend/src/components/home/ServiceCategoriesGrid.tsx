@@ -108,47 +108,47 @@ export function ServiceCategoriesGrid() {
           ))}
         </div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {/* Categories Grid (Mobile App 3-Column Grid) */}
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {displayedCategories.map((cat) => {
-            const IconComponent = ICON_MAP[cat.iconName] || <Wrench className="w-6 h-6" />;
+            const IconComponent = ICON_MAP[cat.iconName] || <Wrench className="w-5 h-5 sm:w-6 sm:h-6" />;
 
             return (
               <Link
                 key={cat.id}
                 href={`/services/home-service/${cat.slug}`}
-                className="group relative p-5 rounded-3xl border border-border/80 bg-card/80 hover:bg-card hover:border-blue-500/50 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                className="group relative p-2.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card/90 hover:bg-card hover:border-blue-500/50 hover:shadow-xl transition-all duration-200 flex flex-col items-center text-center justify-between overflow-hidden active:scale-95"
               >
                 {/* Subtle Gradient Glow Effect */}
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-150 transition-transform duration-500" />
+                <div className="absolute top-0 right-0 w-16 sm:w-24 h-16 sm:h-24 bg-gradient-to-br from-blue-500/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-150 transition-transform duration-500" />
 
                 {/* Badge if present */}
                 {cat.badge && (
-                  <span className="absolute top-3.5 right-3.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-xs">
+                  <span className="hidden sm:block absolute top-3.5 right-3.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-xs">
                     {cat.badge}
                   </span>
                 )}
 
-                <div className="space-y-4">
+                <div className="flex flex-col items-center text-center space-y-2 sm:space-y-4 w-full">
                   {/* Icon Box */}
                   <div
-                    className={`w-14 h-14 rounded-2xl ${cat.colorBg} ${cat.colorText} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/5`}
+                    className={`w-11 h-11 sm:w-14 sm:h-14 rounded-2xl ${cat.colorBg} ${cat.colorText} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm border border-white/5 shrink-0`}
                   >
                     {IconComponent}
                   </div>
 
-                  <div>
-                    <h3 className="font-extrabold text-sm text-foreground group-hover:text-blue-400 transition-colors leading-tight">
+                  <div className="w-full">
+                    <h3 className="font-extrabold text-[11px] sm:text-sm text-foreground group-hover:text-blue-400 transition-colors leading-tight line-clamp-2">
                       {cat.name}
                     </h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1.5 leading-relaxed font-medium">
+                    <p className="hidden md:block text-xs text-muted-foreground line-clamp-2 mt-1.5 leading-relaxed font-medium">
                       {cat.description}
                     </p>
                   </div>
                 </div>
 
-                {/* Footer Info & Action */}
-                <div className="mt-5 pt-3.5 border-t border-border/60 flex items-center justify-between">
+                {/* Footer Info & Action (Desktop & Tablet only) */}
+                <div className="hidden md:flex w-full mt-4 pt-3 border-t border-border/60 items-center justify-between">
                   <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-400">
                     <Clock className="w-3 h-3 text-emerald-400" />
                     <span>Arrival &lt; 30m</span>
