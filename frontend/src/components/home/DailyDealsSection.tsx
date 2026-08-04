@@ -43,9 +43,11 @@ export function DailyDealsSection() {
   const [activeTab, setActiveTab] = useState('all');
   const [products, setProducts]   = useState<DealProduct[] | null>(null);
 
-  // Real countdown-to-midnight timer
-  const [timeLeft, setTimeLeft] = useState(() => secondsToHMS(getSecondsUntilMidnight()));
+  // Initialize to zeros to avoid SSR/client mismatch — real value set after mount
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   useEffect(() => {
+    // Set immediately on mount with real remaining time
+    setTimeLeft(secondsToHMS(getSecondsUntilMidnight()));
     const timer = setInterval(() => {
       setTimeLeft(secondsToHMS(getSecondsUntilMidnight()));
     }, 1000);
