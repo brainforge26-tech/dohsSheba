@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -24,18 +24,70 @@ import {
 
 interface ProductDetailClientProps {
   product: ProductItem;
+  slug?: string;
 }
 
-export function ProductDetailClient({ product }: ProductDetailClientProps) {
+export function ProductDetailClient({ product: initialProduct, slug }: ProductDetailClientProps) {
   const router = useRouter();
+  const [product, setProduct] = useState<ProductItem>(initialProduct);
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const { addItem, closeCart } = useCartStore();
   const { toggleWishlist, isInWishlist } = useWishlistStore();
 
+  // Fetch live API product from DB if slug is present or available
+  useEffect(() => {
+    const targetSlug = slug || initialProduct?.slug || initialProduct?.id;
+    if (!targetSlug) return;
+
+    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+
+    fetch(`${API}/products/${encodeURIComponent(targetSlug)}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res?.success && res.data) {
+          const p = res.data;
+          const images = Array.isArray(p.images) && p.images.length > 0
+            ? p.images
+            : (p.image ? [p.image] : [initialProduct.image]);
+
+          const origPrice = p.discount > 0 ? Math.round(p.price / (1 - p.discount / 100)) : undefined;
+
+          setProduct({
+            id: p.id,
+            title: p.name || p.title || initialProduct.title,
+            slug: p.slug || targetSlug,
+            categorySlug: p.category?.slug || p.categorySlug || initialProduct.categorySlug || 'groceries',
+            categoryName: p.category?.name || p.categoryName || initialProduct.categoryName || 'Daily Essentials',
+            shopName: p.seller?.sellerProfile?.shopName || p.seller?.name || p.shopName || 'Savar DOHS Market',
+            price: p.price ?? initialProduct.price,
+            originalPrice: origPrice,
+            unit: p.unit || initialProduct.unit || '1 unit',
+            rating: p.rating || 4.8,
+            reviewCount: p.totalReviews || p.reviewCount || 24,
+            image: images[0],
+            galleryImages: images,
+            stock: p.stock ?? 30,
+            badge: p.discount > 0 ? `${p.discount}% OFF` : (p.isFlashSale ? 'FLASH SALE' : undefined),
+            discountPercentage: p.discount || undefined,
+            description: p.description || initialProduct.description,
+            reviews: Array.isArray(p.reviews) ? p.reviews.map((r: any) => ({
+              id: r.id,
+              userName: r.user?.name || 'DOHS Resident',
+              userAvatar: r.user?.avatar,
+              rating: r.rating || 5,
+              date: new Date(r.createdAt || Date.now()).toLocaleDateString(),
+              comment: r.comment || '',
+            })) : [],
+          });
+        }
+      })
+      .catch(() => {});
+  }, [slug, initialProduct?.slug, initialProduct?.id]);
+
   // Save viewed product to recently-viewed localStorage history
-  React.useEffect(() => {
+  useEffect(() => {
     if (!product || !product.id) return;
     try {
       const stored = localStorage.getItem('dohssheba-recently-viewed');
@@ -94,6 +146,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               alt={product.title}
               fill
               className="object-cover"
+              unoptimized
             />
             {product.badge && (
               <span className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-md">
@@ -125,7 +178,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                       : 'border-border opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <Image src={img} alt={product.title} fill className="object-cover" />
+                  <Image src={img} alt={product.title} fill className="object-cover" unoptimized />
                 </button>
               ))}
             </div>

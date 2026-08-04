@@ -498,13 +498,30 @@ export function getProductBySlugOrId(slugOrId: string): ProductItem {
 
   if (found) return found;
 
-  // Fallback: Construct a clean, dynamic ProductItem for unknown slugs instead of hardcoding ALL_PRODUCTS[0]
+  // Fallback: Construct a clean, dynamic ProductItem for unknown slugs
   const cleanTitle = decoded
     .replace(/^prod_/, '')
     .replace(/^fy_/, '')
     .replace(/^cat_/, '')
     .replace(/-/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  let fallbackImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80';
+  if (decoded.includes('nugget') || decoded.includes('chicken') || decoded.includes('meat') || decoded.includes('beef')) {
+    fallbackImage = 'https://images.unsplash.com/photo-1562967914-608f82629710?w=600&auto=format&fit=crop&q=80';
+  } else if (decoded.includes('milk') || decoded.includes('egg') || decoded.includes('dairy') || decoded.includes('cheese')) {
+    fallbackImage = 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600&auto=format&fit=crop&q=80';
+  } else if (decoded.includes('tea') || decoded.includes('juice') || decoded.includes('drink') || decoded.includes('water') || decoded.includes('beverage')) {
+    fallbackImage = 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&auto=format&fit=crop&q=80';
+  } else if (decoded.includes('samosa') || decoded.includes('snack') || decoded.includes('biscuit') || decoded.includes('cookie')) {
+    fallbackImage = 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80';
+  } else if (decoded.includes('rice') || decoded.includes('grain') || decoded.includes('dal') || decoded.includes('flour')) {
+    fallbackImage = 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80';
+  } else if (decoded.includes('fish') || decoded.includes('shrimp') || decoded.includes('prawn')) {
+    fallbackImage = 'https://images.unsplash.com/photo-1534942519507-769d4679447d?w=600&auto=format&fit=crop&q=80';
+  } else if (decoded.includes('fruit') || decoded.includes('apple') || decoded.includes('mango') || decoded.includes('banana')) {
+    fallbackImage = 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600&auto=format&fit=crop&q=80';
+  }
 
   return {
     id: slugOrId,
@@ -513,12 +530,12 @@ export function getProductBySlugOrId(slugOrId: string): ProductItem {
     categorySlug: 'groceries',
     categoryName: 'Daily Essentials',
     shopName: 'Savar DOHS Market',
-    price: 480,
-    originalPrice: 580,
+    price: 350,
+    originalPrice: 400,
     unit: '1 Pack / Unit',
     rating: 4.8,
     reviewCount: 24,
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80',
+    image: fallbackImage,
     stock: 30,
     description: `Fresh, high-grade ${cleanTitle} sourced directly from verified DOHS suppliers. Guaranteed delivery within 45 minutes.`,
     reviews: [],

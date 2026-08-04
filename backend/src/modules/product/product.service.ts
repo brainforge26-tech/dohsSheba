@@ -128,7 +128,13 @@ export const getProducts = async (filters: ProductFilter) => {
 
 export const getProductById = async (id: string) => {
   const product = await prisma.product.findFirst({
-    where: { id, isActive: true },
+    where: {
+      OR: [
+        { id },
+        { slug: id },
+      ],
+      isActive: true,
+    },
     include: {
       category: true,
       brand: true,
