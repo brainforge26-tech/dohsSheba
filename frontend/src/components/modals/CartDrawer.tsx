@@ -63,7 +63,7 @@ export function CartDrawer() {
             isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
-          {/* Header (Clean padding and flush close X button) */}
+          {/* Header */}
           <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-emerald-50 text-[#7eb343] rounded-xl border border-emerald-100">
@@ -181,9 +181,9 @@ export function CartDrawer() {
             )}
           </div>
 
-          {/* Footer Subtotal & Checkout */}
+          {/* Footer Subtotal & Action Buttons */}
           {items.length > 0 && (
-            <div className="p-4 sm:p-5 border-t border-slate-100 bg-white space-y-4 shrink-0">
+            <div className="p-4 sm:p-5 border-t border-slate-100 bg-white space-y-3 shrink-0">
               <div className="space-y-2 text-xs sm:text-sm">
                 <div className="flex justify-between text-slate-500 font-medium">
                   <span>{isBn ? 'সাবটোটাল' : 'Subtotal'}</span>
@@ -212,14 +212,26 @@ export function CartDrawer() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleProceedToCheckout}
-                className="w-full py-3 rounded-xl bg-[#7eb343] hover:bg-[#6c9c36] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer"
-              >
-                <span>{isBn ? 'চেকআউট করুন' : 'Proceed to Checkout'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {/* Action Buttons: Add More Items & Proceed to Checkout */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={closeCart}
+                  className="py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 border border-slate-200"
+                >
+                  <Plus className="w-4 h-4 text-[#7eb343]" />
+                  <span>{isBn ? 'আরও পণ্য যোগ করুন' : 'Add More Items'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleProceedToCheckout}
+                  className="py-3 px-3 rounded-xl bg-[#7eb343] hover:bg-[#6c9c36] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer"
+                >
+                  <span>{isBn ? 'চেকআউট' : 'Checkout'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
 
