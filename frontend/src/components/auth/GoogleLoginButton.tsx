@@ -1,10 +1,28 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { fetchApi } from '@/lib/api-client';
-import { Loader2, AlertCircle, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { Loader2, ShieldAlert } from 'lucide-react';
+
+// Suppress the known FedCM AbortError that Google GSI emits when the
+// One-Tap flow is cancelled by navigation / component unmount.
+// This is a browser-level signal cancellation — NOT a real failure.
+if (typeof window !== 'undefined') {
+  const _origConsoleError = console.error.bind(console);
+  console.error = (...args: any[]) => {
+    const msg = args[0];
+    if (
+      typeof msg === 'string' &&
+      (msg.includes('[GSI_LOGGER]') || msg.includes('FedCM') || msg.includes('AbortError'))
+    ) {
+      // Silently ignore: these are expected browser-level GSI flow cancellations
+      return;
+    }
+    _origConsoleError(...args);
+  };
+}
 
 interface GoogleLoginButtonProps {
   buttonText?: string;
@@ -23,6 +41,7 @@ export function GoogleLoginButton({
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [configError, setConfigError] = useState('');
   const [originError, setOriginError] = useState(false);
+  const isMountedRef = useRef(true);
 
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -53,6 +72,16 @@ export function GoogleLoginButton({
       setConfigError('Failed to load Google Sign-In SDK script.');
     };
     document.body.appendChild(script);
+
+    // Cleanup: cancel any pending One-Tap prompt on unmount
+    return () => {
+      isMountedRef.current = false;
+      try {
+        if ((window as any).google?.accounts?.id) {
+          (window as any).google.accounts.id.cancel();
+        }
+      } catch (_) {}
+    };
   }, [clientId]);
 
   const initializeGoogleGSI = () => {
@@ -131,16 +160,21 @@ export function GoogleLoginButton({
       initializeGoogleGSI();
       try {
         (window as any).google.accounts.id.prompt((notification: any) => {
+          if (!isMountedRef.current) return;
           if (notification.isNotDisplayed()) {
             const reason = notification.getNotDisplayedReason();
-            console.warn('Google Prompt notification reason:', reason);
             if (reason === 'origin_mismatch' || reason === 'opt_out_or_cleared_cookies') {
               setOriginError(true);
             }
           }
+          if (notification.isDismissedMoment?.()) {
+            // User closed the prompt — not an error
+          }
         });
       } catch (e: any) {
-        setOriginError(true);
+        // Ignore AbortError — it is a normal FedCM cancellation, not a real failure
+        if (e?.name === 'AbortError' || e?.message?.includes('AbortError') || e?.message?.includes('signal')) return;
+        if (isMountedRef.current) setOriginError(true);
       }
     } else {
       if (onError) onError('Google Sign-In SDK is loading. Please try again in a moment.');
