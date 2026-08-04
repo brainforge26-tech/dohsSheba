@@ -8,6 +8,8 @@ interface SiteSettingsState {
   supportEmail: string;
   address: string;
   currencySymbol: string;
+  freeDeliveryThreshold: number;
+  defaultDeliveryFee: number;
   maintenanceMode: boolean;
   loaded: boolean;
   fetchSettings: () => Promise<void>;
@@ -21,6 +23,8 @@ export const useSiteSettingsStore = create<SiteSettingsState>((set) => ({
   supportEmail: 'support@dohssheba.com',
   address: 'Savar DOHS, Dhaka, Bangladesh',
   currencySymbol: '৳',
+  freeDeliveryThreshold: 500,
+  defaultDeliveryFee: 50,
   maintenanceMode: false,
   loaded: false,
 
@@ -35,6 +39,8 @@ export const useSiteSettingsStore = create<SiteSettingsState>((set) => ({
           supportEmail: res.data.supportEmail || 'support@dohssheba.com',
           address: res.data.address || 'Savar DOHS, Dhaka, Bangladesh',
           currencySymbol: res.data.currencySymbol || '৳',
+          freeDeliveryThreshold: Number(res.data.freeDeliveryThreshold ?? 500),
+          defaultDeliveryFee: Number(res.data.defaultDeliveryFee ?? 50),
           maintenanceMode: Boolean(res.data.maintenanceMode),
           loaded: true,
         });

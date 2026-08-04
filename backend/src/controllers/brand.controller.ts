@@ -6,23 +6,10 @@ export const getBrands = async (_req: Request, res: Response): Promise<void> => 
     let brands = await prisma.brand.findMany({
       where: { isActive: true },
       orderBy: { name: 'asc' },
+      include: {
+        _count: { select: { products: true } },
+      },
     });
-
-    // Default seed brands if empty
-    if (brands.length === 0) {
-      const defaultBrandNames = ['Nestle', 'Pran', 'Square', 'AACI', 'Unilever', 'DOHS Organic', 'Fresh', 'Teer', 'Radhuni'];
-      const created = [];
-      for (const bName of defaultBrandNames) {
-        const slug = bName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-        const b = await prisma.brand.upsert({
-          where: { slug },
-          update: {},
-          create: { name: bName, slug },
-        });
-        created.push(b);
-      }
-      brands = created;
-    }
 
     res.json({ success: true, data: brands });
   } catch (err: any) {
@@ -64,6 +51,40 @@ export const createBrand = async (req: Request, res: Response): Promise<void> =>
     });
 
     res.status(201).json({ success: true, data: brand, message: 'Brand created successfully' });
+  } catch (err: any) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+export const deleteBrand = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = String(req.params.id);
+    const existing = await prisma.brand.findUnique({ where: { id } });
+    if (!existing) {
+      res.status(404).json({ success: false, message: 'Brand not found' });
+      return;
+    }
+
+    // Check if brand is assigned to any active products
+    const productCount = await prisma.product.count({
+      where: {
+        OR: [
+          { brandId: id },
+          { brandName: { equals: existing.name, mode: 'insensitive' } },
+        ],
+      },
+    });
+
+    if (productCount > 0) {
+      res.status(400).json({
+        success: false,
+        message: `Cannot delete brand "${existing.name}". It is currently assigned to ${productCount} active product(s). Please reassign or delete those products first.`,
+      });
+      return;
+    }
+
+    await prisma.brand.delete({ where: { id } });
+    res.json({ success: true, message: `Brand "${existing.name}" deleted successfully` });
   } catch (err: any) {
     res.status(400).json({ success: false, message: err.message });
   }

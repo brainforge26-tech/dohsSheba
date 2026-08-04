@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useCartStore } from '@/store/useCartStore';
+import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/cn';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
@@ -38,9 +39,13 @@ export function CartDrawer() {
 
   if (!mounted) return null;
 
+  const { freeDeliveryThreshold } = useSiteSettingsStore();
+
   const subtotal = getSubtotal();
-  const deliveryFee = subtotal > 500 ? 0 : 50;
-  const total = subtotal + (items.length > 0 ? deliveryFee : 0);
+  const deliveryFee = subtotal >= freeDeliveryThreshold || subtotal === 0 ? 0 : 50;
+  const total = subtotal + deliveryFee;
+
+  if (!mounted || !isOpen) return null;
 
   return (
     <div
@@ -199,11 +204,17 @@ export function CartDrawer() {
                     )}
                   </span>
                 </div>
-                {subtotal <= 500 && (
-                  <p className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg text-center font-bold border border-amber-200">
+                {subtotal < freeDeliveryThreshold ? (
+                  <p className="text-[11px] text-amber-800 bg-amber-50/90 p-2.5 rounded-xl text-center font-bold border border-amber-200 shadow-2xs">
                     {isBn
-                      ? `ফ্রি ডেলিভারির জন্য আরও ৳${formatCurrency(501 - subtotal)} টাকার পণ্য যুক্ত করুন!`
-                      : `Add ৳${formatCurrency(501 - subtotal)} more for FREE delivery!`}
+                      ? `ফ্রি ডেলিভারির জন্য আরও ৳${formatCurrency(freeDeliveryThreshold - subtotal)} টাকার পণ্য যুক্ত করুন!`
+                      : `Add ৳${formatCurrency(freeDeliveryThreshold - subtotal)} more for FREE delivery!`}
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-emerald-800 bg-emerald-50 p-2.5 rounded-xl text-center font-bold border border-emerald-200 shadow-2xs">
+                    {isBn
+                      ? `🎉 অভিনন্দন! আপনি ফ্রি ডেলিভারি আনলক করেছেন!`
+                      : `🎉 Congratulations! You unlocked FREE delivery!`}
                   </p>
                 )}
                 <div className="border-t border-slate-100 pt-2 flex justify-between font-black text-sm sm:text-base">
