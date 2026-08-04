@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Tag, Plus, Search, Edit2, Trash2, Package, Loader2, FolderTree, AlertTriangle, X, Image as ImageIcon, Sparkles, Upload, ChevronRight, Layers } from 'lucide-react';
+import { Tag, Plus, Search, Edit2, Trash2, Package, Loader2, FolderTree, AlertTriangle, X, Image as ImageIcon, Sparkles, Upload, ChevronRight, Layers, Lock } from 'lucide-react';
 import { fetchApi, uploadSingleImageApi } from '@/lib/api-client';
 
 const SUGGESTED_IMAGES = [
@@ -675,13 +675,24 @@ export default function CategoriesPage() {
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => setDeletingCat(parent)}
-                      className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-white/10 transition-colors"
-                      title="Delete Parent Category"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {parentProductCount > 0 || children.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => alert(`⚠️ Deletion Blocked!\n\n"${parent.name}" is currently in use (${parentProductCount} product(s), ${children.length} subcategory(ies)). It cannot be deleted until those products or subcategories are reassigned or deleted.`)}
+                        className="p-2 rounded-xl bg-slate-800 text-slate-500 border border-white/5 cursor-not-allowed"
+                        title="Cannot delete: Category is in use by products or subcategories"
+                      >
+                        <Lock className="w-4 h-4 text-slate-500" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setDeletingCat(parent)}
+                        className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-white/10 transition-colors"
+                        title="Delete Parent Category"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -731,19 +742,30 @@ export default function CategoriesPage() {
                               <span className="flex items-center gap-1 font-medium">
                                 <Package className="w-3 h-3 text-purple-400" /> {subProdCount} products
                               </span>
-                              <div className="flex gap-2">
+                              <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => handleEditClick(sub)}
                                   className="font-bold text-amber-400 hover:underline"
                                 >
                                   Edit
                                 </button>
-                                <button
-                                  onClick={() => setDeletingCat(sub)}
-                                  className="font-bold text-rose-400 hover:underline"
-                                >
-                                  Delete
-                                </button>
+                                {subProdCount > 0 ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => alert(`⚠️ Deletion Blocked!\n\n"${sub.name}" is currently assigned to ${subProdCount} active product(s). It cannot be deleted until those products are reassigned or deleted.`)}
+                                    className="font-bold text-slate-500 flex items-center gap-0.5 cursor-not-allowed"
+                                    title="Cannot delete: Subcategory in use by products"
+                                  >
+                                    <Lock className="w-3 h-3 text-slate-500" /> Locked
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => setDeletingCat(sub)}
+                                    className="font-bold text-rose-400 hover:underline"
+                                  >
+                                    Delete
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
