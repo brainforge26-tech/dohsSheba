@@ -194,12 +194,12 @@ export function HeroBanner() {
         </div>
       </div>
 
-      {/* ── Main Hero Section (Dynamic Database Hero Slide + Promo Cards) ── */}
+      {/* ── Main Hero Section (Dynamic Database Hero Slide + App Mobile Promo Grid) ── */}
       <div className="max-w-7xl mx-auto px-4 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           
           {/* Main Hero Slider (Left 50% Width = 6 cols) */}
-          <div className="lg:col-span-6 relative rounded-2xl overflow-hidden bg-[#d7e6cd] p-6 sm:p-10 flex flex-col justify-between min-h-[380px] sm:min-h-[420px] shadow-2xs group">
+          <div className="lg:col-span-6 relative rounded-2xl overflow-hidden bg-[#d7e6cd] p-5 sm:p-10 flex flex-col justify-between min-h-[300px] sm:min-h-[420px] shadow-2xs group">
             
             {/* Top Row: Icon + Pagination Dots */}
             <div className="relative z-10 flex items-center justify-between">
@@ -223,35 +223,35 @@ export function HeroBanner() {
 
             {/* Slide Content */}
             {heroSlides[currentSlide] && (
-              <div className="relative z-10 max-w-sm space-y-4 my-auto pt-4">
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-snug tracking-tight">
+              <div className="relative z-10 max-w-sm space-y-3 sm:space-y-4 my-auto pt-2 sm:pt-4">
+                <h1 className="text-xl sm:text-4xl font-extrabold text-slate-900 leading-snug tracking-tight">
                   {heroSlides[currentSlide].title}
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-2">
                   {heroSlides[currentSlide].discountPercentage && (
-                    <span className="text-2xl sm:text-3xl font-black text-slate-900">
+                    <span className="text-xl sm:text-3xl font-black text-slate-900">
                       -{heroSlides[currentSlide].discountPercentage}%
                     </span>
                   )}
                   {heroSlides[currentSlide].badge && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0ad4e] text-slate-900 font-bold text-xs shadow-2xs">
-                      <Truck className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-[#f0ad4e] text-slate-900 font-bold text-[10px] sm:text-xs shadow-2xs">
+                      <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       <span>{heroSlides[currentSlide].badge}</span>
                     </span>
                   )}
                 </div>
 
                 {heroSlides[currentSlide].subtitle && (
-                  <p className="text-xs text-slate-700 font-medium max-w-xs leading-relaxed">
+                  <p className="text-[11px] sm:text-xs text-slate-700 font-medium max-w-xs leading-relaxed line-clamp-2">
                     {heroSlides[currentSlide].subtitle}
                   </p>
                 )}
 
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <Link
                     href={heroSlides[currentSlide].buttonLink || '/services/shopping'}
-                    className="inline-block px-7 py-3 rounded-md bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs sm:text-sm border border-slate-200 shadow-sm transition-all active:scale-95"
+                    className="inline-block px-5 py-2.5 sm:px-7 sm:py-3 rounded-md bg-white hover:bg-slate-50 text-slate-900 font-bold text-xs sm:text-sm border border-slate-200 shadow-sm transition-all active:scale-95"
                   >
                     {heroSlides[currentSlide].buttonText || 'Order Now'}
                   </Link>
@@ -289,39 +289,41 @@ export function HeroBanner() {
             )}
           </div>
 
-          {/* Right Promotional Cards (Dynamic Database Promo Cards) */}
-          {promoCards.slice(0, 2).map((card, idx) => (
-            <div
-              key={card.id || idx}
-              style={{ backgroundColor: card.backgroundColor || (idx === 0 ? '#b5d8f7' : '#f9da8b') }}
-              className="lg:col-span-3 rounded-2xl overflow-hidden p-6 flex flex-col justify-between shadow-2xs group min-h-[340px] text-center"
-            >
-              <div className="space-y-1 pt-2">
-                {card.subtitle && (
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-900 block">
-                    {card.subtitle}
-                  </span>
-                )}
-                <h3 className="text-xl font-extrabold text-slate-950">
-                  {card.title}
-                </h3>
-                <Link
-                  href={card.buttonUrl || '/services/shopping'}
-                  className="inline-block text-xs font-bold text-slate-900 underline hover:text-[#7eb343] transition-colors pt-1"
-                >
-                  {card.buttonText || 'Shop Now'}
-                </Link>
-              </div>
+          {/* Right/Bottom Promotional Cards Container (Mobile App 2-Column Side-by-Side Grid) */}
+          <div className="lg:col-span-6 grid grid-cols-2 gap-3 sm:gap-4">
+            {promoCards.slice(0, 2).map((card, idx) => (
+              <div
+                key={card.id || idx}
+                style={{ backgroundColor: card.backgroundColor || (idx === 0 ? '#b5d8f7' : '#f9da8b') }}
+                className="rounded-2xl overflow-hidden p-3.5 sm:p-5 flex flex-col justify-between shadow-2xs group min-h-[220px] sm:min-h-[340px] text-center"
+              >
+                <div className="space-y-0.5 sm:space-y-1 pt-1">
+                  {card.subtitle && (
+                    <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-900 block line-clamp-1">
+                      {card.subtitle}
+                    </span>
+                  )}
+                  <h3 className="text-sm sm:text-xl font-extrabold text-slate-950 line-clamp-1">
+                    {card.title}
+                  </h3>
+                  <Link
+                    href={card.buttonUrl || '/services/shopping'}
+                    className="inline-block text-[11px] sm:text-xs font-bold text-slate-900 underline hover:text-[#7eb343] transition-colors pt-0.5"
+                  >
+                    {card.buttonText || 'Shop Now'}
+                  </Link>
+                </div>
 
-              <div className="relative h-44 w-full flex items-center justify-center mt-4 overflow-hidden rounded-xl">
-                <img
-                  src={card.image}
-                  alt={card.title}
-                  className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
-                />
+                <div className="relative h-28 sm:h-44 w-full flex items-center justify-center mt-2 overflow-hidden rounded-xl">
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
         </div>
       </div>
