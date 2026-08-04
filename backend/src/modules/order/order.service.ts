@@ -24,9 +24,16 @@ export const getOrders = async (
   const skip = (page - 1) * limit;
 
   const where: any = {};
-  if (role === 'CUSTOMER') where.customerId = userId;
-  if (role === 'SELLER')   where.OR = [{ items: { some: { product: { sellerId: userId } } } }, { items: { some: {} } }];
-  if (role === 'RIDER')    where.riderId = userId;
+  if (role === 'CUSTOMER') {
+    where.customerId = userId;
+  } else if (role === 'SELLER') {
+    where.items = { some: { product: { sellerId: userId } } };
+  } else if (role === 'RIDER') {
+    where.OR = [
+      { riderId: userId },
+      { assignedRiderId: userId },
+    ];
+  }
 
   if (status && Object.values(OrderStatus).includes(status as any)) {
     where.status = status as OrderStatus;
