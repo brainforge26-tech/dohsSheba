@@ -43,3 +43,10 @@ export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFun
     return sendResponse(res, 200, 'Order cancelled');
   } catch (error) { next(error); }
 };
+
+export const deleteOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    await orderService.permanentlyDeleteOrder(req.params.id as string);
+    return sendResponse(res, 200, 'Order deleted permanently');
+  } catch (error) { next(error); }
+};

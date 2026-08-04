@@ -339,3 +339,17 @@ export const cancelOrder = async (orderId: string, customerId: string) => {
   emitToUser(customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'CANCELLED' });
   return cancelledOrder;
 };
+
+// ─── Delete Order Permanently ───────────────────────────────────────────────
+
+export const permanentlyDeleteOrder = async (orderId: string) => {
+  const existing = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!existing) throw new AppError('Order not found.', 404);
+
+  return prisma.$transaction(async (tx) => {
+    await tx.orderItem.deleteMany({ where: { orderId } });
+    await tx.payment.deleteMany({ where: { orderId } });
+    await tx.riderAssignment.deleteMany({ where: { orderId } });
+    return tx.order.delete({ where: { id: orderId } });
+  });
+};

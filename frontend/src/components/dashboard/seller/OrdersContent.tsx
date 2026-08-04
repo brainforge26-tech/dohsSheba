@@ -8,7 +8,7 @@ import {
   Search, Download, Eye, Loader2, ChevronLeft, ChevronRight,
   X, ShoppingBag, Check, Clock, RefreshCw, Archive, Truck,
   CheckCircle2, XCircle, AlertTriangle, RotateCcw, Package,
-  Calendar, User, Filter, ArrowUpDown, Banknote,
+  Calendar, User, Filter, ArrowUpDown, Banknote, Trash2,
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -278,11 +278,27 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
   };
 
   const handleBulkCancel = async () => {
-    if (!window.confirm(`Are you sure you want to cancel ${selected.size} selected order(s)?`)) return;
+    if (!window.confirm(`Are you sure you want to set ${selected.size} selected order(s) to CANCELLED?`)) return;
     setLoading(true);
     const ids = Array.from(selected);
     for (const id of ids) {
       await updateSingleOrderStatus(id, 'CANCELLED');
+    }
+    setSelected(new Set());
+    await fetchOrders();
+    setLoading(false);
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`⚠️ PERMANENT DELETE WARNING!\n\nAre you sure you want to permanently delete ${selected.size} selected order(s) from the database? This action cannot be undone.`)) return;
+    setLoading(true);
+    const ids = Array.from(selected);
+    for (const id of ids) {
+      try {
+        await fetchApi<any>(`/orders/${id}`, { method: 'DELETE' });
+      } catch (err) {
+        console.error(`Failed to delete order ${id}:`, err);
+      }
     }
     setSelected(new Set());
     await fetchOrders();
@@ -384,10 +400,18 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
 
             <button
               onClick={handleBulkCancel}
-              className="px-3.5 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
-              title="Cancel all selected orders"
+              className="px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+              title="Set selected orders to Cancelled status"
             >
-              <XCircle className="w-3.5 h-3.5" /> Cancel / Delete
+              <XCircle className="w-3.5 h-3.5" /> Cancel Selected
+            </button>
+
+            <button
+              onClick={handleBulkDelete}
+              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95 shadow-rose-600/20"
+              title="Permanently delete selected orders from database"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete Permanently
             </button>
 
             <button
