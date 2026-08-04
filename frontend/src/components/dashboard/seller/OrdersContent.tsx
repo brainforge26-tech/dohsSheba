@@ -240,15 +240,67 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
     }
   };
 
+  // ─── Bulk Operations ────────────────────────────────────────────────────────
+  const updateSingleOrderStatus = async (id: string, newStatus: string) => {
+    try {
+      const res = await fetchApi<any>(`/orders/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res?.success) {
+        updateOrderStatus(id, newStatus as any);
+      }
+    } catch (err) {
+      console.error(`Error updating order ${id} status:`, err);
+    }
+  };
+
+  const handleBulkAccept = async () => {
+    setLoading(true);
+    const ids = Array.from(selected);
+    for (const id of ids) {
+      await updateSingleOrderStatus(id, 'SELLER_ACCEPTED');
+    }
+    setSelected(new Set());
+    await fetchOrders();
+    setLoading(false);
+  };
+
+  const handleBulkRiderRequest = async () => {
+    setLoading(true);
+    const ids = Array.from(selected);
+    for (const id of ids) {
+      await updateSingleOrderStatus(id, 'READY_FOR_RIDER');
+    }
+    setSelected(new Set());
+    await fetchOrders();
+    setLoading(false);
+  };
+
+  const handleBulkCancel = async () => {
+    if (!window.confirm(`Are you sure you want to cancel ${selected.size} selected order(s)?`)) return;
+    setLoading(true);
+    const ids = Array.from(selected);
+    for (const id of ids) {
+      await updateSingleOrderStatus(id, 'CANCELLED');
+    }
+    setSelected(new Set());
+    await fetchOrders();
+    setLoading(false);
+  };
+
   const handleBulkStatus = async () => {
+    setLoading(true);
     const ids = Array.from(selected);
     for (const id of ids) {
       const order = allCombinedOrders.find((o) => o.id === id);
       if (order && NEXT_STATUS[order.status]) {
-        await handleQuickStatus(id, order.status);
+        await updateSingleOrderStatus(id, NEXT_STATUS[order.status]!);
       }
     }
     setSelected(new Set());
+    await fetchOrders();
+    setLoading(false);
   };
 
   const pageLabel = title || (defaultStatus ? `${defaultStatus.charAt(0) + defaultStatus.slice(1).toLowerCase()} Orders` : 'All Orders');
@@ -307,12 +359,50 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
 
       {/* ── Bulk Action Bar ── */}
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-indigo-600/10 border border-indigo-500/30">
-          <span className="text-xs font-bold text-indigo-300">{selected.size} selected</span>
-          <div className="flex items-center gap-2 ml-auto">
-            <button onClick={() => setSelected(new Set())} className="px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 transition-all">Deselect</button>
-            <button onClick={handleBulkStatus} className="px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold hover:bg-indigo-500/30 transition-all flex items-center gap-1.5">
-              <ChevronRight className="w-3 h-3" /> Advance Status
+        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-[#1e1f35] border border-indigo-500/40 shadow-2xl flex-wrap">
+          <span className="text-xs font-bold text-indigo-200 flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+            <span>{selected.size} order(s) selected</span>
+          </span>
+
+          <div className="flex items-center gap-2 flex-wrap ml-auto">
+            <button
+              onClick={handleBulkAccept}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95"
+              title="Accept all selected pending orders"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" /> Accept Selected
+            </button>
+
+            <button
+              onClick={handleBulkRiderRequest}
+              className="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95"
+              title="Request rider dispatch for selected orders"
+            >
+              <Truck className="w-3.5 h-3.5" /> Request Rider
+            </button>
+
+            <button
+              onClick={handleBulkCancel}
+              className="px-3.5 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+              title="Cancel all selected orders"
+            >
+              <XCircle className="w-3.5 h-3.5" /> Cancel / Delete
+            </button>
+
+            <button
+              onClick={handleBulkStatus}
+              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+              title="Advance selected orders to next status"
+            >
+              <ChevronRight className="w-3.5 h-3.5" /> Advance Status
+            </button>
+
+            <button
+              onClick={() => setSelected(new Set())}
+              className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs font-bold transition-all"
+            >
+              Deselect All
             </button>
           </div>
         </div>
