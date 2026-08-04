@@ -165,7 +165,7 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
   };
 
   return (
-    <header className="sticky top-0 z-40 shrink-0 w-full bg-[#181928]/95 backdrop-blur-xl border-b border-white/10 text-white px-3.5 sm:px-6 py-2.5 sm:py-3 pt-safe flex items-center justify-between gap-2 sm:gap-4 shadow-xl transition-all overflow-hidden max-w-full">
+    <header className="sticky top-0 z-40 shrink-0 w-full bg-[#181928]/95 backdrop-blur-xl border-b border-white/10 text-white px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-2 sm:gap-4 shadow-xl transition-all overflow-hidden max-w-full">
       {/* Top Left Navigation Icons & Mobile Toggle */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
         <button
