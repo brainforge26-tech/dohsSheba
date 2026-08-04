@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as orderService from './order.service';
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import { sendResponse, getPaginationMeta } from '../../utils/response.util';
@@ -48,5 +48,19 @@ export const deleteOrder = async (req: AuthRequest, res: Response, next: NextFun
   try {
     await orderService.permanentlyDeleteOrder(req.params.id as string);
     return sendResponse(res, 200, 'Order deleted permanently');
+  } catch (error) { next(error); }
+};
+
+export const createGuestOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const order = await orderService.createGuestOrder(req.body);
+    return sendResponse(res, 201, 'Guest order placed successfully', order);
+  } catch (error) { next(error); }
+};
+
+export const trackPublicOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const order = await orderService.getPublicTrackingOrder(req.params.codeOrPhone as string);
+    return sendResponse(res, 200, 'Order tracking details retrieved', order);
   } catch (error) { next(error); }
 };

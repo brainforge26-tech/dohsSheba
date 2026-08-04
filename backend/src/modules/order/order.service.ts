@@ -12,6 +12,13 @@ const orderInclude = {
   },
   payment: true,
   customer: { select: { id: true, name: true, email: true, phone: true } },
+  rider: { select: { id: true, name: true, phone: true, avatar: true } },
+  riderAssignment: true,
+};
+
+export const generateUniqueTrackingCode = (): string => {
+  const randomDigits = Math.floor(10000000 + Math.random() * 90000000);
+  return `TRK-${randomDigits}`;
 };
 
 // ─── Get Orders ───────────────────────────────────────────────────────────────
@@ -162,6 +169,7 @@ export const createOrderFromCart = async (
 
     const newOrder = await tx.order.create({
       data: {
+        trackingCode: generateUniqueTrackingCode(),
         customerId,
         addressId: data.addressId,
         customerPhone: validPhone,
@@ -302,7 +310,9 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus) =>
             orderId,
             reason: 'Dispatch 30-second timer expired. No online rider accepted.',
           });
-          emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'WAITING_FOR_MANUAL_ASSIGNMENT' });
+          if (order.customerId) {
+            emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'WAITING_FOR_MANUAL_ASSIGNMENT' });
+          }
           emitToOrderRoom(orderId, 'ORDER_STATUS_UPDATED', { orderId, status: 'WAITING_FOR_MANUAL_ASSIGNMENT' });
         }
       } catch (err) {
@@ -312,19 +322,23 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus) =>
   }
 
   // Socket emissions to Customer & Order Room
-  emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: updated.status });
+  if (order.customerId) {
+    emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: updated.status });
+  }
   emitToOrderRoom(orderId, 'ORDER_STATUS_UPDATED', { orderId, status: updated.status, order: updated });
 
   // System Notification for Customer
-  await prisma.notification.create({
-    data: {
-      userId:  order.customerId,
-      title:   'Order Status Updated',
-      message: `Your order status is now ${updated.status}`,
-      type:    updated.status === 'DELIVERED' ? 'SUCCESS' : 'INFO',
-      link:    `/dashboard/orders/${orderId}`,
-    },
-  });
+  if (order.customerId) {
+    await prisma.notification.create({
+      data: {
+        userId:  order.customerId,
+        title:   'Order Status Updated',
+        message: `Your order status is now ${updated.status}`,
+        type:    updated.status === 'DELIVERED' ? 'SUCCESS' : 'INFO',
+        link:    `/dashboard/orders/${orderId}`,
+      },
+    });
+  }
 
   return updated;
 };
@@ -359,4 +373,133 @@ export const permanentlyDeleteOrder = async (orderId: string) => {
     await tx.riderAssignment.deleteMany({ where: { orderId } });
     return tx.order.delete({ where: { id: orderId } });
   });
+};
+
+// ─── Guest Order Creation ───────────────────────────────────────────────────
+
+export const createGuestOrder = async (data: {
+  guestName: string;
+  guestPhone: string;
+  guestEmail?: string;
+  guestAddress: string;
+  items: { productId: string; quantity: number }[];
+  notes?: string;
+  paymentMethod?: string;
+}) => {
+  if (!data.guestName || !data.guestPhone || !data.guestAddress) {
+    throw new AppError('Name, Phone, and Delivery Address are required for guest checkout.', 400);
+  }
+  if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
+    throw new AppError('Order must contain at least one item.', 400);
+  }
+
+  const productIds = data.items.map((i) => i.productId);
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+  });
+
+  if (products.length === 0) {
+    throw new AppError('Selected products could not be found.', 400);
+  }
+
+  let subtotal = 0;
+  const orderItems = data.items.map((item) => {
+    const p = products.find((prod) => prod.id === item.productId);
+    const price = p ? (p.salePrice || p.price) : 100;
+    subtotal += price * item.quantity;
+    return {
+      productId: item.productId,
+      quantity: item.quantity,
+      price,
+    };
+  });
+
+  let siteSettings = await (prisma as any).siteSetting.findUnique({ where: { id: 'default' } });
+  const threshold = Number(siteSettings?.freeDeliveryThreshold ?? 500);
+  const defaultFee = Number(siteSettings?.defaultDeliveryFee ?? 50);
+  const deliveryFee = subtotal >= threshold || subtotal === 0 ? 0 : defaultFee;
+  const totalAmount = subtotal + deliveryFee;
+
+  const trackingCode = generateUniqueTrackingCode();
+
+  const order = await prisma.$transaction(async (tx) => {
+    const newOrder = await tx.order.create({
+      data: {
+        trackingCode,
+        isGuest: true,
+        guestName: data.guestName.trim(),
+        guestPhone: data.guestPhone.trim(),
+        guestEmail: data.guestEmail?.trim() || null,
+        guestAddress: data.guestAddress.trim(),
+        customerPhone: data.guestPhone.trim(),
+        subtotal,
+        deliveryFee,
+        totalAmount,
+        notes: data.notes?.trim() || null,
+        status: 'PENDING',
+        items: { create: orderItems },
+      },
+      include: orderInclude,
+    });
+
+    await tx.payment.create({
+      data: {
+        orderId: newOrder.id,
+        amount: totalAmount,
+        method: (data.paymentMethod as any) || 'CASH',
+        status: 'PENDING',
+      },
+    });
+
+    return newOrder;
+  });
+
+  const sellerId = order.items[0]?.product?.sellerId;
+  if (sellerId) {
+    emitToSellerRoom(sellerId, 'ORDER_CREATED', { order });
+  }
+  emitToRole('SELLER', 'ORDER_CREATED', { order });
+  emitToAdminRoom('ORDER_CREATED', { order });
+
+  return order;
+};
+
+// ─── Public Order Tracking ───────────────────────────────────────────────────
+
+export const getPublicTrackingOrder = async (query: string) => {
+  if (!query || !query.trim()) {
+    throw new AppError('Please provide a tracking code, order ID, or phone number.', 400);
+  }
+
+  const cleanQuery = query.trim();
+
+  const order = await prisma.order.findFirst({
+    where: {
+      OR: [
+        { trackingCode: { equals: cleanQuery, mode: 'insensitive' } },
+        { id: { equals: cleanQuery, mode: 'insensitive' } },
+        { guestPhone: cleanQuery },
+        { customerPhone: cleanQuery },
+      ],
+    },
+    include: {
+      address: true,
+      items: {
+        include: {
+          product: { select: { id: true, name: true, images: true, unit: true, sellerId: true } },
+        },
+      },
+      payment: true,
+      customer: { select: { id: true, name: true, email: true, phone: true } },
+      rider: { select: { id: true, name: true, phone: true, avatar: true } },
+      riderAssignment: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (!order) {
+    throw new AppError(`No active order found matching "${cleanQuery}". Please verify your tracking code or phone number.`, 404);
+  }
+
+  return order;
 };

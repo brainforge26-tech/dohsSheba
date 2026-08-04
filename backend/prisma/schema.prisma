@@ -378,8 +378,14 @@ model WishlistItem {
 
 model Order {
   id                   String           @id @default(cuid())
-  customerId           String
-  addressId            String
+  trackingCode         String?          @unique
+  customerId           String?
+  addressId            String?
+  isGuest              Boolean          @default(false)
+  guestName            String?
+  guestEmail           String?
+  guestPhone           String?
+  guestAddress         String?
   customerPhone        String?
   status               OrderStatus      @default(PENDING)
   subtotal             Float
@@ -400,8 +406,8 @@ model Order {
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
 
-  customer             User             @relation(fields: [customerId], references: [id])
-  address              Address          @relation(fields: [addressId], references: [id])
+  customer             User?            @relation(fields: [customerId], references: [id])
+  address              Address?         @relation(fields: [addressId], references: [id])
   rider                User?            @relation("RiderOrders", fields: [riderId], references: [id])
   items                OrderItem[]
   payment              Payment?

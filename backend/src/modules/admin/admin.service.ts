@@ -412,7 +412,9 @@ export const assignRiderToOrder = async (orderId: string, riderId: string) => {
   // Socket notifications
   emitToUser(riderId, 'RIDER_ORDER_ASSIGNED', { order: updatedOrder });
   emitToUser(riderId, 'NEW_ASSIGNMENT', { order: updatedOrder });
-  emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'RIDER_ASSIGNED', riderName: rider.name });
+  if (order.customerId) {
+    emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'RIDER_ASSIGNED', riderName: rider.name });
+  }
 
   return updatedOrder;
 };
@@ -433,7 +435,9 @@ export const unassignRider = async (orderId: string) => {
     data: { riderId: null, assignedRiderId: null, riderName: null, status: 'READY_FOR_RIDER' },
   });
 
-  emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'READY_FOR_RIDER' });
+  if (order.customerId) {
+    emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: 'READY_FOR_RIDER' });
+  }
   return updated;
 };
 

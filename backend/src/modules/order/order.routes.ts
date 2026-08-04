@@ -6,6 +6,11 @@ import { createOrderValidator, updateOrderStatusValidator } from './order.valida
 
 const router = Router();
 
+// ─── Public Unprotected Routes (No Login Required) ───
+router.post('/guest', orderController.createGuestOrder);
+router.get('/track/:codeOrPhone', orderController.trackPublicOrder);
+
+// ─── Protected Routes (Login Required) ───
 router.use(protect);
 
 router.get('/',      orderController.getOrders);

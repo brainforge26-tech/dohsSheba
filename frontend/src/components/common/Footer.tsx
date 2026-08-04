@@ -166,6 +166,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/track-order" className="hover:text-[#7eb343] transition-colors font-extrabold text-[#7eb343] flex items-center gap-1.5 py-0.5">
+                <Truck className="w-3.5 h-3.5" /> <span>Track Parcel / Order</span>
+              </Link>
+            </li>
+            <li>
               <Link href="/services/shopping/rice" className="hover:text-[#7eb343] transition-colors">
                 Rice, Oil & Spices
               </Link>

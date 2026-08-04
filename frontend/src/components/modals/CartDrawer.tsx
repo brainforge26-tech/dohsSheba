@@ -7,6 +7,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/cn';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export function CartDrawer() {
   const router = useRouter();
@@ -196,25 +197,35 @@ export function CartDrawer() {
               </div>
             </div>
 
-            {/* Action Buttons: Add More Items & Proceed to Checkout */}
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <button
-                type="button"
-                onClick={closeCart}
-                className="py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 border border-slate-200"
-              >
-                <Plus className="w-4 h-4 text-[#7eb343]" />
-                <span>{isBn ? 'আরও পণ্য যোগ করুন' : 'Add More Items'}</span>
-              </button>
+            {/* Action Buttons: Add More Items, Standard Checkout & Guest Express Checkout */}
+            <div className="space-y-2 pt-1">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={closeCart}
+                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-200"
+                >
+                  <Plus className="w-3.5 h-3.5 text-[#7eb343]" />
+                  <span>{isBn ? 'আরও যোগ করুন' : 'Add Items'}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={handleProceedToCheckout}
-                className="py-3 px-3 rounded-xl bg-[#7eb343] hover:bg-[#6c9c36] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer"
+                <button
+                  type="button"
+                  onClick={handleProceedToCheckout}
+                  className="py-2.5 px-3 rounded-xl bg-[#7eb343] hover:bg-[#6c9c36] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                >
+                  <span>{isBn ? 'চেকআউট' : 'Checkout'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <Link
+                href="/services/shopping/checkout/guest"
+                onClick={closeCart}
+                className="w-full py-2.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-extrabold text-xs flex items-center justify-center gap-1.5 border border-indigo-200 transition-all cursor-pointer block text-center"
               >
-                <span>{isBn ? 'চেকআউট করুন' : 'Checkout'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                <span>⚡ {isBn ? 'গেস্ট এক্সপ্রেস চেকআউট (লগইন ছাড়াই)' : 'Guest Express Checkout (No Login)'}</span>
+              </Link>
             </div>
           </div>
         )}

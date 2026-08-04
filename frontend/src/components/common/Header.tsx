@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   LogOut,
   SlidersHorizontal,
+  Truck,
 } from 'lucide-react';
 import { SERVICE_CATEGORIES } from '@/constants/services';
 import { SHOPPING_CATEGORIES } from '@/constants/products';
@@ -77,6 +78,16 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/track-order"
+              className="flex items-center gap-1 font-extrabold text-white bg-emerald-800/60 hover:bg-emerald-800 px-2.5 py-1 rounded-md text-[11px] transition-all border border-emerald-400/40"
+            >
+              <Truck className="w-3.5 h-3.5 text-amber-300" />
+              <span>Track Order</span>
+            </Link>
+
+            <span className="text-emerald-200">|</span>
+
             <Link
               href="/offers"
               className="flex items-center gap-1 font-bold text-amber-200 hover:underline text-[11px]"

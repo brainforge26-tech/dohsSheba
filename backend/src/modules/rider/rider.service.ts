@@ -149,14 +149,16 @@ export const acceptOpenOrder = async (orderId: string, riderId: string) => {
     });
 
     // Create notifications for Customer, Rider, and Seller
-    await tx.notification.create({
-      data: {
-        userId: order.customerId,
-        title: 'Rider Assigned to Your Order',
-        message: `Rider ${riderUser.name} (${riderUser.phone || '01306031982'}) has accepted your delivery!`,
-        type: 'INFO',
-      },
-    });
+    if (order.customerId) {
+      await tx.notification.create({
+        data: {
+          userId: order.customerId,
+          title: 'Rider Assigned to Your Order',
+          message: `Rider ${riderUser.name} (${riderUser.phone || '01306031982'}) has accepted your delivery!`,
+          type: 'INFO',
+        },
+      });
+    }
 
     await tx.notification.create({
       data: {
@@ -208,12 +210,14 @@ export const acceptOpenOrder = async (orderId: string, riderId: string) => {
   emitToUser(riderId, 'RIDER_ORDER_ACCEPTED', { orderId, order: updatedOrder });
   emitToUser(riderId, 'MISSION_STARTED', { orderId, order: updatedOrder });
 
-  emitToUser(updatedOrder.customerId, 'ORDER_STATUS_UPDATED', {
-    orderId,
-    status: 'RIDER_ASSIGNED',
-    riderName: riderUser.name,
-    riderPhone: riderUser.phone,
-  });
+  if (updatedOrder.customerId) {
+    emitToUser(updatedOrder.customerId, 'ORDER_STATUS_UPDATED', {
+      orderId,
+      status: 'RIDER_ASSIGNED',
+      riderName: riderUser.name,
+      riderPhone: riderUser.phone,
+    });
+  }
 
   const sellerId = updatedOrder.items[0]?.product?.sellerId;
   if (sellerId) {
@@ -380,7 +384,9 @@ export const updateMissionStatus = async (
     });
   }
 
-  emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus });
+  if (order.customerId) {
+    emitToUser(order.customerId, 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus });
+  }
   const sellerId = order.items[0]?.product?.sellerId;
   if (sellerId) {
     emitToSellerRoom(sellerId, 'ORDER_STATUS_UPDATED', { orderId, status: targetStatus });

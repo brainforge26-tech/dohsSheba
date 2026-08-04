@@ -149,8 +149,12 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
       const q = search.toLowerCase();
       list = list.filter((o) =>
         o.id.toLowerCase().includes(q) ||
+        (o.trackingCode && o.trackingCode.toLowerCase().includes(q)) ||
         o.customer?.name?.toLowerCase().includes(q) ||
-        o.customer?.email?.toLowerCase().includes(q)
+        o.guestName?.toLowerCase().includes(q) ||
+        o.customer?.email?.toLowerCase().includes(q) ||
+        (o.customerPhone && o.customerPhone.includes(q)) ||
+        (o.guestPhone && o.guestPhone.includes(q))
       );
     }
     if (sortKey === 'newest') list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -524,13 +528,29 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
                     </button>
                   </td>
                   <td className="p-4">
-                    <div className="font-bold text-indigo-400 font-mono">#{o.id.toUpperCase()}</div>
+                    <div className="font-bold text-indigo-400 font-mono">#{o.id.slice(-8).toUpperCase()}</div>
+                    {o.trackingCode && (
+                      <div className="text-[10px] text-amber-400 font-mono font-bold flex items-center gap-1">
+                        <span>{o.trackingCode}</span>
+                      </div>
+                    )}
                     <div className="text-[10px] text-slate-500">{o.payment?.method ?? 'bKash'}</div>
                   </td>
                   <td className="p-4">
-                    <div className="font-semibold text-white">{o.customer?.name}</div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold text-white">{o.guestName || o.customer?.name || 'Guest Resident'}</span>
+                      {o.isGuest || !o.customer?.id ? (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                          GUEST
+                        </span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          USER
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-emerald-400 font-bold truncate max-w-[160px]">
-                      {o.customerPhone || o.customer?.phone || o.customer?.email || '01306031982'}
+                      {o.guestPhone || o.customerPhone || o.customer?.phone || o.customer?.email || 'N/A'}
                     </div>
                   </td>
                   <td className="p-4 hidden md:table-cell">
@@ -562,6 +582,9 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
                           <span>{updatingId === o.id ? 'Updating…' : NEXT_LABEL[o.status]}</span>
                         </button>
                       )}
+                      <Link href={`/track-order?code=${encodeURIComponent(o.trackingCode || o.id)}`} target="_blank" className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 flex items-center justify-center transition-all" title="Quick Track Order">
+                        <Truck className="w-3.5 h-3.5" />
+                      </Link>
                       <Link href={`/seller/dashboard/orders/${o.id}`} className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 flex items-center justify-center transition-all" title="View Order">
                         <Eye className="w-3.5 h-3.5" />
                       </Link>
