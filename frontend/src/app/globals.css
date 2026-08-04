@@ -60,6 +60,33 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Clean Media Print CSS for Invoice / Receipt */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, footer, nav, button, .no-print {
+    display: none !important;
+  }
+  #printable-receipt {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  #printable-receipt * {
+    visibility: visible !important;
+  }
+}
+
 /* Custom Woodmart Theme Classes */
 .woodmart-green {
   color: #7eb343;

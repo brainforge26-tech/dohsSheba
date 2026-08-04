@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/cn';
+import { PrintableReceipt } from '@/components/common/PrintableReceipt';
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
@@ -162,6 +163,9 @@ function OrderSuccessContent() {
             <ShoppingBag className="w-4 h-4" /> Continue Shopping in DOHS Bazaar
           </Link>
         </div>
+
+        {/* Dedicated Clean Printable Receipt (Only visible during print) */}
+        {order && <PrintableReceipt order={order} trackingCode={displayTrackingCode} />}
 
       </div>
     </div>

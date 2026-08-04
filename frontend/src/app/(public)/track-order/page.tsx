@@ -28,6 +28,7 @@ import {
 import { fetchApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/cn';
 import { getSocket } from '@/lib/socket';
+import { PrintableReceipt } from '@/components/common/PrintableReceipt';
 
 interface TrackingOrder {
   id: string;
@@ -450,6 +451,9 @@ function TrackOrderContent() {
                 </div>
               </div>
             </div>
+
+            {/* Dedicated Clean Printable Receipt (Only visible during print) */}
+            <PrintableReceipt order={order} />
 
           </div>
         )}
