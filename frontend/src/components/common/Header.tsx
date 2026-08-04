@@ -323,6 +323,29 @@ export function Header() {
         </div>
       </div>
 
+      {/* Mobile Search Bar (Below Navbar on Mobile Devices) */}
+      <div className="block lg:hidden px-4 pb-3 pt-1 border-t border-slate-100 bg-white">
+        <div
+          onClick={() => openSearch(searchQuery)}
+          className="flex w-full items-center border border-slate-200 rounded-xl bg-slate-50 focus-within:ring-2 focus-within:ring-[#7eb343] focus-within:bg-white transition-all overflow-hidden shadow-2xs cursor-pointer"
+        >
+          <input
+            type="text"
+            readOnly
+            onFocus={() => openSearch(searchQuery)}
+            placeholder="Search Electrician, AC Repair, Fresh Fruits, Rice..."
+            className="w-full bg-transparent px-3.5 py-2 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none cursor-pointer"
+          />
+          <button
+            type="button"
+            onClick={() => openSearch(searchQuery)}
+            className="p-2.5 bg-[#7eb343] text-white hover:bg-[#6c9c36] transition-colors shrink-0"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background p-4 space-y-4 animate-in slide-in-from-top duration-200">
