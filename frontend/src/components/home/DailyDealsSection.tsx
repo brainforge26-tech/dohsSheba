@@ -47,8 +47,8 @@ export function DailyDealsSection() {
   // Fetch discounted / hot deal products from DB
   useEffect(() => {
     const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-    // Fetch products sorted by discount, limit 12
-    fetch(`${API}/products?sort=price_asc&limit=12`)
+    // Fetch only Flash Sale marked products from DB
+    fetch(`${API}/products?flashSale=true&limit=12`)
       .then((r) => r.json())
       .then((res) => {
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {

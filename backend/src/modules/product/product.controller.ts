@@ -39,6 +39,7 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
       search:   req.query.search   as string,
       sort:     req.query.sort     as string,
       featured: req.query.featured === 'true',
+      flashSale: req.query.flashSale === 'true',
       minPrice, maxPrice,
     });
     return sendResponse(res, 200, 'Products fetched', products, getPaginationMeta(total, page, limit));

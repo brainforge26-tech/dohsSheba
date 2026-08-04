@@ -6,7 +6,7 @@ interface ProductFilter {
   page?: number; limit?: number;
   category?: string; search?: string;
   minPrice?: number; maxPrice?: number;
-  sort?: string; featured?: boolean;
+  sort?: string; featured?: boolean; flashSale?: boolean;
 }
 
 // ─── Product Categories ───────────────────────────────────────────────────────
@@ -78,12 +78,13 @@ export const updateProductCategory = async (id: string, data: object) => {
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 export const getProducts = async (filters: ProductFilter) => {
-  const { page = 1, limit = 12, category, search, minPrice, maxPrice, sort, featured } = filters;
+  const { page = 1, limit = 12, category, search, minPrice, maxPrice, sort, featured, flashSale } = filters;
   const skip = (page - 1) * limit;
 
   const where: any = { isActive: true };
-  if (category) where.category = { slug: category };
-  if (featured)  where.isFeatured = true;
+  if (category)   where.category = { slug: category };
+  if (featured)   where.isFeatured = true;
+  if (flashSale)  where.isFlashSale = true;
   if (search) {
     where.OR = [
       { name:        { contains: search, mode: 'insensitive' } },

@@ -39,6 +39,7 @@ interface ProductFormData {
   slug: string;
   status: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
   isFeatured: boolean;
+  isFlashSale: boolean;
   videoUrl: string;
 }
 
@@ -56,7 +57,7 @@ const DEFAULT: ProductFormData = {
   weight: '', length: '', width: '', height: '',
   images: [], imageInput: '',
   metaTitle: '', metaDescription: '', slug: '',
-  status: 'ACTIVE', isFeatured: false, videoUrl: '',
+  status: 'ACTIVE', isFeatured: false, isFlashSale: false, videoUrl: '',
 };
 
 // ─── Section Card Wrapper ─────────────────────────────────────────────────────
@@ -288,6 +289,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
         stock:       String(initialData.stock   || ''),
         unit:        initialData.unit       || 'piece',
         isFeatured:  initialData.isFeatured || false,
+        isFlashSale: initialData.isFlashSale || false,
         status:      initialData.isActive === false ? 'ARCHIVED' : 'ACTIVE',
         images:      initialData.images     || [],
         slug:        initialData.slug       || '',
@@ -378,6 +380,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
         stock:       Number(form.stock || 0),
         unit:        form.unit,
         isFeatured:  form.isFeatured,
+        isFlashSale: form.isFlashSale,
         isActive:    form.status === 'ACTIVE',
         // Extended fields (stored if schema supports)
         sku:         form.sku,
@@ -829,6 +832,23 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
               >
                 <Star className={`w-3.5 h-3.5 ${form.isFeatured ? 'fill-amber-400 text-amber-400' : ''}`} />
                 {form.isFeatured ? 'Featured' : 'Set Featured'}
+              </button>
+            </div>
+
+            {/* Flash Sale toggle */}
+            <div className="flex items-center justify-between pt-2 border-t border-white/10">
+              <div>
+                <p className="text-xs font-bold text-white">⚡ Flash Sale Product</p>
+                <p className="text-[10px] text-slate-400">Show in Daily Deals / Flash Sale section</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => set('isFlashSale', !form.isFlashSale)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                  form.isFlashSale ? 'bg-rose-500/20 border-rose-500/30 text-rose-300' : 'bg-white/5 border-white/10 text-slate-400'
+                }`}
+              >
+                <span>{form.isFlashSale ? '⚡ Flash Sale ON' : 'Set Flash Sale'}</span>
               </button>
             </div>
           </Section>
