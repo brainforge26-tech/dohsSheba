@@ -219,7 +219,13 @@ export default function BrandsPage() {
                 <tr key={b.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">{b.logo}</span>
+                      {b.logo && (b.logo.startsWith('http') || b.logo.startsWith('/') || b.logo.startsWith('data:')) ? (
+                        <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-900 border border-white/10 shrink-0 shadow-sm">
+                          <img src={b.logo} alt={b.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <span className="text-xl">{b.logo || '🏷️'}</span>
+                      )}
                       <p className="font-bold text-white">{b.name}</p>
                     </div>
                   </td>
