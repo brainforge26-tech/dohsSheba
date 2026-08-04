@@ -442,11 +442,20 @@ export const createGuestOrder = async (data: {
       include: orderInclude,
     });
 
+    let paymentMethodEnum: any = 'CASH';
+    if (data.paymentMethod) {
+      const pm = String(data.paymentMethod).toUpperCase();
+      if (pm === 'COD' || pm === 'CASH') paymentMethodEnum = 'CASH';
+      else if (pm === 'BKASH') paymentMethodEnum = 'BKASH';
+      else if (pm === 'NAGAD') paymentMethodEnum = 'NAGAD';
+      else if (pm === 'CARD' || pm === 'STRIPE' || pm === 'SSLCOMMERZ') paymentMethodEnum = 'SSLCOMMERZ';
+    }
+
     await tx.payment.create({
       data: {
         orderId: newOrder.id,
         amount: totalAmount,
-        method: (data.paymentMethod as any) || 'CASH',
+        method: paymentMethodEnum,
         status: 'PENDING',
       },
     });

@@ -265,7 +265,7 @@ export function Header() {
           >
             <ShoppingBag className="w-5 h-5 text-[#7eb343]" />
             <span className="hidden sm:inline font-bold text-xs">Cart</span>
-            {cartCount > 0 && (
+            {mounted && cartCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-[#7eb343] text-white font-black text-[11px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
                 {cartCount}
               </span>
