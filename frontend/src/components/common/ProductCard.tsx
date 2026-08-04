@@ -131,10 +131,11 @@ export function ProductCard({
         />
       </Link>
 
-      {/* ── Bottom Section ── */}
-      <div className="shrink-0 space-y-1 mt-auto pt-1">
+      {/* ── Bottom Section: Smooth Animated Transition Container ── */}
+      <div className="shrink-0 space-y-1 mt-auto pt-1 relative min-h-[64px] flex flex-col justify-end">
+        
         {/* Title & (GF) Badge */}
-        <div className="flex items-center justify-between gap-1">
+        <div className="flex items-center justify-between gap-1 mb-0.5">
           <Link
             href={`/services/shopping/product/${slug}`}
             className="font-bold text-xs sm:text-sm text-slate-800 hover:text-[#7eb343] transition-colors line-clamp-1 flex-1 min-w-0"
@@ -147,8 +148,8 @@ export function ProductCard({
           </div>
         </div>
 
-        {/* ── Desktop Normal State (Hidden on Mobile or when Desktop Hovered) ── */}
-        <div className="hidden sm:flex items-center justify-between pt-0.5 group-hover:hidden">
+        {/* ── Desktop Normal State: Fades Out & Slides Up Smoothly on Hover ── */}
+        <div className="hidden sm:flex items-center justify-between pt-0.5 transition-all duration-300 ease-out transform group-hover:opacity-0 group-hover:-translate-y-2 group-hover:pointer-events-none">
           <div className="flex items-baseline gap-1">
             <span className="font-extrabold text-sm sm:text-base text-[#7eb343]">
               ৳{price.toFixed(2)}
@@ -169,8 +170,8 @@ export function ProductCard({
           </div>
         </div>
 
-        {/* ── Action Controller Row: ALWAYS VISIBLE ON MOBILE, Reveal on Desktop Hover ── */}
-        <div className="flex sm:hidden sm:group-hover:flex flex-col gap-1.5 pt-0.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
+        {/* ── Action Controller Row: Always visible on Mobile, Smooth Ease-Out Fade & Slide-Up on Desktop ── */}
+        <div className="flex sm:absolute sm:inset-x-0 sm:bottom-0 flex-col gap-1.5 pt-0.5 bg-white transition-all duration-300 ease-out transform opacity-100 sm:opacity-0 sm:translate-y-3 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:translate-y-0 sm:group-hover:pointer-events-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-1">
               <span className="font-extrabold text-xs sm:text-sm text-[#7eb343]">
