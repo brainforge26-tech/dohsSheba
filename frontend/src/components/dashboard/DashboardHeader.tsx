@@ -165,18 +165,18 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
   };
 
   return (
-    <header className="sticky top-0 z-40 shrink-0 w-full bg-[#181928]/95 backdrop-blur-xl border-b border-white/10 text-white px-3 sm:px-4 py-2.5 pt-safe flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 shadow-xl transition-all">
+    <header className="sticky top-0 z-40 shrink-0 w-full bg-[#181928]/95 backdrop-blur-xl border-b border-white/10 text-white px-3.5 sm:px-6 py-2.5 sm:py-3 pt-safe flex items-center justify-between gap-2 sm:gap-4 shadow-xl transition-all overflow-hidden max-w-full">
       {/* Top Left Navigation Icons & Mobile Toggle */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all border border-white/10"
+          className="p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all border border-white/10 shrink-0"
           title="Toggle Navigation Sidebar"
         >
-          <Menu className="w-5 h-5 text-indigo-400" />
+          <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" />
         </button>
 
-        <div className="hidden sm:flex items-center gap-1.5 text-slate-400 border-r border-white/10 pr-3">
+        <div className="hidden md:flex items-center gap-1.5 text-slate-400 border-r border-white/10 pr-3 shrink-0">
           {/* 1. Messages / Mail Icon */}
           <Link
             href="/dashboard/notifications"
@@ -218,20 +218,20 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
         </div>
 
         {/* Title & Breadcrumbs */}
-        <div className="min-w-0">
-          <h1 className="text-sm font-bold tracking-wider text-white uppercase truncate">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xs sm:text-sm font-bold tracking-wider text-white uppercase truncate">
             {language === 'BN' ? (title === 'CUSTOMER DASHBOARD' ? 'কাস্টমার ড্যাশবোর্ড' : title) : title}
           </h1>
-          <p className="text-[11px] text-indigo-300/80 font-medium truncate">
+          <p className="text-[10px] sm:text-[11px] text-indigo-300/80 font-medium truncate hidden sm:block">
             {language === 'BN' ? 'ডিএইচএস রেসিডেন্ট › কাস্টমার ওয়ার্কস্পেস' : subtitle}
           </p>
         </div>
       </div>
 
       {/* Top Right Header Controls */}
-      <div className="flex items-center justify-end gap-2.5">
+      <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
         {/* Quick Search */}
-        <div className="relative hidden lg:block w-48">
+        <div className="relative hidden lg:block w-40 xl:w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"
@@ -244,7 +244,7 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
         <div className="relative">
           <button
             onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#202237] hover:bg-[#282a44] border border-white/10 text-xs text-slate-200 transition-all font-bold"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#202237] hover:bg-[#282a44] border border-white/10 text-xs text-slate-200 transition-all font-bold shrink-0"
           >
             {language === 'EN' ? (
               <>
@@ -297,7 +297,7 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
         {/* Fullscreen Toggle */}
         <button
           onClick={toggleFullScreen}
-          className="p-2 rounded-lg bg-[#202237] hover:bg-[#282a44] border border-white/10 text-slate-300 hover:text-white transition-colors hidden sm:block"
+          className="p-2 rounded-lg bg-[#202237] hover:bg-[#282a44] border border-white/10 text-slate-300 hover:text-white transition-colors hidden md:block shrink-0"
           title="Toggle Fullscreen"
         >
           <Maximize className="w-4 h-4" />
@@ -307,7 +307,7 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 rounded-lg bg-[#202237] hover:bg-[#282a44] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="relative p-1.5 sm:p-2 rounded-lg bg-[#202237] hover:bg-[#282a44] border border-white/10 text-slate-300 hover:text-white transition-colors shrink-0"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -319,7 +319,7 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 bg-[#202237] border border-white/10 rounded-2xl shadow-2xl z-50 p-3.5 text-xs space-y-3">
+            <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-[#202237] border border-white/10 rounded-2xl shadow-2xl z-50 p-3.5 text-xs space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-white/10 font-bold text-slate-200">
                 <span className="flex items-center gap-1.5">
                   <Bell className="w-3.5 h-3.5 text-indigo-400" />
@@ -375,16 +375,16 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
         </div>
 
         {/* User Profile Quick Info */}
-        <div className="flex items-center gap-2 pl-2 border-l border-white/10">
+        <div className="flex items-center gap-2 pl-1.5 sm:pl-2.5 border-l border-white/10 shrink-0">
           <div className="relative">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border border-indigo-400/50 flex items-center justify-center font-bold text-white text-xs overflow-hidden">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border border-indigo-400/50 flex items-center justify-center font-bold text-white text-xs overflow-hidden">
               {mounted && user?.avatar ? (
                 <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
               ) : (
                 <span suppressHydrationWarning>{(mounted && user?.name && user.name[0]) || 'U'}</span>
               )}
             </div>
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#181928]" />
+            <span className="absolute bottom-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 border-2 border-[#181928]" />
           </div>
           <div className="hidden xl:block text-left">
             <div className="text-xs font-bold text-white leading-tight" suppressHydrationWarning>
@@ -397,8 +397,8 @@ export function DashboardHeader({ title = 'DASHBOARD', subtitle = 'Morvin > Dash
         </div>
 
         {/* Sign Out Button */}
-        <button onClick={handleSignOut} className="p-2 rounded-lg bg-[#202237] hover:bg-red-500/20 border border-white/10 text-slate-300 hover:text-red-400 transition-colors" title="Sign Out">
-          <LogOut className="w-4 h-4" />
+        <button onClick={handleSignOut} className="p-1.5 sm:p-2 rounded-lg bg-[#202237] hover:bg-red-500/20 border border-white/10 text-slate-300 hover:text-red-400 transition-colors shrink-0" title="Sign Out">
+          <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </button>
       </div>
 
