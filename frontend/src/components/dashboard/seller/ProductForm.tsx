@@ -148,17 +148,16 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
           dbBrands = brandRes.value.data;
         }
 
-        const defaults = [
-          { id: 'b1', name: 'Pran' },
-          { id: 'b2', name: 'BD Food' },
-          { id: 'b3', name: 'Igloo' },
-          { id: 'b4', name: 'ACI Foods' },
-          { id: 'b5', name: 'Fresh (BD)' },
-          { id: 'b6', name: 'Nestle' },
-          { id: 'b7', name: 'Square' },
-        ];
+        let localBrands: any[] = [];
+        try {
+          const saved = localStorage.getItem('dohssheba_seller_brands');
+          if (saved) {
+            localBrands = JSON.parse(saved);
+          }
+        } catch (_) {}
+
         const map = new Map();
-        [...defaults, ...dbBrands].forEach((b) => {
+        [...localBrands, ...dbBrands].forEach((b) => {
           if (b && b.name) map.set(b.name.trim().toLowerCase(), b);
         });
         setBrands(Array.from(map.values()));

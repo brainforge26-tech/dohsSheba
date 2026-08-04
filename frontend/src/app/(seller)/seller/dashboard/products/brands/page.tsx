@@ -30,20 +30,28 @@ export default function BrandsPage() {
         const res = await fetchApi<any>('/products/seller/my-products');
         const productList = res.success && Array.isArray(res.data) ? res.data : [];
 
+        // Fetch DB Brands from API
+        const apiRes = await fetchApi<any>('/brands').catch(() => null);
+        const apiBrands: any[] = apiRes && apiRes.success && Array.isArray(apiRes.data) ? apiRes.data : [];
+
         // Check local storage for custom created brands
         const saved = localStorage.getItem(STORAGE_KEY);
         let customBrands: BrandItem[] = saved ? JSON.parse(saved) : [];
 
-        if (!customBrands.length) {
-          customBrands = [
-            { id: 'b1', name: 'Pran',        origin: 'Bangladesh', products: 0, logo: '🇧🇩' },
-            { id: 'b2', name: 'BD Food',     origin: 'Bangladesh', products: 0, logo: '🏭' },
-            { id: 'b3', name: 'Igloo',       origin: 'Bangladesh', products: 0, logo: '❄️' },
-            { id: 'b4', name: 'Banoful',     origin: 'Bangladesh', products: 0, logo: '🎂' },
-            { id: 'b5', name: 'ACI Foods',   origin: 'Bangladesh', products: 0, logo: '🍽️' },
-            { id: 'b6', name: 'Fresh (BD)',   origin: 'Bangladesh', products: 0, logo: '🌿' },
-          ];
-        }
+        const brandMap = new Map<string, BrandItem>();
+        [...customBrands, ...apiBrands].forEach((b) => {
+          if (b && b.name) {
+            const clean = String(b.name).trim();
+            brandMap.set(clean.toLowerCase(), {
+              id: b.id || `b_${clean}`,
+              name: clean,
+              origin: b.origin || 'Bangladesh',
+              products: 0,
+              logo: b.logo || '🏷️',
+            });
+          }
+        });
+        const combined = Array.from(brandMap.values());
 
         // Count live product occurrences per brand
         const brandCounts: Record<string, number> = {};
@@ -54,7 +62,7 @@ export default function BrandsPage() {
           }
         });
 
-        const merged = customBrands.map((b) => ({
+        const merged = combined.map((b) => ({
           ...b,
           products: brandCounts[b.name] ?? b.products ?? 0,
         }));
