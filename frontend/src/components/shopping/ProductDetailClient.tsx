@@ -8,6 +8,7 @@ import { ProductItem } from '@/types/shopping';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { formatCurrency } from '@/utils/cn';
+import { ProductCard } from '@/components/common/ProductCard';
 import {
   Star,
   ShoppingBag,
@@ -20,6 +21,8 @@ import {
   Store,
   ChevronRight,
   Sparkles,
+  Layers,
+  Package,
 } from 'lucide-react';
 
 interface ProductDetailClientProps {
@@ -32,6 +35,7 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
   const [product, setProduct] = useState<ProductItem>(initialProduct);
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [relatedItems, setRelatedItems] = useState<any[]>([]);
 
   const { addItem, closeCart } = useCartStore();
   const { toggleWishlist, isInWishlist } = useWishlistStore();
@@ -53,12 +57,13 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
             : (p.image ? [p.image] : [initialProduct.image]);
 
           const origPrice = p.discount > 0 ? Math.round(p.price / (1 - p.discount / 100)) : undefined;
+          const catSlug = p.category?.slug || p.categorySlug || initialProduct.categorySlug || 'groceries';
 
           setProduct({
             id: p.id,
             title: p.name || p.title || initialProduct.title,
             slug: p.slug || targetSlug,
-            categorySlug: p.category?.slug || p.categorySlug || initialProduct.categorySlug || 'groceries',
+            categorySlug: catSlug,
             categoryName: p.category?.name || p.categoryName || initialProduct.categoryName || 'Daily Essentials',
             shopName: p.seller?.sellerProfile?.shopName || p.seller?.name || p.shopName || 'Savar DOHS Market',
             price: p.price ?? initialProduct.price,
@@ -81,6 +86,29 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
               comment: r.comment || '',
             })) : [],
           });
+
+          // Fetch Related Products (same category or general recommendations)
+          fetch(`${API}/products?category=${encodeURIComponent(catSlug)}&limit=8`)
+            .then((r) => r.json())
+            .then((catRes) => {
+              let fetched = catRes?.data?.products || (Array.isArray(catRes?.data) ? catRes.data : []);
+              fetched = fetched.filter((item: any) => item.id !== p.id && item.slug !== p.slug);
+              
+              if (fetched.length < 4) {
+                // Fetch fallback products if category list is small
+                fetch(`${API}/products?limit=8`)
+                  .then((r2) => r2.json())
+                  .then((allRes) => {
+                    const fallback = allRes?.data?.products || (Array.isArray(allRes?.data) ? allRes.data : []);
+                    const combined = [...fetched, ...fallback.filter((item: any) => item.id !== p.id && !fetched.some((f: any) => f.id === item.id))];
+                    setRelatedItems(combined.slice(0, 4));
+                  })
+                  .catch(() => setRelatedItems(fetched));
+              } else {
+                setRelatedItems(fetched.slice(0, 4));
+              }
+            })
+            .catch(() => {});
         }
       })
       .catch(() => {});
@@ -116,15 +144,15 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem(product, quantity, false); // Add item without opening cart drawer
+    addItem(product, quantity, false);
     closeCart();
-    router.push('/services/shopping/checkout');
+    router.push('/checkout');
   };
 
   return (
-    <div className="space-y-8">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
+    <div className="max-w-7xl mx-auto space-y-10 py-6 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-12">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
         <Link href="/" className="hover:text-emerald-600">Home</Link>
         <ChevronRight className="w-3.5 h-3.5" />
         <Link href="/services/shopping" className="hover:text-emerald-600">Shopping</Link>
@@ -167,12 +195,12 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
 
           {/* Gallery Thumbnails */}
           {images.length > 1 && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 overflow-x-auto pb-1">
               {images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                  className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${
                     activeImageIndex === idx
                       ? 'border-emerald-600 scale-105 shadow-md'
                       : 'border-border opacity-70 hover:opacity-100'
@@ -277,6 +305,49 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
           </div>
         </div>
       </div>
+
+      {/* ── Related Items Section ── */}
+      {relatedItems.length > 0 && (
+        <section className="space-y-6 pt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-xl font-extrabold text-foreground">
+                Related Items & You Might Also Like
+              </h2>
+            </div>
+            <Link
+              href={`/services/shopping/${product.categorySlug}`}
+              className="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1"
+            >
+              See All in {product.categoryName} <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {relatedItems.map((rel: any) => {
+              const relImg = Array.isArray(rel.images) && rel.images.length > 0 ? rel.images[0] : (rel.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400');
+              const origP = rel.discount > 0 ? Math.round(rel.price / (1 - rel.discount / 100)) : undefined;
+              return (
+                <ProductCard
+                  key={rel.id}
+                  id={rel.id}
+                  title={rel.name || rel.title}
+                  slug={rel.slug || rel.id}
+                  price={rel.price}
+                  originalPrice={origP}
+                  unit={rel.unit || 'unit'}
+                  image={rel.image || relImg}
+                  badge={rel.discount > 0 ? `${rel.discount}% OFF` : (rel.isFlashSale ? 'FLASH SALE' : undefined)}
+                  rating={rel.rating || 4.8}
+                  categorySlug={product.categorySlug}
+                  categoryName={product.categoryName}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── Mobile Sticky Bottom Action Bar ── */}
       <div className="lg:hidden fixed bottom-16 left-0 right-0 z-30 p-3 bg-background/95 backdrop-blur-md border-t border-border/80 shadow-2xl flex items-center gap-3">
