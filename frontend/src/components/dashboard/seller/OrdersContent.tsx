@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { fetchApi } from '@/lib/api-client';
+import { getSocket } from '@/lib/socket';
+import { useAuthStore } from '@/store/useAuthStore';
 import { formatCurrency } from '@/utils/cn';
 import {
   Search, Download, Eye, Loader2, ChevronLeft, ChevronRight,
@@ -63,10 +65,10 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
   const [sortKey, setSortKey] = useState('newest');
   const [page, setPage] = useState(1);
 
-  const { socket } = useSocket();
+  const { user } = useAuthStore();
 
-  const fetchOrders = () => {
-    setLoading(true);
+  const fetchOrders = (silent = false) => {
+    if (!silent) setLoading(true);
     const params = new URLSearchParams({ page: '1', limit: '100' });
     if (defaultStatus) params.set('status', defaultStatus);
     fetchApi<any>(`/orders?${params}`)
@@ -81,23 +83,60 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
         }
       })
       .catch((err) => console.error('Orders fetch failed:', err))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!silent) setLoading(false);
+      });
   };
 
   useEffect(() => {
     fetchOrders();
   }, [defaultStatus]);
 
+  // Instant Real-Time Socket.IO Updates without page reload
   useEffect(() => {
-    if (!socket) return;
-    const handleUpdate = () => fetchOrders();
-    socket.on('ORDER_STATUS_UPDATED', handleUpdate);
-    socket.on('ORDER_CREATED', handleUpdate);
-    return () => {
-      socket.off('ORDER_STATUS_UPDATED', handleUpdate);
-      socket.off('ORDER_CREATED', handleUpdate);
+    const socketInstance = getSocket();
+
+    if (user?.id) {
+      socketInstance.emit('join_seller', user.id);
+    }
+
+    const handleOrderCreated = (data: any) => {
+      console.log('⚡ [SELLER REALTIME] New order created in database:', data);
+      if (data?.order) {
+        const newOrder = {
+          ...data.order,
+          total: data.order.totalAmount ?? data.order.total ?? 0,
+          createdAt: data.order.createdAt || new Date().toISOString(),
+        };
+        setApiOrders((prev) => {
+          const exists = prev.some((o) => o.id === newOrder.id);
+          if (exists) {
+            return prev.map((o) => (o.id === newOrder.id ? newOrder : o));
+          }
+          return [newOrder, ...prev];
+        });
+      }
+      fetchOrders(true); // Silent background sync
     };
-  }, [socket]);
+
+    const handleStatusUpdated = (data: any) => {
+      console.log('⚡ [SELLER REALTIME] Order status updated:', data);
+      if (data?.orderId && data?.status) {
+        setApiOrders((prev) =>
+          prev.map((o) => (o.id === data.orderId ? { ...o, status: data.status } : o))
+        );
+      }
+      fetchOrders(true); // Silent background sync
+    };
+
+    socketInstance.on('ORDER_CREATED', handleOrderCreated);
+    socketInstance.on('ORDER_STATUS_UPDATED', handleStatusUpdated);
+
+    return () => {
+      socketInstance.off('ORDER_CREATED', handleOrderCreated);
+      socketInstance.off('ORDER_STATUS_UPDATED', handleStatusUpdated);
+    };
+  }, [user?.id]);
 
   const mappedStoreOrders = useMemo(() => {
     return storeOrders.map((o) => {
