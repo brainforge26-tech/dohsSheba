@@ -31,4 +31,7 @@ export const productCategoryValidator = [
   body('name').trim().notEmpty().withMessage('Category name is required'),
   body('slug').optional().trim(),
   body('parentId').optional(),
+  body('image').optional(),
+  body('icon').optional(),
+  body('description').optional(),
 ];
