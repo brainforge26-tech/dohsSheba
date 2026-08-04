@@ -118,8 +118,8 @@ export default function CustomerDashboardPage() {
             </p>
           </div>
 
-          {/* Avatar + Reward Points */}
-          <div className="flex items-center gap-4 shrink-0">
+          {/* Avatar + Reward Points — hidden on mobile */}
+          <div className="hidden sm:flex items-center gap-4 shrink-0">
             {/* Reward Badge */}
             <div className="text-center">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center shadow-xl mb-1">
