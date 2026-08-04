@@ -220,6 +220,13 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus) =>
   });
   if (!order) throw new AppError('Order not found.', 404);
 
+  if (order.status === 'DELIVERED') {
+    throw new AppError('Order is already DELIVERED. Delivered orders cannot have their status changed.', 400);
+  }
+  if (order.status === 'CANCELLED') {
+    throw new AppError('Order is CANCELLED. Cancelled orders cannot have their status changed.', 400);
+  }
+
   const isDispatchTrigger = status === 'READY_FOR_RIDER' || status === 'SELLER_ACCEPTED';
   const targetStatus = isDispatchTrigger ? 'READY_FOR_RIDER' : status;
 

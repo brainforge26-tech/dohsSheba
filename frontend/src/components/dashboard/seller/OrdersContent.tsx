@@ -259,7 +259,10 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
     setLoading(true);
     const ids = Array.from(selected);
     for (const id of ids) {
-      await updateSingleOrderStatus(id, 'SELLER_ACCEPTED');
+      const order = allCombinedOrders.find((o) => o.id === id);
+      if (order && order.status !== 'DELIVERED' && order.status !== 'CANCELLED') {
+        await updateSingleOrderStatus(id, 'SELLER_ACCEPTED');
+      }
     }
     setSelected(new Set());
     await fetchOrders();
@@ -270,7 +273,10 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
     setLoading(true);
     const ids = Array.from(selected);
     for (const id of ids) {
-      await updateSingleOrderStatus(id, 'READY_FOR_RIDER');
+      const order = allCombinedOrders.find((o) => o.id === id);
+      if (order && order.status !== 'DELIVERED' && order.status !== 'CANCELLED') {
+        await updateSingleOrderStatus(id, 'READY_FOR_RIDER');
+      }
     }
     setSelected(new Set());
     await fetchOrders();
@@ -282,7 +288,10 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
     setLoading(true);
     const ids = Array.from(selected);
     for (const id of ids) {
-      await updateSingleOrderStatus(id, 'CANCELLED');
+      const order = allCombinedOrders.find((o) => o.id === id);
+      if (order && order.status !== 'DELIVERED') {
+        await updateSingleOrderStatus(id, 'CANCELLED');
+      }
     }
     setSelected(new Set());
     await fetchOrders();
@@ -310,7 +319,7 @@ export function OrdersContent({ defaultStatus, title }: OrdersContentProps) {
     const ids = Array.from(selected);
     for (const id of ids) {
       const order = allCombinedOrders.find((o) => o.id === id);
-      if (order && NEXT_STATUS[order.status]) {
+      if (order && order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && NEXT_STATUS[order.status]) {
         await updateSingleOrderStatus(id, NEXT_STATUS[order.status]!);
       }
     }
