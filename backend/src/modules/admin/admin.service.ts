@@ -185,21 +185,18 @@ export const getBanners = async () => {
   return prisma.banner.findMany({ orderBy: { createdAt: 'desc' } });
 };
 
-export const createBanner = async (data: {
-  title: string;
-  subtitle?: string;
-  category?: string;
-  link?: string;
-  image?: string;
-}) => {
+export const createBanner = async (data: any) => {
   return prisma.banner.create({
     data: {
-      title: data.title,
-      subtitle: data.subtitle || 'Exclusive DOHS Sheba offer',
+      title:    data.title || 'New Banner',
+      subtitle: data.subtitle || '',
+      description: data.description || '',
+      image:    data.image || '🛍️',
+      link:     data.link || '/services/shopping',
       category: data.category || 'Grocery',
-      link: data.link || '/categories/grocery',
-      image: data.image || '🥦',
-      isActive: true,
+      position: data.position || 'home',
+      isActive: data.isActive !== undefined ? data.isActive : true,
+      order:    data.order ? Number(data.order) : 0,
     },
   });
 };
@@ -218,27 +215,22 @@ export const getCoupons = async () => {
   return prisma.coupon.findMany({ orderBy: { createdAt: 'desc' } });
 };
 
-export const createCoupon = async (data: {
-  code: string;
-  discount?: string;
-  minSpend?: number;
-  minOrderAmount?: number;
-  expiresAt?: Date | string;
-}) => {
-  const code = data.code.trim().toUpperCase();
-  const existing = await prisma.coupon.findUnique({ where: { code } });
+export const createCoupon = async (data: any) => {
+  const code = (data.code || '').trim().toUpperCase();
+  const existing = await prisma.coupon.findUnique({ where: { code } }).catch(() => null);
   if (existing) throw new Error('Coupon code already exists');
-
-  const minAmt = data.minSpend ?? data.minOrderAmount ?? 500;
-  const expires = data.expiresAt ? new Date(data.expiresAt) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
 
   return prisma.coupon.create({
     data: {
       code,
-      discount: data.discount || '৳100 OFF',
-      minOrderAmount: minAmt,
-      expiresAt: expires,
-      isActive: true,
+      discount:      data.discount || '৳100 OFF',
+      discountType:  data.discountType || 'FIXED',
+      discountValue: Number(data.discountValue) || 0,
+      minOrderAmount: Number(data.minSpend || data.minOrderAmount) || 0,
+      maxDiscount:   data.maxDiscount ? Number(data.maxDiscount) : undefined,
+      maxUses:       data.maxUses ? Number(data.maxUses) : undefined,
+      isActive:      data.isActive !== undefined ? data.isActive : true,
+      expiresAt:     data.expiresAt ? new Date(data.expiresAt) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
     },
   });
 };
@@ -558,65 +550,7 @@ export const sendEmailBroadcast = async (targetRole: string, subject: string, me
   };
 };
 
-// ─── Banners CRUD Service ────────────────────────────────────────────────────
 
-export const getBanners = async () => {
-  return prisma.banner.findMany({ orderBy: { order: 'asc' } });
-};
-
-export const createBanner = async (data: any) => {
-  return prisma.banner.create({
-    data: {
-      title:    data.title    || 'New Banner',
-      subtitle: data.subtitle || '',
-      description: data.description || '',
-      image:    data.image    || '🛍️',
-      link:     data.link     || '/services/shopping',
-      category: data.category || 'Grocery',
-      position: data.position || 'home',
-      isActive: data.isActive !== undefined ? data.isActive : true,
-      order:    data.order    || 0,
-    },
-  });
-};
-
-export const updateBanner = async (id: string, data: any) => {
-  return prisma.banner.update({ where: { id }, data });
-};
-
-export const deleteBanner = async (id: string) => {
-  return prisma.banner.delete({ where: { id } });
-};
-
-// ─── Coupons CRUD Service ─────────────────────────────────────────────────────
-
-export const getCoupons = async () => {
-  return prisma.coupon.findMany({ orderBy: { createdAt: 'desc' } });
-};
-
-export const createCoupon = async (data: any) => {
-  return prisma.coupon.create({
-    data: {
-      code:          (data.code || '').toUpperCase(),
-      discount:      data.discount || '',
-      discountType:  data.discountType  || 'FIXED',
-      discountValue: Number(data.discountValue) || 0,
-      minOrderAmount: Number(data.minSpend || data.minOrderAmount) || 0,
-      maxDiscount:   data.maxDiscount ? Number(data.maxDiscount) : undefined,
-      maxUses:       data.maxUses ? Number(data.maxUses) : undefined,
-      isActive:      data.isActive !== undefined ? data.isActive : true,
-      expiresAt:     data.expiresAt ? new Date(data.expiresAt) : undefined,
-    },
-  });
-};
-
-export const updateCoupon = async (id: string, data: any) => {
-  return prisma.coupon.update({ where: { id }, data });
-};
-
-export const deleteCoupon = async (id: string) => {
-  return prisma.coupon.delete({ where: { id } });
-};
 
 // ─── Site Settings Service ───────────────────────────────────────────────────
 
