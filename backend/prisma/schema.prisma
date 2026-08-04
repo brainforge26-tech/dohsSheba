@@ -610,3 +610,102 @@ model SiteSetting {
 
   @@map("site_settings")
 }
+
+// ─── Dynamic Homepage Systems ───────────────────────────────────────────────
+
+model HeroSlide {
+  id                  String    @id @default(cuid())
+  title               String
+  subtitle            String?
+  description         String?
+  buttonText          String    @default("Order Now")
+  buttonLink          String    @default("/services/shopping")
+  backgroundImage     String
+  badge               String?
+  discountPercentage  Float?
+  isActive            Boolean   @default(true)
+  order               Int       @default(0)
+  startDate           DateTime?
+  endDate             DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("hero_slides")
+}
+
+model PromoCard {
+  id                  String    @id @default(cuid())
+  title               String
+  subtitle            String?
+  image               String
+  discount            String?
+  buttonText          String    @default("Shop Now")
+  buttonUrl           String    @default("/services/shopping")
+  backgroundColor     String    @default("#b5d8f7")
+  isActive            Boolean   @default(true)
+  order               Int       @default(0)
+  startDate           DateTime?
+  endDate             DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("promo_cards")
+}
+
+model FeaturedShortcut {
+  id                  String    @id @default(cuid())
+  title               String
+  icon                String    @default("🛍️")
+  link                String    @default("/services/shopping")
+  category            String?
+  priority            Int       @default(0)
+  isActive            Boolean   @default(true)
+  startDate           DateTime?
+  endDate             DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("featured_shortcuts")
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  city        String   @default("Dhaka")
+  isAvailable Boolean  @default(true)
+  priority    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("locations")
+}
+
+model Navigation {
+  id        String   @id @default(cuid())
+  label     String
+  href      String
+  icon      String?
+  parentId  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  badge     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("navigations")
+}
+
+model HomepageSection {
+  id         String   @id @default(cuid())
+  sectionKey String   @unique
+  title      String
+  subtitle   String?
+  isEnabled  Boolean  @default(true)
+  order      Int      @default(0)
+  config     Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("homepage_sections")
+}

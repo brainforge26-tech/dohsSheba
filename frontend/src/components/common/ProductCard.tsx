@@ -1,0 +1,231 @@
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { Heart, Plus, Minus, Check, Star } from 'lucide-react';
+import { useCartStore } from '@/store/useCartStore';
+import { useWishlistStore } from '@/store/useWishlistStore';
+
+export interface ProductCardProps {
+  id: string;
+  title: string;
+  slug: string;
+  price: number;
+  originalPrice?: number;
+  unit?: string;
+  image: string;
+  badge?: string;
+  rating?: number;
+  soldCount?: number;
+  isHot?: boolean;
+  categorySlug?: string;
+  categoryName?: string;
+}
+
+export function ProductCard({
+  id,
+  title,
+  slug,
+  price,
+  originalPrice,
+  unit = 'each',
+  image,
+  badge,
+  rating = 4.5,
+  isHot,
+  categorySlug = 'groceries',
+  categoryName = 'Grocery',
+}: ProductCardProps) {
+  const [quantity, setQuantity] = useState(1);
+  const [addedAnimation, setAddedAnimation] = useState(false);
+  const { addItem } = useCartStore();
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
+
+  const isLiked = isInWishlist(id);
+
+  const incrementQty = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQuantity((prev) => prev + 1);
+  };
+
+  const decrementQty = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem({
+      id,
+      title,
+      slug,
+      categorySlug: categorySlug as any,
+      categoryName,
+      shopName: 'DOHS Market',
+      price,
+      unit,
+      rating,
+      reviewCount: 15,
+      image,
+      stock: 50,
+    });
+    setAddedAnimation(true);
+    setTimeout(() => setAddedAnimation(false), 1200);
+  };
+
+  return (
+    <div className="group relative h-[310px] sm:h-[330px] w-full bg-white rounded-2xl p-3 sm:p-4 border border-slate-100 shadow-2xs hover:shadow-md hover:border-slate-200 transition-all duration-300 flex flex-col justify-between overflow-hidden font-sans select-none">
+      
+      {/* ── Top Row: Badge & Wishlist ── */}
+      <div className="flex items-center justify-between z-10 w-full shrink-0">
+        <div>
+          {isHot || badge?.toLowerCase() === 'hot' ? (
+            <span className="bg-[#e53935] text-white font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs">
+              HOT
+            </span>
+          ) : badge ? (
+            <span className="bg-[#7eb343] text-white font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs">
+              {badge}
+            </span>
+          ) : null}
+        </div>
+
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWishlist({
+              id,
+              title,
+              slug,
+              categorySlug: categorySlug as any,
+              categoryName,
+              shopName: 'DOHS Market',
+              price,
+              unit,
+              rating,
+              reviewCount: 15,
+              image,
+              stock: 50,
+            });
+          }}
+          className="p-1 text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
+          title="Wishlist"
+        >
+          <Heart className={`w-5 h-5 stroke-[1.5] ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+        </button>
+      </div>
+
+      {/* ── Center Product Image (Fixed Height, Shifts Slightly Up On Hover) ── */}
+      <Link
+        href={`/services/shopping/product/${slug}`}
+        className="relative flex-1 w-full flex items-center justify-center my-1 cursor-pointer overflow-hidden"
+      >
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-28 sm:h-36 object-contain group-hover:scale-105 transition-all duration-300"
+        />
+      </Link>
+
+      {/* ── Bottom Section: Fixed Inner Boundary ── */}
+      <div className="shrink-0 space-y-1 mt-auto pt-1">
+        {/* Title & (GF) Badge */}
+        <div className="flex items-center justify-between gap-1">
+          <Link
+            href={`/services/shopping/product/${slug}`}
+            className="font-bold text-xs sm:text-sm text-slate-800 hover:text-[#7eb343] transition-colors line-clamp-1 flex-1 min-w-0"
+          >
+            {title}
+          </Link>
+          
+          <div className="flex items-center gap-1 shrink-0 text-[9px] font-black text-slate-700">
+            <span className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center scale-90">GF</span>
+          </div>
+        </div>
+
+        {/* ── Normal State: Price & Rating ── */}
+        <div className="flex items-center justify-between pt-0.5 group-hover:hidden">
+          <div className="flex items-baseline gap-1">
+            <span className="font-extrabold text-sm sm:text-base text-[#7eb343]">
+              ৳{price.toFixed(2)}
+            </span>
+            <span className="text-slate-400 text-xs font-normal">
+              / {unit}
+            </span>
+            {originalPrice && (
+              <span className="line-through text-slate-300 text-[11px] ml-1">
+                ৳{originalPrice.toFixed(2)}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1 text-xs font-bold text-slate-700 shrink-0">
+            <span>{rating.toFixed(1)}</span>
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          </div>
+        </div>
+
+        {/* ── Hover State: Price + Quantity Stepper & Add To Cart Button (Inside Fixed Bounds) ── */}
+        <div className="hidden group-hover:flex flex-col gap-1.5 pt-0.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-baseline gap-1">
+            <span className="font-extrabold text-xs text-[#7eb343]">
+              ৳{price.toFixed(2)}
+            </span>
+            <span className="text-slate-400 text-[10px] font-normal">
+              / {unit}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Stepper [- 1 +] */}
+            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden h-8 bg-white text-xs font-bold shrink-0">
+              <button
+                type="button"
+                onClick={decrementQty}
+                className="w-6 sm:w-7 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer active:scale-95"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="w-6 sm:w-7 h-full flex items-center justify-center text-slate-800 font-bold border-x border-slate-200">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={incrementQty}
+                className="w-6 sm:w-7 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer active:scale-95"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Add To Cart Button */}
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className={`flex-1 h-8 rounded-lg text-white font-bold text-xs flex items-center justify-center shadow-2xs transition-all active:scale-95 cursor-pointer ${
+                addedAnimation
+                  ? 'bg-emerald-600'
+                  : 'bg-[#7eb343] hover:bg-[#6c9c36]'
+              }`}
+            >
+              {addedAnimation ? (
+                <span className="flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Added</span>
+                </span>
+              ) : (
+                <span>Add To Cart</span>
+              )}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -9,10 +9,16 @@ import { Home, Grid, ShoppingBag, ShoppingCart, User } from 'lucide-react';
 
 export function CustomerMobileNav() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { t } = useTranslation();
   const { items: cartItems } = useCartStore();
 
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = mounted ? cartItems.reduce((sum, item) => sum + item.quantity, 0) : 0;
 
   const navItems = [
     { label: 'Home', href: '/', icon: Home },

@@ -4,48 +4,26 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222.2 47.4% 11.2%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 84 55% 46%; /* Woodmart Fresh Green #83b735 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 84 30% 96%;
+    --secondary-foreground: 84 55% 25%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 84 30% 94%;
+    --accent-foreground: 84 55% 25%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 84 55% 46%;
     --radius: 0.75rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 7%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
   }
 }
 
@@ -54,7 +32,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased font-sans selection:bg-primary/20 selection:text-primary;
+    @apply bg-white text-slate-900 antialiased font-sans selection:bg-[#7eb343]/20 selection:text-[#7eb343];
   }
 }
 
@@ -62,6 +40,8 @@
 html, body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
 .pt-safe {
@@ -80,39 +60,53 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Custom Utilities */
-.morvin-bg {
-  background-color: #181928;
+/* Custom Woodmart Theme Classes */
+.woodmart-green {
+  color: #7eb343;
 }
 
-.morvin-card {
-  background-color: #1f2136;
-  border-color: rgba(255, 255, 255, 0.07);
+.woodmart-bg-green {
+  background-color: #7eb343;
 }
 
-.morvin-sidebar {
-  background-color: #1e1f32;
-  border-color: rgba(255, 255, 255, 0.06);
+.woodmart-bg-green-hover:hover {
+  background-color: #6c9c36;
 }
 
-.glass-effect {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+.woodmart-yellow {
+  background-color: #f9da8b;
 }
 
-.dark .glass-effect {
-  background: rgba(30, 31, 50, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+.woodmart-sage {
+  background-color: #d7e6cd;
+}
+
+.woodmart-sky {
+  background-color: #b5d8f7;
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#7eb343] to-[#6c9c36];
 }
 
-.gradient-bg-hero {
-  background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.15) 0%, rgba(24, 25, 40, 0) 70%);
+/* Infinite Marquee Scroll Animation for Bottom Hero Bar */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* Custom Scrollbar */
@@ -121,14 +115,14 @@ html, body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #181928;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2b2d48;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b3e63;
+  background: #7eb343;
 }
 
 /* Google Translate Clean UI Overrides */
@@ -143,4 +137,3 @@ body {
   top: 0px !important;
   position: static !important;
 }
-

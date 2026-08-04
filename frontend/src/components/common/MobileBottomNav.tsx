@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, LayoutGrid, Search, ShoppingBag, User } from 'lucide-react';
@@ -10,15 +10,21 @@ import { useLanguageStore } from '@/store/useLanguageStore';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { language } = useLanguageStore();
-  const isBn = language === 'BN';
+  const isBn = mounted ? language === 'BN' : true;
 
   const { getTotalCount, openCart } = useCartStore();
   const { user, role } = useAuthStore();
-  const cartCount = getTotalCount();
+  const cartCount = mounted ? getTotalCount() : 0;
 
   const getAccountHref = () => {
-    if (!user) return '/login';
+    if (!mounted || !user) return '/login';
     if (role === 'ADMIN') return '/admin/dashboard';
     if (role === 'PROVIDER') return '/provider/dashboard';
     if (role === 'SELLER') return '/seller/dashboard';
@@ -39,7 +45,7 @@ export function MobileBottomNav() {
       label: isBn ? 'ক্যাটাগরি' : 'Categories',
       icon: LayoutGrid,
       href: '/services/shopping',
-      isActive: pathname.startsWith('/services'),
+      isActive: Boolean(pathname?.startsWith('/services')),
     },
     {
       id: 'search',
@@ -61,7 +67,7 @@ export function MobileBottomNav() {
       label: isBn ? 'অ্যাকাউন্ট' : 'Account',
       icon: User,
       href: getAccountHref(),
-      isActive: pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/provider') || pathname.startsWith('/seller') || pathname.startsWith('/rider'),
+      isActive: mounted && Boolean(pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin') || pathname?.startsWith('/provider') || pathname?.startsWith('/seller') || pathname?.startsWith('/rider')),
     },
   ];
 

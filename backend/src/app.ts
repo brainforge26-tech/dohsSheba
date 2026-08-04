@@ -92,6 +92,9 @@ app.use(`${API}/service-categories`,  serviceCategoryRoutes);
 app.use(`${API}/bookings`,            bookingRoutes);
 app.use(`${API}/products`,            productRoutes);
 app.use(`${API}/product-categories`,  productCategoryRoutes);
+import homepageRoutes                         from './routes/homepage.routes';
+import adminHomepageRoutes                    from './routes/adminHomepage.routes';
+
 app.use(`${API}/cart`,                cartRoutes);
 app.use(`${API}/orders`,              orderRoutes);
 app.use(`${API}/reviews`,             reviewRoutes);
@@ -102,6 +105,8 @@ app.use(`${API}/upload`,              uploadRoutes);
 app.use(`${API}/coupons`,             couponRoutes);
 app.use(`${API}/rider`,               riderRoutes);
 app.use(`${API}/banners`,             bannerRoutes);
+app.use(`${API}/homepage`,            homepageRoutes);
+app.use(`${API}/admin/homepage`,      adminHomepageRoutes);
 app.get(`${API}/settings`,            adminController.getSiteSettings);
 
 // ─── 404 & Error ─────────────────────────────────────────────────────────────

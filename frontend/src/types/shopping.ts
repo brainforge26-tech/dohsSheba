@@ -8,7 +8,11 @@ export type ProductCategorySlug =
   | 'snacks'
   | 'rice'
   | 'oil'
-  | 'beverages';
+  | 'beverages'
+  | 'health-beauty'
+  | 'gadgets'
+  | 'household'
+  | 'mother-baby';
 
 export interface ProductCategory {
   id: string;
