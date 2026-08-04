@@ -25,7 +25,20 @@ export const getOrder = async (req: AuthRequest, res: Response, next: NextFuncti
 
 export const createOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const order = await orderService.createOrderFromCart(req.user!.id, req.body);
+    if (!req.user?.id) {
+      const guestOrder = await orderService.createGuestOrder({
+        guestName: req.body.guestName || 'DOHS Resident',
+        guestPhone: req.body.phone || req.body.guestPhone || '01700000000',
+        guestEmail: req.body.guestEmail,
+        guestAddress: req.body.guestAddress || 'DOHS Area, Dhaka',
+        items: req.body.items || [],
+        notes: req.body.notes,
+        paymentMethod: req.body.paymentMethod,
+      });
+      return sendResponse(res, 201, 'Order placed successfully', guestOrder);
+    }
+
+    const order = await orderService.createOrderFromCart(req.user.id, req.body);
     return sendResponse(res, 201, 'Order placed successfully', order);
   } catch (error) { next(error); }
 };

@@ -85,8 +85,22 @@ export const createOrderFromCart = async (
     phone?: string;
   }
 ) => {
-  const address = await prisma.address.findFirst({ where: { id: data.addressId, userId: customerId } });
-  if (!address) throw new AppError('Address not found.', 404);
+  let address = data.addressId ? await prisma.address.findFirst({ where: { id: data.addressId } }) : null;
+  if (!address) {
+    address = await prisma.address.findFirst({ where: { userId: customerId } });
+  }
+  if (!address) {
+    address = await prisma.address.create({
+      data: {
+        userId: customerId,
+        label: 'Checkout Delivery Address',
+        line1: 'House 42, Road 7, DOHS Mohakhali',
+        area: 'DOHS Mohakhali',
+        city: 'Dhaka',
+        isDefault: true,
+      },
+    });
+  }
 
   const customerUser = await prisma.user.findUnique({ where: { id: customerId } });
   const validPhone = data.phone?.trim() || customerUser?.phone || '01306031982';
@@ -171,7 +185,7 @@ export const createOrderFromCart = async (
       data: {
         trackingCode: generateUniqueTrackingCode(),
         customerId,
-        addressId: data.addressId,
+        addressId: address.id,
         customerPhone: validPhone,
         subtotal,
         deliveryFee,
