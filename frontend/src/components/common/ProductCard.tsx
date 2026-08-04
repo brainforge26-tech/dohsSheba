@@ -13,7 +13,7 @@ export interface ProductCardProps {
   price: number;
   originalPrice?: number;
   unit?: string;
-  image: string;
+  image?: string;
   badge?: string;
   rating?: number;
   soldCount?: number;
@@ -29,7 +29,7 @@ export function ProductCard({
   price,
   originalPrice,
   unit = 'each',
-  image,
+  image = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80',
   badge,
   rating = 4.5,
   isHot,

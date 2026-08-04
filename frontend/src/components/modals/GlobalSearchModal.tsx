@@ -2,20 +2,20 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Search, X, ChevronDown, Wrench, ShoppingBag, Carrot, Zap } from 'lucide-react';
+import { Search, X, Wrench, Loader2 } from 'lucide-react';
 import { useSearchStore } from '@/store/useSearchStore';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import { useRouter } from 'next/navigation';
-import { ALL_PRODUCTS } from '@/constants/products';
-import { SERVICE_CATEGORIES } from '@/constants/services';
-import { ProductItem } from '@/types/shopping';
 
 export function GlobalSearchModal() {
   const router = useRouter();
   const { isOpen, closeSearch, query, setQuery, category, setCategory } = useSearchStore();
   const { language } = useLanguageStore();
-  const isBn = language === 'BN';
   const [mounted, setMounted] = useState(false);
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -40,47 +40,69 @@ export function GlobalSearchModal() {
     };
   }, [isOpen, closeSearch]);
 
+  // Dynamic live search API call when query changes
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      setProducts([]);
+      setServices([]);
+      setSearching(false);
+      return;
+    }
+
+    setSearching(true);
+    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+
+    const timer = setTimeout(() => {
+      Promise.all([
+        fetch(`${API}/products?search=${encodeURIComponent(trimmed)}&limit=8`).then((r) => r.json()).catch(() => null),
+        fetch(`${API}/services?search=${encodeURIComponent(trimmed)}&limit=6`).then((r) => r.json()).catch(() => null),
+      ]).then(([prodRes, svcRes]) => {
+        if (prodRes?.success && Array.isArray(prodRes.data)) {
+          setProducts(prodRes.data);
+        } else {
+          setProducts([]);
+        }
+
+        if (svcRes?.success && Array.isArray(svcRes.data)) {
+          setServices(svcRes.data);
+        } else {
+          setServices([]);
+        }
+        setSearching(false);
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
   if (!mounted || !isOpen) return null;
 
   const popularTags = [
-    { label: 'FROZEN', val: 'vegetables' },
-    { label: 'YOGURT', val: 'dairy' },
-    { label: 'VEGAN', val: 'meat' },
-    { label: 'WATER', val: 'Water Purifier' },
-    { label: 'MILK', val: 'dairy' },
-    { label: 'AC REPAIR', val: 'AC Repair' },
-    { label: 'ELECTRICIAN', val: 'Electrician' },
+    { label: 'FROZEN', val: 'frozen' },
+    { label: 'MILK', val: 'milk' },
+    { label: 'MANGO', val: 'mango' },
+    { label: 'RICE', val: 'rice' },
+    { label: 'AC REPAIR', val: 'ac' },
+    { label: 'ELECTRICIAN', val: 'electrician' },
+    { label: 'PLUMBING', val: 'plumbing' },
   ];
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (!query.trim()) return;
     closeSearch();
-    if (category === 'services') {
-      router.push(`/services/home-service?search=${encodeURIComponent(query)}`);
-    } else {
-      router.push(`/services/shopping?search=${encodeURIComponent(query)}`);
-    }
+    router.push(`/search?q=${encodeURIComponent(query.trim())}&cat=${category}`);
   };
 
-  // Filter live search results if user is typing
   const isTyping = query.trim().length > 0;
-  const filteredProducts = ALL_PRODUCTS.filter(
-    (p: ProductItem) =>
-      p.title.toLowerCase().includes(query.toLowerCase()) ||
-      (p.categoryName && p.categoryName.toLowerCase().includes(query.toLowerCase()))
-  );
-  const filteredServices = SERVICE_CATEGORIES.filter(
-    (s) =>
-      s.name.toLowerCase().includes(query.toLowerCase()) ||
-      s.description.toLowerCase().includes(query.toLowerCase())
-  );
 
   return (
     <div className="fixed inset-0 z-[99999] overflow-y-auto bg-white/95 backdrop-blur-md animate-in fade-in duration-200 font-sans text-slate-800">
-      {/* Top Close Button (Reference Image 3) */}
+      {/* Top Close Button */}
       <button
         onClick={closeSearch}
-        className="fixed top-5 right-6 z-50 p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all border border-slate-200 active:scale-90"
+        className="fixed top-5 right-6 z-50 p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all border border-slate-200 active:scale-90 cursor-pointer"
         title="Close Search (ESC)"
       >
         <X className="w-6 h-6" />
@@ -88,24 +110,25 @@ export function GlobalSearchModal() {
 
       <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 space-y-8">
         
-        {/* ── 1. Search Bar Header (Matching Woodmart Reference Screenshot 3) ── */}
+        {/* Search Bar Header */}
         <form onSubmit={handleSearchSubmit} className="space-y-4">
-          <div className="relative flex flex-col md:flex-row items-center bg-white rounded-md border border-slate-300 shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-[#7eb343] transition-all">
-            {/* Main Input */}
+          <div className="relative flex flex-col md:flex-row items-center bg-white rounded-2xl border border-slate-300 shadow-md overflow-hidden focus-within:ring-2 focus-within:ring-[#7eb343] transition-all">
             <div className="relative flex-1 w-full flex items-center px-4 py-3.5">
+              <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
               <input
                 type="text"
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search for products"
+                placeholder="Search products or services..."
                 className="w-full text-base sm:text-lg font-medium text-slate-900 placeholder-slate-400 bg-transparent focus:outline-none"
               />
+              {searching && <Loader2 className="w-4 h-4 text-[#7eb343] animate-spin mr-2" />}
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery('')}
-                  className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -119,12 +142,9 @@ export function GlobalSearchModal() {
                 onChange={(e) => setCategory(e.target.value)}
                 className="bg-transparent text-xs font-bold text-slate-600 px-4 py-3.5 focus:outline-none cursor-pointer uppercase tracking-wider"
               >
-                <option value="all">SELECT CATEGORY</option>
-                <option value="shopping">Grocery & Daily Needs</option>
+                <option value="all">ALL MARKET</option>
+                <option value="shopping">Groceries</option>
                 <option value="services">Home Services</option>
-                <option value="vegetables">Fresh Vegetables</option>
-                <option value="dairy">Milk & Dairy</option>
-                <option value="meat">Meat & Poultry</option>
               </select>
 
               <button
@@ -136,17 +156,15 @@ export function GlobalSearchModal() {
             </div>
           </div>
 
-          {/* ── 2. Popular Requests Tag Chips (Reference Screenshot 3) ── */}
+          {/* Quick Popular Tags */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-extrabold text-slate-700 uppercase tracking-wider text-[11px] mr-1">
-              POPULAR REQUESTS
-            </span>
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Popular:</span>
             {popularTags.map((tag, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => setQuery(tag.val)}
-                className={`px-3 py-1 rounded-md font-bold text-[11px] uppercase transition-all ${
+                className={`px-3 py-1 rounded-md font-bold text-[11px] uppercase transition-all cursor-pointer ${
                   query.toLowerCase() === tag.val.toLowerCase()
                     ? 'bg-[#7eb343] text-white shadow-xs'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
@@ -158,331 +176,79 @@ export function GlobalSearchModal() {
           </div>
         </form>
 
-        {/* ── 3. Live Results or 4-Column Grid Showcase (Screenshot 3) ── */}
+        {/* Live Search Results */}
         {isTyping ? (
-          /* Live Search Results */
           <div className="space-y-6 animate-in fade-in duration-200">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <h3 className="font-bold text-lg text-slate-900">
                 Search Results for &quot;<span className="text-[#7eb343]">{query}</span>&quot;
               </h3>
               <span className="text-xs text-slate-500 font-semibold">
-                {filteredProducts.length + filteredServices.length} items found
+                {searching ? 'Searching...' : `${products.length + services.length} items found`}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProducts.map((prod: ProductItem) => (
-                <Link
-                  key={prod.id}
-                  href={`/services/shopping/product/${prod.slug || prod.id}`}
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 transition-all group shadow-2xs"
-                >
-                  <img src={prod.image} alt={prod.title} className="w-14 h-14 rounded-lg object-cover shrink-0 bg-slate-100" />
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">{prod.categoryName || 'Grocery'}</span>
-                    <h4 className="font-bold text-xs text-slate-800 truncate group-hover:text-[#7eb343] transition-colors">
-                      {prod.title}
-                    </h4>
-                    <div className="font-extrabold text-xs text-[#7eb343] mt-0.5">
-                      ৳{prod.price} <span className="text-[10px] text-slate-400 font-normal">/ {prod.unit}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-
-              {filteredServices.map((svc) => (
-                <Link
-                  key={svc.id}
-                  href={`/services/home-service/${svc.slug}`}
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all group shadow-2xs"
-                >
-                  <div className="w-14 h-14 rounded-lg bg-[#7eb343]/10 text-[#7eb343] flex items-center justify-center font-bold shrink-0">
-                    <Wrench className="w-6 h-6" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[10px] uppercase font-bold text-[#7eb343]">Verified Service</span>
-                    <h4 className="font-bold text-xs text-slate-800 truncate group-hover:text-[#7eb343] transition-colors">
-                      {svc.name}
-                    </h4>
-                    <p className="text-[11px] text-slate-500 truncate">{svc.description}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {filteredProducts.length === 0 && filteredServices.length === 0 && (
+            {searching ? (
+              <div className="py-12 flex justify-center items-center text-[#7eb343] gap-2">
+                <Loader2 className="w-6 h-6 animate-spin" />
+                <span className="text-sm font-semibold">Searching database...</span>
+              </div>
+            ) : products.length === 0 && services.length === 0 ? (
               <div className="py-12 text-center text-slate-500 space-y-2">
-                <p className="text-base font-semibold">No items match your query &quot;{query}&quot;</p>
+                <p className="text-base font-semibold">No items match your search &quot;{query}&quot;</p>
+                <p className="text-xs text-slate-400">Try searching for &quot;milk&quot;, &quot;chicken&quot;, &quot;mango&quot;, or &quot;ac service&quot;</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {products.map((prod) => (
+                  <Link
+                    key={prod.id}
+                    href={`/services/shopping/product/${prod.slug || prod.id}`}
+                    onClick={closeSearch}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 transition-all group shadow-2xs"
+                  >
+                    <img
+                      src={Array.isArray(prod.images) && prod.images[0] ? prod.images[0] : 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200'}
+                      alt={prod.name}
+                      className="w-14 h-14 rounded-lg object-cover shrink-0 bg-slate-100"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">{prod.category?.name || 'Grocery'}</span>
+                      <h4 className="font-bold text-xs text-slate-800 truncate group-hover:text-[#7eb343] transition-colors">
+                        {prod.name}
+                      </h4>
+                      <div className="font-extrabold text-xs text-[#7eb343] mt-0.5">
+                        ৳{prod.price} <span className="text-[10px] text-slate-400 font-normal">/ {prod.unit || 'unit'}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+
+                {services.map((svc) => (
+                  <Link
+                    key={svc.id}
+                    href={`/services/home-service/${svc.slug || svc.id}`}
+                    onClick={closeSearch}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all group shadow-2xs"
+                  >
+                    <div className="w-14 h-14 rounded-lg bg-[#7eb343]/10 text-[#7eb343] flex items-center justify-center font-bold shrink-0">
+                      <Wrench className="w-6 h-6" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] uppercase font-bold text-[#7eb343]">Home Service</span>
+                      <h4 className="font-bold text-xs text-slate-800 truncate group-hover:text-[#7eb343] transition-colors">
+                        {svc.title || svc.name}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 truncate">{svc.description || 'Verified Technician'}</p>
+                    </div>
+                  </Link>
+                ))}
               </div>
             )}
           </div>
         ) : (
-          /* Default 4-Column Showcase (Reference Image 3 Exact Design) */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
-            
-            {/* Column 1: Popular Products */}
-            <div className="space-y-4">
-              <h4 className="font-black text-xs text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-200">
-                Popular Products
-              </h4>
-              <div className="space-y-3">
-                <Link
-                  href="/services/shopping?search=energy"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=150&auto=format&fit=crop&q=80"
-                    alt="Yerba Mate Energy"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Yerba Mate Energy
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳160 / each</p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping?search=blackberry"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=150&auto=format&fit=crop&q=80"
-                    alt="Yerba Mate Blackberry"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Yerba Mate Blackberry
-                    </h5>
-                    <div className="flex items-center gap-1.5 text-xs mt-0.5">
-                      <span className="line-through text-slate-400 font-normal">৳220</span>
-                      <span className="font-extrabold text-[#7eb343]">৳150 / each</span>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping?search=cherry"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=150&auto=format&fit=crop&q=80"
-                    alt="Yerba Mate Cherry"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Yerba Mate Cherry
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳175 / each</p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-
-            {/* Column 2: Popular Cheese / Dairy */}
-            <div className="space-y-4">
-              <h4 className="font-black text-xs text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-200">
-                Popular Cheese
-              </h4>
-              <div className="space-y-3">
-                <Link
-                  href="/services/shopping/dairy"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=150&auto=format&fit=crop&q=80"
-                    alt="Mature Flavour Block"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Mature Flavour Block
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳340 / each</p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping/dairy"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1582721478779-0ae163c05a60?w=150&auto=format&fit=crop&q=80"
-                    alt="Cheese Slices"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Cheese Slices
-                    </h5>
-                    <div className="flex items-center gap-1.5 text-xs mt-0.5">
-                      <span className="line-through text-slate-400 font-normal">৳250</span>
-                      <span className="font-extrabold text-[#7eb343]">৳180 / each</span>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping/dairy"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1563636619-e9143da7973b?w=150&auto=format&fit=crop&q=80"
-                    alt="Mature Cheddar"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Mature Cheddar
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳290 / each</p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-
-            {/* Column 3: Popular Cookies & Brownies */}
-            <div className="space-y-4">
-              <h4 className="font-black text-xs text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-200">
-                Popular Cookies & Brownies
-              </h4>
-              <div className="space-y-3">
-                <Link
-                  href="/services/shopping/bakery"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=150&auto=format&fit=crop&q=80"
-                    alt="Choc Chunk Cookies"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Choc Chunk Cookies
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳120 / each</p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping/bakery"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=150&auto=format&fit=crop&q=80"
-                    alt="Millionaire's Slice"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Millionaire&apos;s Slice
-                    </h5>
-                    <div className="flex items-center gap-1.5 text-xs mt-0.5">
-                      <span className="line-through text-slate-400 font-normal">৳180</span>
-                      <span className="font-extrabold text-[#7eb343]">৳140 / each</span>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping/bakery"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=150&auto=format&fit=crop&q=80"
-                    alt="Sugar Free Cookies"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Sugar Free Cookies
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳115 / each</p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-
-            {/* Column 4: Popular Tea */}
-            <div className="space-y-4">
-              <h4 className="font-black text-xs text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-200">
-                Popular Tea
-              </h4>
-              <div className="space-y-3">
-                <Link
-                  href="/services/shopping/beverages"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=150&auto=format&fit=crop&q=80"
-                    alt="Ice Mango Tea"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Ice Mango Tea
-                    </h5>
-                    <div className="flex items-center gap-1.5 text-xs mt-0.5">
-                      <span className="line-through text-slate-400 font-normal">৳130</span>
-                      <span className="font-extrabold text-[#7eb343]">৳95 / each</span>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping/beverages"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=150&auto=format&fit=crop&q=80"
-                    alt="Japanese Kukicha Tea"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Japanese Kukicha Tea
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳380 / each</p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/services/shopping/beverages"
-                  onClick={closeSearch}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-all group"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1586201375761-83865001e31c?w=150&auto=format&fit=crop&q=80"
-                    alt="Japanese Traditional Tea"
-                    className="w-12 h-12 rounded-md object-contain shrink-0 bg-slate-50 p-1 border border-slate-100"
-                  />
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors">
-                      Japanese Traditional Tea
-                    </h5>
-                    <p className="text-xs font-extrabold text-[#7eb343] mt-0.5">৳340 / each</p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-
+          <div className="py-8 text-center text-slate-400 text-xs">
+            Type anything above to search products, groceries, or home services across DOHS.
           </div>
         )}
 

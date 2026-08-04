@@ -119,49 +119,30 @@ export function HeroBanner() {
   return (
     <div className="relative w-full bg-white text-slate-900 overflow-hidden font-sans">
       
-      {/* ── Top Toolbar: All Categories, Live Search & Header Shortcuts ── */}
+      {/* ── Top Toolbar: All Categories & Quick Shortcuts ── */}
       <div className="max-w-7xl mx-auto px-4 pt-3 pb-2 border-b border-slate-100">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-4">
           
           {/* Left All Categories Button (Green Woodmart Button) */}
-          <div className="flex items-center gap-3 flex-1 max-w-2xl">
-            <button
-              onClick={openDrawer}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#7eb343] hover:bg-[#6e9e38] text-white font-bold text-xs sm:text-sm shadow-xs transition-colors shrink-0 cursor-pointer"
-            >
-              <Menu className="w-4 h-4" />
-              <span>All Categories</span>
-            </button>
-
-            {/* Middle Live Search Field */}
-            <div
-              onClick={() => openSearch(searchQuery)}
-              className="flex-1 border border-slate-200 rounded-full flex items-center px-4 py-2 bg-slate-50 hover:bg-white focus-within:bg-white focus-within:border-slate-400 transition-all cursor-pointer shadow-2xs"
-            >
-              <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
-              <input
-                type="text"
-                readOnly
-                onFocus={() => openSearch(searchQuery)}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for products or home services..."
-                className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none cursor-pointer"
-              />
-            </div>
-          </div>
+          <button
+            onClick={openDrawer}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#7eb343] hover:bg-[#6e9e38] text-white font-bold text-xs sm:text-sm shadow-xs transition-colors shrink-0 cursor-pointer"
+          >
+            <Menu className="w-4 h-4" />
+            <span>All Categories</span>
+          </button>
 
           {/* Quick Shortcuts */}
-          <div className="hidden lg:flex items-center gap-5 text-xs font-semibold text-slate-600">
-            <Link href="/offers" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors">
+          <div className="flex items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-600 overflow-x-auto no-scrollbar py-1">
+            <Link href="/offers" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>Promotions</span>
             </Link>
-            <Link href="/services/shopping/dairy" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors">
+            <Link href="/services/shopping/dairy" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
               <Milk className="w-3.5 h-3.5 text-blue-500" />
               <span>Ideas For Breakfast</span>
             </Link>
-            <Link href="/offers" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors">
+            <Link href="/offers" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
               <Flame className="w-3.5 h-3.5 text-rose-500" />
               <span>Weekly Discounts</span>
             </Link>
