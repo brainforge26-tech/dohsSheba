@@ -948,15 +948,15 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
               </button>
             </div>
 
-            <form onSubmit={handleCreateBrand} className="space-y-3">
+            <div className="space-y-3">
               <div>
                 <Label required>Brand Name</Label>
                 <Input
                   autoFocus
-                  required
                   placeholder="e.g. DOHS Organic, Nestle, Pran..."
                   value={newBrandName}
                   onChange={(e) => setNewBrandName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateBrand(); } }}
                 />
               </div>
 
@@ -969,7 +969,8 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => handleCreateBrand()}
                   disabled={creatingBrand || !newBrandName.trim()}
                   className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-2 disabled:opacity-50"
                 >
@@ -977,7 +978,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                   <span>Create & Select</span>
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
