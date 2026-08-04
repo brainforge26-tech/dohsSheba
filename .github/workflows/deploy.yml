@@ -35,6 +35,7 @@ jobs:
             cd /var/www/dohsheba/backend
             npm install
             npx prisma db push
+            npx prisma db seed
             npm run build
             pm2 restart project3-api || pm2 start dist/server.js --name "project3-api"
 
