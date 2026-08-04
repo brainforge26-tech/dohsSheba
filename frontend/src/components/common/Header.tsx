@@ -53,16 +53,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all">
       {/* Top Banner Bar (Woodmart Green Bar) */}
-      <div className="bg-[#7eb343] text-white text-xs py-2 px-4 border-b border-emerald-600">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 font-bold text-emerald-100">
-              <MapPin className="w-3.5 h-3.5 text-white" />
-              <span>Location:</span>
+      <div className="bg-[#7eb343] text-white text-xs py-1.5 px-3 sm:px-4 border-b border-emerald-600 overflow-hidden w-full">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <div className="flex items-center gap-1 font-bold text-emerald-100 text-[11px] sm:text-xs">
+              <MapPin className="w-3.5 h-3.5 text-white shrink-0" />
+              <span className="hidden xs:inline">Location:</span>
               <select
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="bg-transparent font-black text-white focus:outline-none cursor-pointer"
+                className="bg-transparent font-black text-white focus:outline-none cursor-pointer text-[11px] sm:text-xs"
               >
                 <option value="Savar DOHS" className="bg-emerald-700 text-white">Savar DOHS</option>
                 <option value="Mirpur DOHS" className="bg-emerald-700 text-white">Mirpur DOHS</option>
@@ -71,26 +71,26 @@ export function Header() {
               </select>
             </div>
             <span className="hidden sm:inline text-emerald-200">|</span>
-            <div className="hidden sm:flex items-center gap-1.5 text-white">
-              <PhoneCall className="w-3.5 h-3.5" />
+            <div className="hidden sm:flex items-center gap-1.5 text-white text-xs">
+              <PhoneCall className="w-3.5 h-3.5 shrink-0" />
               <span>DOHS Helpline: <strong>(09612) 238-7908</strong></span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <Link
               href="/track-order"
-              className="flex items-center gap-1 font-extrabold text-white bg-emerald-800/60 hover:bg-emerald-800 px-2.5 py-1 rounded-md text-[11px] transition-all border border-emerald-400/40"
+              className="flex items-center gap-1 font-extrabold text-white bg-emerald-800/60 hover:bg-emerald-800 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] transition-all border border-emerald-400/40 shrink-0 whitespace-nowrap"
             >
-              <Truck className="w-3.5 h-3.5 text-amber-300" />
+              <Truck className="w-3 h-3 text-amber-300 shrink-0" />
               <span>Track Order</span>
             </Link>
 
-            <span className="text-emerald-200">|</span>
+            <span className="hidden md:inline text-emerald-200">|</span>
 
             <Link
               href="/offers"
-              className="flex items-center gap-1 font-bold text-amber-200 hover:underline text-[11px]"
+              className="hidden md:flex items-center gap-1 font-bold text-amber-200 hover:underline text-[11px] shrink-0"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Offers & Coupons</span>
@@ -101,10 +101,10 @@ export function Header() {
             {/* Language Toggle EN / BN */}
             <button
               onClick={() => toggleLanguage()}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-800/40 hover:bg-emerald-800/70 text-white font-bold text-[11px] transition-all border border-emerald-400/30 active:scale-95 cursor-pointer"
+              className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-emerald-800/40 hover:bg-emerald-800/70 text-white font-bold text-[10px] sm:text-[11px] transition-all border border-emerald-400/30 active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
               title="Toggle English / Bangla"
             >
-              <span>{language === 'EN' ? '🇧🇩 বাংলা' : '🇺🇸 English'}</span>
+              <span>{language === 'EN' ? '🇧🇩 BD' : '🇺🇸 EN'}</span>
             </button>
           </div>
         </div>
