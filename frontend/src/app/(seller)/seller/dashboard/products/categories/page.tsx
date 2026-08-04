@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Tag, Plus, Search, Edit2, Trash2, Package, Loader2, FolderTree, AlertTriangle, X, Image as ImageIcon, Sparkles, Upload } from 'lucide-react';
-import { fetchApi, uploadFile } from '@/lib/api-client';
+import { fetchApi, uploadSingleImageApi } from '@/lib/api-client';
 
 const SUGGESTED_IMAGES = [
   { label: 'Vegetables & Fruits', url: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80' },
@@ -72,7 +72,7 @@ export default function CategoriesPage() {
 
     try {
       setUploadingImage(true);
-      const uploadedUrl = await uploadFile(file);
+      const uploadedUrl = await uploadSingleImageApi(file);
       if (isEdit) {
         setEditImage(uploadedUrl);
       } else {
