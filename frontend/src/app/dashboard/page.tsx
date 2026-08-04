@@ -62,7 +62,7 @@ export default function CustomerDashboardOverview() {
     <div className="space-y-6 text-white">
 
       {/* ── Stat Summary Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="p-4 rounded-2xl bg-[#1e1f32] border border-white/10 space-y-1">
           <span className="text-xs text-slate-400 font-medium">{isBn ? 'মোট অর্ডার' : 'Total Orders'}</span>
           <p className="text-2xl font-black text-white">{expressOrdersCount}</p>
