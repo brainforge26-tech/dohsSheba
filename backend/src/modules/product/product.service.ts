@@ -193,24 +193,29 @@ export const createProduct = async (
   sellerId: string,
   data: any
 ) => {
-  const { name, description, price, discount, categoryId, brand, brandId, images, stock, unit, isFeatured, isFlashSale, isActive } = data;
+  const {
+    name, description, price, salePrice, costPrice, discount,
+    categoryId, brand, brandId, images, stock, unit,
+    isFeatured, isFlashSale, isActive,
+    sku, barcode, weight, length, width, height,
+    videoUrl, metaTitle, metaDescription, relatedProductIds, relatedProducts
+  } = data;
   const slug = data.slug ? `${generateSlug(data.slug)}-${Date.now().toString().slice(-4)}` : `${generateSlug(name || 'product')}-${Date.now()}`;
 
   // Resolve Brand ID from brand string if provided
   let resolvedBrandId = brandId || null;
-  if (!resolvedBrandId && brand && typeof brand === 'string') {
-    const cleanBrandName = brand.trim();
-    if (cleanBrandName) {
-      let b = await prisma.brand.findFirst({
-        where: { name: { equals: cleanBrandName, mode: 'insensitive' } },
-      });
-      if (!b) {
-        b = await prisma.brand.create({
-          data: { name: cleanBrandName, slug: generateSlug(cleanBrandName) },
-        }).catch(() => null);
-      }
-      if (b) resolvedBrandId = b.id;
+  let brandName = typeof brand === 'string' ? brand.trim() : undefined;
+
+  if (!resolvedBrandId && brandName) {
+    let b = await prisma.brand.findFirst({
+      where: { name: { equals: brandName, mode: 'insensitive' } },
+    });
+    if (!b) {
+      b = await prisma.brand.create({
+        data: { name: brandName, slug: generateSlug(brandName) },
+      }).catch(() => null);
     }
+    if (b) resolvedBrandId = b.id;
   }
 
   // Resolve Category ID fallback
@@ -224,15 +229,26 @@ export const createProduct = async (
     }
   }
 
+  // Resolve related product IDs array
+  let relIds: string[] = [];
+  if (Array.isArray(relatedProductIds)) {
+    relIds = relatedProductIds;
+  } else if (Array.isArray(relatedProducts)) {
+    relIds = relatedProducts.map((r: any) => typeof r === 'string' ? r : r.id).filter(Boolean);
+  }
+
   return prisma.product.create({
     data: {
       sellerId,
       categoryId: resolvedCategoryId,
       brandId:     resolvedBrandId,
+      brandName:   brandName || undefined,
       name:        name || 'Untitled Product',
       slug,
       description: description || '',
       price:       Number(price || 0),
+      salePrice:   salePrice ? Number(salePrice) : undefined,
+      costPrice:   costPrice ? Number(costPrice) : undefined,
       discount:    Number(discount || 0),
       stock:       Number(stock || 0),
       unit:        unit || 'unit',
@@ -240,6 +256,16 @@ export const createProduct = async (
       isFlashSale: Boolean(isFlashSale),
       isActive:    isActive !== undefined ? Boolean(isActive) : true,
       images:      Array.isArray(images) && images.length > 0 ? images : ['https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600'],
+      sku:         sku || undefined,
+      barcode:     barcode || undefined,
+      weight:      weight ? Number(weight) : undefined,
+      length:      length ? Number(length) : undefined,
+      width:       width ? Number(width) : undefined,
+      height:      height ? Number(height) : undefined,
+      videoUrl:    videoUrl || undefined,
+      metaTitle:   metaTitle || undefined,
+      metaDescription: metaDescription || undefined,
+      relatedProductIds: relIds,
     },
     include: {
       category: true,
@@ -253,19 +279,43 @@ export const updateProduct = async (
 ) => {
   const existing = await prisma.product.findUnique({ where: { id: productId } });
 
-  const { name, description, price, discount, categoryId, brand, brandId, images, stock, unit, isFeatured, isFlashSale, isActive } = data;
+  const {
+    name, description, price, salePrice, costPrice, discount,
+    categoryId, brand, brandId, images, stock, unit,
+    isFeatured, isFlashSale, isActive,
+    sku, barcode, weight, length, width, height,
+    videoUrl, metaTitle, metaDescription, relatedProductIds, relatedProducts
+  } = data;
   const updateData: any = {};
   if (name !== undefined)        updateData.name = name;
   if (description !== undefined) updateData.description = description;
   if (price !== undefined)       updateData.price = Number(price);
+  if (salePrice !== undefined)   updateData.salePrice = salePrice ? Number(salePrice) : null;
+  if (costPrice !== undefined)   updateData.costPrice = costPrice ? Number(costPrice) : null;
   if (discount !== undefined)    updateData.discount = Number(discount);
   if (categoryId !== undefined)  updateData.categoryId = categoryId;
+  if (sku !== undefined)         updateData.sku = sku || null;
+  if (barcode !== undefined)     updateData.barcode = barcode || null;
+  if (weight !== undefined)      updateData.weight = weight ? Number(weight) : null;
+  if (length !== undefined)      updateData.length = length ? Number(length) : null;
+  if (width !== undefined)       updateData.width = width ? Number(width) : null;
+  if (height !== undefined)      updateData.height = height ? Number(height) : null;
+  if (videoUrl !== undefined)    updateData.videoUrl = videoUrl || null;
+  if (metaTitle !== undefined)   updateData.metaTitle = metaTitle || null;
+  if (metaDescription !== undefined) updateData.metaDescription = metaDescription || null;
+
+  if (Array.isArray(relatedProductIds)) {
+    updateData.relatedProductIds = relatedProductIds;
+  } else if (Array.isArray(relatedProducts)) {
+    updateData.relatedProductIds = relatedProducts.map((r: any) => typeof r === 'string' ? r : r.id).filter(Boolean);
+  }
 
   // Resolve Brand ID
   if (brandId !== undefined) updateData.brandId = brandId || null;
   else if (brand && typeof brand === 'string') {
     const cleanBrandName = brand.trim();
     if (cleanBrandName) {
+      updateData.brandName = cleanBrandName;
       let b = await prisma.brand.findFirst({
         where: { name: { equals: cleanBrandName, mode: 'insensitive' } },
       });

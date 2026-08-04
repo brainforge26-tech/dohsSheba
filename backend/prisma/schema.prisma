@@ -271,8 +271,21 @@ model Product {
   isFlashSale  Boolean         @default(false)
   rating       Float           @default(0)
   totalReviews Int             @default(0)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  sku               String?
+  barcode           String?
+  brandName         String?
+  costPrice         Float?
+  salePrice         Float?
+  weight            Float?
+  length            Float?
+  width             Float?
+  height            Float?
+  videoUrl          String?
+  metaTitle         String?
+  metaDescription   String?
+  relatedProductIds String[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   seller        User            @relation(fields: [sellerId], references: [id])
   category      ProductCategory @relation(fields: [categoryId], references: [id])
