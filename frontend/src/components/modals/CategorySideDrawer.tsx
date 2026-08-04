@@ -96,7 +96,7 @@ export function CategorySideDrawer() {
         setLoadingProds(true);
         const res = await fetchApi<any>(`/products?category=${activeCategorySlug}&limit=6`).catch(() => null);
         if (res && res.success && res.data) {
-          const prods = res.data.products || (Array.isArray(res.data) ? res.data : []);
+          const prods = Array.isArray(res.data) ? res.data : res.data.products || [];
           setCategoryProducts(prods);
         } else {
           setCategoryProducts([]);

@@ -94,7 +94,23 @@ export const getProducts = async (filters: ProductFilter) => {
   const skip = (page - 1) * limit;
 
   const where: any = { isActive: true };
-  if (category)   where.category = { slug: category };
+  if (category) {
+    const catObj = await prisma.productCategory.findFirst({
+      where: { slug: category },
+      include: { children: { select: { id: true } } },
+    });
+
+    if (catObj) {
+      if (catObj.children && catObj.children.length > 0) {
+        const catIds = [catObj.id, ...catObj.children.map((c) => c.id)];
+        where.categoryId = { in: catIds };
+      } else {
+        where.categoryId = catObj.id;
+      }
+    } else {
+      where.category = { slug: category };
+    }
+  }
   if (featured)   where.isFeatured = true;
   if (flashSale)  where.isFlashSale = true;
   if (search) {

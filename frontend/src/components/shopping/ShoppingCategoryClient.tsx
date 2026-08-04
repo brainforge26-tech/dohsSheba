@@ -6,35 +6,7 @@ import { ProductCategory, ProductCategorySlug, ProductItem } from '@/types/shopp
 import { ProductCard } from '@/components/cards/ProductCard';
 import { ProductFilterSidebar } from '@/components/shopping/ProductFilterSidebar';
 import { ShoppingBag, SlidersHorizontal, Loader2 } from 'lucide-react';
-
-interface ShoppingCategoryClientProps {
-  categorySlug: ProductCategorySlug | 'all' | string;
-  currentCategory?: ProductCategory;
-}
-
-// Helper to normalize and flexibly match category slugs & names
-function isCategoryMatch(
-  prodSlug: string = '',
-  prodCatName: string = '',
-  targetSlug: string = ''
-): boolean {
-  if (!targetSlug || targetSlug === 'all') return true;
-
-  const clean = (str: string) =>
-    str.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  const normTarget = clean(targetSlug);
-  const normSlug = clean(prodSlug);
-  const normName = clean(prodCatName);
-
-  if (normSlug === normTarget || normName === normTarget) return true;
-
-  // Flexible cross-matching (e.g. "vegetables" <-> "vegetables-fruits", "rice" <-> "rice-grains")
-  if (normSlug.includes(normTarget) || normTarget.includes(normSlug)) return true;
-  if (normName.includes(normTarget) || normTarget.includes(normName)) return true;
-
-  return false;
-}
+import { fetchApi } from '@/lib/api-client';
 
 export function ShoppingCategoryClient({
   categorySlug,
@@ -52,48 +24,57 @@ export function ShoppingCategoryClient({
   // Fetch real products from backend API
   useEffect(() => {
     setLoadingDb(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/products?limit=100`)
-      .then((r) => r.json())
+    const catQuery = categorySlug && categorySlug !== 'all' ? `?category=${categorySlug}&limit=200` : '?limit=200';
+    fetchApi<any>(`/products${catQuery}`)
       .then((res) => {
-        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-          const mapped: ProductItem[] = res.data.map((p: any) => ({
-            id: p.id,
-            title: p.name || p.title || 'Untitled Product',
-            slug: p.slug || p.id,
-            categorySlug: p.category?.slug || p.categorySlug || 'general',
-            categoryName: p.category?.name || p.categoryName || 'General',
-            shopName: p.sellerProfile?.shopName || 'Green Market DOHS',
-            price: Number(p.price || 0),
-            originalPrice: p.originalPrice ? Number(p.originalPrice) : p.discount > 0 ? Math.round(Number(p.price) / (1 - Number(p.discount) / 100)) : undefined,
-            unit: p.unit || 'unit',
-            rating: p.rating || 4.8,
-            reviewCount: p._count?.reviews || 24,
-            image: Array.isArray(p.images) && p.images[0] ? p.images[0] : p.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80',
-            stock: Number(p.stock ?? 50),
-            isOrganic: Boolean(p.isOrganic),
-            badge: p.discount > 0 ? `${p.discount}% OFF` : p.isFeatured ? 'HOT' : undefined,
-            discountPercentage: p.discount || undefined,
-            description: p.description || '',
-          }));
-          setDbProducts(mapped);
-        } else {
-          setDbProducts([]);
+        if (res?.success && res.data) {
+          const rawList = res.data.products || (Array.isArray(res.data) ? res.data : []);
+          if (rawList.length > 0) {
+            const mapped: ProductItem[] = rawList.map((p: any) => ({
+              id: p.id,
+              title: p.name || p.title || 'Untitled Product',
+              slug: p.slug || p.id,
+              categorySlug: p.category?.slug || p.categorySlug || 'general',
+              categoryName: p.category?.name || p.categoryName || 'General',
+              shopName: p.seller?.sellerProfile?.shopName || p.sellerProfile?.shopName || 'Green Market DOHS',
+              price: Number(p.price || 0),
+              originalPrice: p.originalPrice ? Number(p.originalPrice) : p.discount > 0 ? Math.round(Number(p.price) / (1 - Number(p.discount) / 100)) : undefined,
+              unit: p.unit || 'unit',
+              rating: p.rating || 4.8,
+              reviewCount: p._count?.reviews || 24,
+              image: Array.isArray(p.images) && p.images[0] ? p.images[0] : p.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80',
+              stock: Number(p.stock ?? 50),
+              isOrganic: Boolean(p.isOrganic),
+              badge: p.discount > 0 ? `${p.discount}% OFF` : p.isFeatured ? 'HOT' : undefined,
+              discountPercentage: p.discount || undefined,
+              description: p.description || '',
+            }));
+            setDbProducts(mapped);
+            return;
+          }
         }
+        setDbProducts([]);
       })
       .catch(() => setDbProducts([]))
       .finally(() => setLoadingDb(false));
-  }, []);
-
-  // Merge DB products with static ALL_PRODUCTS for complete coverage
-  const allAvailableProducts = useMemo(() => {
-    const dbIds = new Set(dbProducts.map((p) => p.id));
-    const extraStatic = ALL_PRODUCTS.filter((p) => !dbIds.has(p.id));
-    return [...dbProducts, ...extraStatic];
-  }, [dbProducts]);
+  }, [categorySlug]);
 
   // Filter & Sort
   const filteredProducts = useMemo(() => {
-    let list = allAvailableProducts.filter((p) => {
+    if (dbProducts.length > 0) {
+      let list = [...dbProducts];
+      if (maxPrice) list = list.filter((p) => p.price <= maxPrice);
+      if (organicOnly) list = list.filter((p) => p.isOrganic);
+      if (inStockOnly) list = list.filter((p) => p.stock > 0);
+
+      if (sortBy === 'price-asc') list.sort((a, b) => a.price - b.price);
+      else if (sortBy === 'price-desc') list.sort((a, b) => b.price - a.price);
+      else list.sort((a, b) => b.rating - a.rating);
+
+      return list;
+    }
+
+    let list = ALL_PRODUCTS.filter((p) => {
       if (!isCategoryMatch(p.categorySlug, p.categoryName, categorySlug)) return false;
       if (p.price > maxPrice) return false;
       if (organicOnly && !p.isOrganic) return false;
@@ -101,16 +82,12 @@ export function ShoppingCategoryClient({
       return true;
     });
 
-    if (sortBy === 'price-asc') {
-      list.sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-desc') {
-      list.sort((a, b) => b.price - a.price);
-    } else {
-      list.sort((a, b) => b.rating - a.rating);
-    }
+    if (sortBy === 'price-asc') list.sort((a, b) => a.price - b.price);
+    else if (sortBy === 'price-desc') list.sort((a, b) => b.price - a.price);
+    else list.sort((a, b) => b.rating - a.rating);
 
     return list;
-  }, [allAvailableProducts, categorySlug, maxPrice, organicOnly, inStockOnly, sortBy]);
+  }, [dbProducts, categorySlug, maxPrice, organicOnly, inStockOnly, sortBy]);
 
   const handleReset = () => {
     setMaxPrice(3000);
