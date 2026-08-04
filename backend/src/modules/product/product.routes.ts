@@ -11,6 +11,7 @@ const categoryRouter = Router();
 categoryRouter.get('/',     productController.getCategories);
 categoryRouter.post('/',    protect, authorize('SELLER', 'ADMIN'), productCategoryValidator, validate, productController.createCategory);
 categoryRouter.put('/:id',  protect, authorize('SELLER', 'ADMIN'), productController.updateCategory);
+categoryRouter.delete('/:id', protect, authorize('SELLER', 'ADMIN'), productController.deleteCategory);
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 router.get('/seller/my-products', protect, authorize('SELLER', 'ADMIN'), productController.getMyProducts);

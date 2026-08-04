@@ -25,6 +25,13 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
   } catch (error) { next(error); }
 };
 
+export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await productService.deleteProductCategory(req.params.id as string);
+    return sendResponse(res, 200, 'Category deleted', null);
+  } catch (error) { next(error); }
+};
+
 // Products
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {

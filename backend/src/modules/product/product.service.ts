@@ -75,6 +75,12 @@ export const updateProductCategory = async (id: string, data: object) => {
   return prisma.productCategory.update({ where: { id }, data });
 };
 
+export const deleteProductCategory = async (id: string) => {
+  const existing = await prisma.productCategory.findUnique({ where: { id } });
+  if (!existing) throw new AppError('Category not found.', 404);
+  return prisma.productCategory.delete({ where: { id } });
+};
+
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 export const getProducts = async (filters: ProductFilter) => {
