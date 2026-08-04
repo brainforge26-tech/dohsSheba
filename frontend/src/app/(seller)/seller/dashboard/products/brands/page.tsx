@@ -76,11 +76,19 @@ export default function BrandsPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
   };
 
-  const addBrand = () => {
+  const addBrand = async () => {
     if (!newName.trim()) return;
+    const cleanName = newName.trim();
+    try {
+      await fetchApi('/brands', {
+        method: 'POST',
+        body: JSON.stringify({ name: cleanName, description: newOrigin.trim() }),
+      });
+    } catch (_) {}
+
     const newBrand: BrandItem = {
       id: `b_${Date.now()}`,
-      name: newName.trim(),
+      name: cleanName,
       origin: newOrigin.trim() || 'Bangladesh',
       products: 0,
       logo: '🏷️',

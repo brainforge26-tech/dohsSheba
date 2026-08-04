@@ -192,22 +192,37 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
     if (e) e.preventDefault();
     if (!newBrandName.trim()) return;
     setCreatingBrand(true);
+    const cleanName = newBrandName.trim();
     try {
       const res = await fetchApi<any>('/brands', {
         method: 'POST',
-        body: JSON.stringify({ name: newBrandName.trim() }),
+        body: JSON.stringify({ name: cleanName }),
       });
-      if (res.success && res.data) {
-        const newBrand = res.data;
-        setBrands((prev) => {
-          const exists = prev.some((b) => b.id === newBrand.id);
-          return exists ? prev : [...prev, newBrand];
-        });
-        set('brand', newBrand.name);
-        set('brandId', newBrand.id);
-        setShowAddBrandModal(false);
-        setNewBrandName('');
-      }
+      const createdBrand: Brand = res.success && res.data ? res.data : {
+        id: `b_${Date.now()}`,
+        name: cleanName,
+        slug: cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+      };
+
+      setBrands((prev) => {
+        const exists = prev.some((b) => b.name.toLowerCase() === cleanName.toLowerCase());
+        return exists ? prev : [createdBrand, ...prev];
+      });
+
+      // Sync to Brands Page LocalStorage
+      try {
+        const saved = localStorage.getItem('dohssheba_seller_brands');
+        const list = saved ? JSON.parse(saved) : [];
+        if (!list.some((item: any) => item.name.toLowerCase() === cleanName.toLowerCase())) {
+          const updated = [{ id: createdBrand.id, name: cleanName, origin: 'Bangladesh', products: 0, logo: '🏷️' }, ...list];
+          localStorage.setItem('dohssheba_seller_brands', JSON.stringify(updated));
+        }
+      } catch (_) {}
+
+      set('brand', createdBrand.name);
+      set('brandId', createdBrand.id);
+      setShowAddBrandModal(false);
+      setNewBrandName('');
     } catch (err: any) {
       alert(err?.message || 'Failed to create brand');
     } finally {
@@ -256,23 +271,57 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
       });
   }, []);
 
-  // Fetch Brands from database
+  // Fetch Brands from database & LocalStorage (sync with Seller Brands Page)
   useEffect(() => {
-    fetchApi<any>('/brands')
-      .then((res) => { if (res.success) setBrands(res.data || []); })
-      .catch(() => {
-        setBrands([
-          { id: 'b1', name: 'Nestle', slug: 'nestle' },
-          { id: 'b2', name: 'Pran', slug: 'pran' },
-          { id: 'b3', name: 'Square', slug: 'square' },
-          { id: 'b4', name: 'ACI', slug: 'aci' },
-          { id: 'b5', name: 'Unilever', slug: 'unilever' },
-          { id: 'b6', name: 'DOHS Organic', slug: 'dohs-organic' },
-          { id: 'b7', name: 'Teer', slug: 'teer' },
-          { id: 'b8', name: 'Radhuni', slug: 'radhuni' },
-          { id: 'b9', name: 'Fresh', slug: 'fresh' },
-        ]);
-      });
+    const loadAllBrands = async () => {
+      let localBrands: Brand[] = [];
+      try {
+        const saved = localStorage.getItem('dohssheba_seller_brands');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          localBrands = parsed.map((item: any) => ({
+            id: item.id || `b_${item.name}`,
+            name: item.name,
+            slug: item.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+          }));
+        }
+      } catch (err) {
+        console.warn('LocalStorage brands error', err);
+      }
+
+      const defaults: Brand[] = [
+        { id: 'b1', name: 'Pran', slug: 'pran' },
+        { id: 'b2', name: 'BD Food', slug: 'bd-food' },
+        { id: 'b3', name: 'Igloo', slug: 'igloo' },
+        { id: 'b4', name: 'Banoful', slug: 'banoful' },
+        { id: 'b5', name: 'ACI Foods', slug: 'aci-foods' },
+        { id: 'b6', name: 'Fresh (BD)', slug: 'fresh-bd' },
+        { id: 'b7', name: 'Nestle', slug: 'nestle' },
+        { id: 'b8', name: 'Square', slug: 'square' },
+      ];
+
+      try {
+        const res = await fetchApi<any>('/brands');
+        const apiBrands: Brand[] = res.success && Array.isArray(res.data) ? res.data : [];
+        const combinedMap = new Map<string, Brand>();
+
+        [...defaults, ...localBrands, ...apiBrands].forEach((b) => {
+          if (b && b.name) {
+            combinedMap.set(b.name.trim().toLowerCase(), b);
+          }
+        });
+
+        setBrands(Array.from(combinedMap.values()));
+      } catch (err) {
+        const combinedMap = new Map<string, Brand>();
+        [...defaults, ...localBrands].forEach((b) => {
+          if (b && b.name) combinedMap.set(b.name.trim().toLowerCase(), b);
+        });
+        setBrands(Array.from(combinedMap.values()));
+      }
+    };
+
+    loadAllBrands();
   }, []);
 
   const set = (key: keyof ProductFormData, value: any) =>
