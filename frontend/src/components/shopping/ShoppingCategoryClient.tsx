@@ -8,6 +8,33 @@ import { ProductFilterSidebar } from '@/components/shopping/ProductFilterSidebar
 import { ShoppingBag, SlidersHorizontal, Loader2 } from 'lucide-react';
 import { fetchApi } from '@/lib/api-client';
 
+interface ShoppingCategoryClientProps {
+  categorySlug: ProductCategorySlug | 'all' | string;
+  currentCategory?: ProductCategory;
+}
+
+function isCategoryMatch(
+  prodSlug: string = '',
+  prodCatName: string = '',
+  targetSlug: string = ''
+): boolean {
+  if (!targetSlug || targetSlug === 'all') return true;
+
+  const clean = (str: string) =>
+    str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const normTarget = clean(targetSlug);
+  const normSlug = clean(prodSlug);
+  const normName = clean(prodCatName);
+
+  if (normSlug === normTarget || normName === normTarget) return true;
+
+  if (normSlug.includes(normTarget) || normTarget.includes(normSlug)) return true;
+  if (normName.includes(normTarget) || normTarget.includes(normName)) return true;
+
+  return false;
+}
+
 export function ShoppingCategoryClient({
   categorySlug,
   currentCategory,
