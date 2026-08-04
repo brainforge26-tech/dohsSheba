@@ -167,6 +167,23 @@ export default function CategoriesPage() {
 
   const handleDelete = async () => {
     if (!deletingCat) return;
+
+    // Check if category has products or subcategories locally
+    const prodCount = deletingCat._count?.products ?? deletingCat.products ?? 0;
+    const subCount  = subCategoriesList.filter((s) => s.parentId === deletingCat.id).length;
+
+    if (prodCount > 0) {
+      alert(`⚠️ Cannot Delete Category!\n\n"${deletingCat.name}" is currently in use by ${prodCount} product(s). Please reassign or delete those products before deleting this category.`);
+      setDeletingCat(null);
+      return;
+    }
+
+    if (subCount > 0) {
+      alert(`⚠️ Cannot Delete Parent Category!\n\n"${deletingCat.name}" contains ${subCount} subcategory(ies). Please delete or move the subcategories first.`);
+      setDeletingCat(null);
+      return;
+    }
+
     try {
       setDeleteLoading(true);
       const res = await fetchApi<any>(`/product-categories/${deletingCat.id}`, {
@@ -177,7 +194,8 @@ export default function CategoriesPage() {
         await loadCategories();
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to delete category');
+      alert(`⚠️ Category Deletion Blocked!\n\n${err.message || 'This category is currently in use by products.'}`);
+      setDeletingCat(null);
     } finally {
       setDeleteLoading(false);
     }
@@ -751,7 +769,7 @@ export default function CategoriesPage() {
             <div className="text-center space-y-1">
               <h3 className="font-black text-white text-base">Delete Category?</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Are you sure you want to delete <span className="font-bold text-white">"{deletingCat.name}"</span>? Linked products will be safely reassigned to a general category.
+                Are you sure you want to delete <span className="font-bold text-white">"{deletingCat.name}"</span>? Categories currently assigned to active products cannot be deleted.
               </p>
             </div>
 

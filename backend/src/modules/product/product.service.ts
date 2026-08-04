@@ -76,32 +76,31 @@ export const updateProductCategory = async (id: string, data: object) => {
 };
 
 export const deleteProductCategory = async (id: string) => {
-  const existing = await prisma.productCategory.findUnique({ where: { id } });
+  const existing = await prisma.productCategory.findUnique({
+    where: { id },
+    include: {
+      children: true,
+      _count: { select: { products: true, children: true } },
+    },
+  });
   if (!existing) throw new AppError('Category not found.', 404);
 
-  // 1. Unlink subcategories
-  await prisma.productCategory.updateMany({
-    where: { parentId: id },
-    data: { parentId: null },
-  });
-
-  // 2. Reassign linked products to a fallback category so DB foreign key is satisfied
+  // 1. Check if category has linked products
   const productCount = await prisma.product.count({ where: { categoryId: id } });
   if (productCount > 0) {
-    let fallbackCat = await prisma.productCategory.findFirst({
-      where: { id: { not: id } },
-    });
+    throw new AppError(
+      `Cannot delete "${existing.name}". It is currently in use by ${productCount} product(s). Please reassign or delete those products first.`,
+      400
+    );
+  }
 
-    if (!fallbackCat) {
-      fallbackCat = await prisma.productCategory.create({
-        data: { name: 'General', slug: `general-${Date.now()}` },
-      });
-    }
-
-    await prisma.product.updateMany({
-      where: { categoryId: id },
-      data: { categoryId: fallbackCat.id },
-    });
+  // 2. Check if category has subcategories
+  const subCategoryCount = await prisma.productCategory.count({ where: { parentId: id } });
+  if (subCategoryCount > 0) {
+    throw new AppError(
+      `Cannot delete "${existing.name}". It contains ${subCategoryCount} subcategory(ies). Please delete or move the subcategories first.`,
+      400
+    );
   }
 
   // 3. Delete category safely
