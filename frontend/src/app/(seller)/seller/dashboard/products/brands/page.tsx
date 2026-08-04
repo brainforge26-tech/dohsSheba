@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Award, Plus, Search, Edit2, Trash2, Package, Globe, Loader2, Lock } from 'lucide-react';
-import { fetchApi } from '@/lib/api-client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Award, Plus, Search, Edit2, Trash2, Package, Globe, Loader2, Lock, Upload, Image as ImageIcon } from 'lucide-react';
+import { fetchApi, uploadSingleImageApi } from '@/lib/api-client';
 
 interface BrandItem {
   id: string;
@@ -21,7 +21,11 @@ export default function BrandsPage() {
   const [adding, setAdding]         = useState(false);
   const [newName, setNewName]       = useState('');
   const [newOrigin, setNewOrigin]   = useState('Bangladesh');
+  const [newLogo, setNewLogo]       = useState('');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadBrands = async () => {
     setLoading(true);
@@ -80,13 +84,33 @@ export default function BrandsPage() {
     loadBrands();
   }, []);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingLogo(true);
+      const url = await uploadSingleImageApi(file);
+      setNewLogo(url);
+    } catch (err: any) {
+      alert(err.message || 'Failed to upload brand logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   const addBrand = async () => {
     if (!newName.trim()) return;
     const cleanName = newName.trim();
+    const logoUrl = newLogo.trim() || null;
+
     try {
       await fetchApi('/brands', {
         method: 'POST',
-        body: JSON.stringify({ name: cleanName, description: newOrigin.trim() }),
+        body: JSON.stringify({
+          name: cleanName,
+          logo: logoUrl,
+          description: newOrigin.trim(),
+        }),
       });
     } catch (_) {}
 
@@ -95,12 +119,14 @@ export default function BrandsPage() {
       name: cleanName,
       origin: newOrigin.trim() || 'Bangladesh',
       products: 0,
-      logo: '🏷️',
+      logo: logoUrl || '🏷️',
     };
+
     const updated = [newBrand, ...brands];
     setBrands(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     setNewName('');
+    setNewLogo('');
     setAdding(false);
   };
 
@@ -131,49 +157,126 @@ export default function BrandsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <p className="text-xs text-slate-500 mb-0.5">Products / Brands</p>
           <h1 className="font-black text-white text-xl flex items-center gap-2">
             <Award className="w-5 h-5 text-indigo-400" /> Brands Management
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">Manage product brands and country origins</p>
+          <p className="text-xs text-slate-400 mt-0.5">Manage product brands, logos, and country origins</p>
         </div>
         <button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
         >
           <Plus className="w-3.5 h-3.5" /> Add Brand
         </button>
       </div>
 
       {adding && (
-        <div className="rounded-2xl bg-[#1e1f32] border border-indigo-500/40 p-4 space-y-3">
-          <div className="flex gap-3 flex-wrap">
-            <input
-              autoFocus
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Brand name…"
-              className="flex-1 min-w-[200px] px-4 py-2 rounded-xl bg-[#12131f] border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500"
-            />
-            <input
-              value={newOrigin}
-              onChange={(e) => setNewOrigin(e.target.value)}
-              placeholder="Country of origin (e.g. Bangladesh)…"
-              className="w-64 px-4 py-2 rounded-xl bg-[#12131f] border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500"
-            />
+        <div className="rounded-3xl bg-[#1e1f32] border border-indigo-500/40 p-5 space-y-4 shadow-2xl animate-in zoom-in-95 duration-150">
+          <h3 className="font-black text-white text-sm flex items-center gap-2">
+            <Award className="w-4 h-4 text-indigo-400" /> Create New Brand
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Brand Name *
+                </label>
+                <input
+                  autoFocus
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="e.g. Pran, Nestlé, Fresh…"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Country of Origin
+                </label>
+                <input
+                  value={newOrigin}
+                  onChange={(e) => setNewOrigin(e.target.value)}
+                  placeholder="e.g. Bangladesh, Switzerland…"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              {/* Brand Logo Upload Field */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Brand Logo Image (Upload from Device or Paste URL)
+                </label>
+                
+                <div className="flex gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingLogo}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
+                  >
+                    {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    <span>{uploadingLogo ? 'Uploading Image...' : 'Upload Logo File from Device'}</span>
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    value={newLogo}
+                    onChange={(e) => setNewLogo(e.target.value)}
+                    placeholder="Or paste logo image URL (https://...)"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Logo Image Live Preview Box */}
+            <div className="space-y-1.5 flex flex-col">
+              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                Logo Preview
+              </label>
+              <div className="flex-1 min-h-[130px] rounded-2xl bg-[#12131f] border border-dashed border-white/15 overflow-hidden flex items-center justify-center relative p-4">
+                {newLogo ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <img src={newLogo} alt="Brand Logo Preview" className="max-h-24 max-w-full object-contain rounded-lg shadow-md" />
+                    <span className="text-[10px] text-emerald-400 font-bold">Logo Ready</span>
+                  </div>
+                ) : (
+                  <div className="text-center text-slate-500 space-y-1">
+                    <ImageIcon className="w-8 h-8 mx-auto opacity-30" />
+                    <p className="text-xs">No brand logo uploaded</p>
+                    <p className="text-[10px] text-slate-600">Logo preview will appear here</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2 justify-end">
+
+          <div className="flex gap-2 justify-end pt-2 border-t border-white/5">
             <button
-              onClick={() => setAdding(false)}
-              className="px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/15 transition-colors"
+              onClick={() => { setAdding(false); setNewLogo(''); }}
+              className="px-4 py-2.5 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/15 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={addBrand}
-              className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
             >
               Save Brand
             </button>
@@ -208,7 +311,7 @@ export default function BrandsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-slate-400 uppercase tracking-widest border-b border-white/10 bg-[#171827]">
-                <th className="px-4 py-3 text-left">Brand Name</th>
+                <th className="px-4 py-3 text-left">Brand Logo & Name</th>
                 <th className="px-4 py-3 text-left">Origin</th>
                 <th className="px-4 py-3 text-right">Assigned Products</th>
                 <th className="px-4 py-3 text-center">Actions</th>
@@ -220,8 +323,8 @@ export default function BrandsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {b.logo && (b.logo.startsWith('http') || b.logo.startsWith('/') || b.logo.startsWith('data:')) ? (
-                        <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-900 border border-white/10 shrink-0 shadow-sm">
-                          <img src={b.logo} alt={b.name} className="w-full h-full object-cover" />
+                        <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-900 border border-white/10 shrink-0 shadow-sm p-0.5">
+                          <img src={b.logo} alt={b.name} className="w-full h-full object-contain" />
                         </div>
                       ) : (
                         <span className="text-xl">{b.logo || '🏷️'}</span>
