@@ -16,48 +16,19 @@ export const getAllProductCategories = async () => {
     let cats = await prisma.productCategory.findMany({
       where: { isActive: true },
       include: {
-        children: { where: { isActive: true } },
+        children: {
+          where: { isActive: true },
+          include: { _count: { select: { products: true } } },
+        },
         _count: { select: { products: true } },
       },
       orderBy: { name: 'asc' },
     });
 
-    if (!cats || cats.length === 0) {
-      try {
-        await prisma.productCategory.createMany({
-          data: [
-            { name: 'Dairy & Eggs', slug: 'dairy-eggs', isActive: true },
-            { name: 'Fruits & Vegetables', slug: 'fruits-vegetables', isActive: true },
-            { name: 'Rice & Grains', slug: 'rice-grains', isActive: true },
-            { name: 'Spices & Oils', slug: 'spices-oils', isActive: true },
-            { name: 'Poultry & Meat', slug: 'poultry-meat', isActive: true },
-            { name: 'Fish & Seafood', slug: 'fish-seafood', isActive: true },
-            { name: 'Bakery & Snacks', slug: 'bakery-snacks', isActive: true },
-          ],
-        });
-
-        cats = await prisma.productCategory.findMany({
-          where: { isActive: true },
-          include: {
-            children: { where: { isActive: true } },
-            _count: { select: { products: true } },
-          },
-          orderBy: { name: 'asc' },
-        });
-      } catch (seedErr) {
-        console.warn('Category seed warning:', seedErr);
-      }
-    }
-
     return cats || [];
   } catch (err) {
     console.error('Error fetching product categories:', err);
-    return [
-      { id: 'cat_1', name: 'Dairy & Eggs', slug: 'dairy-eggs', _count: { products: 12 } },
-      { id: 'cat_2', name: 'Fruits & Vegetables', slug: 'fruits-vegetables', _count: { products: 18 } },
-      { id: 'cat_3', name: 'Rice & Grains', slug: 'rice-grains', _count: { products: 8 } },
-      { id: 'cat_4', name: 'Spices & Oils', slug: 'spices-oils', _count: { products: 15 } },
-    ];
+    return [];
   }
 };
 
@@ -85,20 +56,29 @@ export const deleteProductCategory = async (id: string) => {
   });
   if (!existing) throw new AppError('Category not found.', 404);
 
-  // 1. Check if category has linked products
-  const productCount = await prisma.product.count({ where: { categoryId: id } });
-  if (productCount > 0) {
+  const childIds = existing.children.map((c) => c.id);
+
+  // 1. Check if category or any of its subcategories has linked products
+  const totalProductCount = await prisma.product.count({
+    where: {
+      OR: [
+        { categoryId: id },
+        ...(childIds.length > 0 ? [{ categoryId: { in: childIds } }] : []),
+      ],
+    },
+  });
+
+  if (totalProductCount > 0) {
     throw new AppError(
-      `Cannot delete "${existing.name}". It is currently in use by ${productCount} product(s). Please reassign or delete those products first.`,
+      `Cannot delete category "${existing.name}". It is currently in use by ${totalProductCount} product(s). Please reassign or delete those products first.`,
       400
     );
   }
 
-  // 2. Check if category has subcategories
-  const subCategoryCount = await prisma.productCategory.count({ where: { parentId: id } });
-  if (subCategoryCount > 0) {
+  // 2. Check if parent category has subcategories
+  if (existing.children.length > 0) {
     throw new AppError(
-      `Cannot delete "${existing.name}". It contains ${subCategoryCount} subcategory(ies). Please delete or move the subcategories first.`,
+      `Cannot delete category "${existing.name}". It contains ${existing.children.length} subcategory(ies). Please delete or move the subcategories first.`,
       400
     );
   }

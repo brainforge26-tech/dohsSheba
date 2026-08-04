@@ -632,7 +632,8 @@ export default function CategoriesPage() {
         <div className="space-y-6">
           {filteredParents.map((parent) => {
             const children = subCategoriesList.filter((sub) => sub.parentId === parent.id);
-            const parentProductCount = parent._count?.products ?? parent.products ?? 0;
+            const childProdSum = children.reduce((acc, child) => acc + (child._count?.products ?? child.products ?? 0), 0);
+            const parentProductCount = (parent._count?.products ?? parent.products ?? 0) + childProdSum;
             const parentImg = parent.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80';
 
             return (
