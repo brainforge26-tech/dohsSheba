@@ -119,6 +119,7 @@ export function CheckoutClient() {
         });
 
         if (guestRes?.success && guestRes.data?.id) {
+          setIsPlaced(true);
           clearCart();
           const orderId = guestRes.data.id;
           const trackingCode = guestRes.data.trackingCode || '';
@@ -148,6 +149,7 @@ export function CheckoutClient() {
       });
 
       if (res?.success && res.data?.id) {
+        setIsPlaced(true);
         clearCart();
         window.location.href = `/checkout/success?orderId=${res.data.id}&trackingCode=${res.data.trackingCode || ''}`;
       } else {
@@ -171,6 +173,7 @@ export function CheckoutClient() {
         });
 
         if (guestRes?.success && guestRes.data?.id) {
+          setIsPlaced(true);
           clearCart();
           const orderId = guestRes.data.id;
           const trackingCode = guestRes.data.trackingCode || '';
@@ -202,6 +205,7 @@ export function CheckoutClient() {
         });
 
         if (guestRes?.success && guestRes.data?.id) {
+          setIsPlaced(true);
           clearCart();
           const orderId = guestRes.data.id;
           const trackingCode = guestRes.data.trackingCode || '';
@@ -218,7 +222,25 @@ export function CheckoutClient() {
   };
 
 
-  if (items.length === 0 && !isPlaced) {
+  if (isLoading || isPlaced) {
+    return (
+      <div className="py-24 text-center space-y-6 max-w-md mx-auto">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-50 border-2 border-emerald-300 text-[#7eb343] flex items-center justify-center mx-auto shadow-xl animate-pulse">
+          <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin stroke-[2.5]" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+            Processing Your Order…
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto leading-relaxed font-medium">
+            Generating your official invoice & live courier tracking code. You will be redirected shortly…
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
     return (
       <div className="py-16 text-center space-y-4 max-w-md mx-auto">
         <div className="w-20 h-20 rounded-full bg-secondary text-muted-foreground flex items-center justify-center mx-auto">
