@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Heart, Plus, Minus, Check, Star } from 'lucide-react';
+import { Heart, Plus, Minus, Check, Star, Loader2 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
+import { useToast } from '@/components/ui/Toast';
 
 export interface ProductCardProps {
   id: string;
@@ -38,8 +39,10 @@ export function ProductCard({
 }: ProductCardProps) {
   const [quantity, setQuantity] = useState(1);
   const [addedAnimation, setAddedAnimation] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const { addItem } = useCartStore();
   const { toggleWishlist, isInWishlist } = useWishlistStore();
+  const { success: toastSuccess } = useToast();
 
   const isLiked = isInWishlist(id);
 
@@ -58,6 +61,8 @@ export function ProductCard({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isAdding) return;
+    setIsAdding(true);
     addItem({
       id,
       title,
@@ -72,8 +77,12 @@ export function ProductCard({
       image,
       stock: 50,
     });
+    toastSuccess('Added to cart!', `${title} × ${quantity}`);
     setAddedAnimation(true);
-    setTimeout(() => setAddedAnimation(false), 1200);
+    setTimeout(() => {
+      setAddedAnimation(false);
+      setIsAdding(false);
+    }, 1200);
   };
 
   return (
@@ -219,13 +228,16 @@ export function ProductCard({
             <button
               type="button"
               onClick={handleAddToCart}
-              className={`flex-1 h-8 rounded-lg text-white font-bold text-xs flex items-center justify-center shadow-2xs transition-all active:scale-95 cursor-pointer ${
+              disabled={isAdding}
+              className={`flex-1 h-8 rounded-lg text-white font-bold text-xs flex items-center justify-center shadow-2xs transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed ${
                 addedAnimation
                   ? 'bg-emerald-600'
                   : 'bg-[#7eb343] hover:bg-[#6c9c36]'
               }`}
             >
-              {addedAnimation ? (
+              {isAdding && !addedAnimation ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : addedAnimation ? (
                 <span className="flex items-center gap-1">
                   <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span className="text-[11px] sm:text-xs">Added</span>

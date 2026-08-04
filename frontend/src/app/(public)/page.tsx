@@ -6,10 +6,11 @@ import { DailyDealsSection } from '@/components/home/DailyDealsSection';
 import { ForYouProductsSection } from '@/components/home/ForYouProductsSection';
 import { HowItWorksSection } from '@/components/home/HowItWorksSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
+import { PageTransition } from '@/components/ui/PageTransition';
 
 export default function HomePage() {
   return (
-    <div className="w-full">
+    <PageTransition className="w-full">
       <HeroBanner />
       <ServiceCategoriesGrid />
       <ShoppingCategoriesGrid />
@@ -17,6 +18,7 @@ export default function HomePage() {
       <ForYouProductsSection />
       <HowItWorksSection />
       <TestimonialsSection />
-    </div>
+    </PageTransition>
   );
 }
+

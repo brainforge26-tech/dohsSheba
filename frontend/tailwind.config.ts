@@ -62,6 +62,14 @@ const config: Config = {
         glass: "0 8px 32px 0 rgba(31, 38, 135, 0.07)",
         card: "0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04)",
       },
+      keyframes: {
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 1.4s infinite',
+      },
     },
   },
   plugins: [],

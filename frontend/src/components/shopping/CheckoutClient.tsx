@@ -18,14 +18,17 @@ import {
   CheckCircle2,
   ChevronLeft,
   Sparkles,
-  Loader2,
   AlertCircle,
 } from 'lucide-react';
+import { LoadingButton } from '@/components/ui/LoadingButton';
+import { useToast } from '@/components/ui/Toast';
+import { DohsShebaLoader } from '@/components/ui/DohsShebaLoader';
 
 export function CheckoutClient() {
   const { items, getSubtotal, clearCart } = useCartStore();
   const { addOrder } = useOrderStore();
   const { user } = useAuthStore();
+  const { success: toastSuccess, error: toastError } = useToast();
 
   const [deliverySpeed, setDeliverySpeed] = useState<'express' | 'scheduled'>('express');
   const [address, setAddress] = useState('House 42, Road 7, DOHS Mohakhali, Dhaka');
@@ -226,7 +229,7 @@ export function CheckoutClient() {
     return (
       <div className="py-24 text-center space-y-6 max-w-md mx-auto">
         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-emerald-50 border-2 border-emerald-300 text-[#7eb343] flex items-center justify-center mx-auto shadow-xl animate-pulse">
-          <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin stroke-[2.5]" />
+          <DohsShebaLoader variant="inline" text="Processing order..." />
         </div>
         <div className="space-y-2">
           <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
@@ -436,23 +439,16 @@ export function CheckoutClient() {
                 </div>
               )}
 
-              <button
+              <LoadingButton
                 type="submit"
+                isLoading={isLoading}
+                loadingText="Placing Order..."
                 disabled={isLoading}
                 className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-extrabold text-sm shadow-xl transition-all flex items-center justify-center gap-2"
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Placing Order...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-                    <span>Place Order ({formatCurrency(total)})</span>
-                  </>
-                )}
-              </button>
+                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                <span>Place Order ({formatCurrency(total)})</span>
+              </LoadingButton>
 
             </div>
           </div>

@@ -1,6 +1,5 @@
-import React from 'react';
 import { DohsShebaLoader } from '@/components/ui/DohsShebaLoader';
 
-export default function Loading() {
+export default function PublicLoading() {
   return <DohsShebaLoader variant="fullScreen" />;
 }

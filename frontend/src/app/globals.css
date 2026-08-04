@@ -116,6 +116,13 @@ html, body {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-[#7eb343] to-[#6c9c36];
 }
 
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Infinite Marquee Scroll Animation for Bottom Hero Bar */
 @keyframes marquee {
   0% {
@@ -135,6 +142,20 @@ html, body {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Accessibility: Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

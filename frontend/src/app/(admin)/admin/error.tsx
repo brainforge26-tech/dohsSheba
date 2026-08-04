@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { ErrorPage } from '@/components/ui/ErrorPage';
 
-export default function Error({
+export default function AdminError({
   error,
   reset,
 }: {
@@ -11,13 +11,13 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[DOHS Sheba Route Error]', error);
+    console.error('[DOHS Sheba Admin Error]', error);
   }, [error]);
 
   return (
     <ErrorPage
-      title="Something Went Wrong"
-      description={error?.message || 'An unexpected error occurred while processing your request. Please try again.'}
+      title="Admin Panel Error"
+      description={error?.message || 'Failed to load this admin section. Please try again.'}
       onReset={reset}
     />
   );

@@ -7,12 +7,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { fetchApi } from '@/lib/api-client';
-import { User, Lock, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
+import { User, Lock, ArrowRight, AlertTriangle } from 'lucide-react';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
+import { LoadingButton } from '@/components/ui/LoadingButton';
+import { useToast } from '@/components/ui/Toast';
 
 export default function LoginPage() {
   const router = useRouter();
   const { setAuth } = useAuthStore();
+  const { success: toastSuccess, error: toastError } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,6 +40,7 @@ export default function LoginPage() {
           document.cookie = `token=${validToken}; path=/; max-age=604800; SameSite=Lax`;
         }
         setAuth(user, validToken);
+        toastSuccess('Welcome back!', `Signed in as ${user.name || user.email}`);
         const userRole = user.role;
         if (userRole === 'SUPER_ADMIN') router.push('/dashboard/super-admin');
         else if (userRole === 'ADMIN') router.push('/admin/dashboard/ecommerce');
@@ -45,10 +49,14 @@ export default function LoginPage() {
         else if (userRole === 'RIDER') router.push('/rider/dashboard');
         else router.push('/dashboard');
       } else {
-        setError(res.message || 'Invalid email or password');
+        const msg = res.message || 'Invalid email or password';
+        setError(msg);
+        toastError('Login Failed', msg);
       }
     } catch (err: any) {
-      setError(err?.message || 'Invalid email or password. Please try again.');
+      const msg = err?.message || 'Invalid email or password. Please try again.';
+      setError(msg);
+      toastError('Login Failed', msg);
     } finally {
       setLoading(false);
     }
@@ -135,14 +143,16 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button
+          <LoadingButton
             type="submit"
+            isLoading={loading}
+            loadingText="Signing In..."
             disabled={loading}
             className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs shadow-xl shadow-indigo-600/30 hover:shadow-indigo-500/50 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.98]"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Sign In to Account</span>}
-            {!loading && <ArrowRight className="w-4 h-4" />}
-          </button>
+            <span>Sign In to Account</span>
+            <ArrowRight className="w-4 h-4" />
+          </LoadingButton>
         </form>
 
         <div className="text-center text-xs text-slate-400 pt-2 border-t border-white/10">

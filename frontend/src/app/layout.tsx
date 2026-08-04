@@ -4,6 +4,8 @@ import { QueryProvider } from '@/providers/query-provider';
 import { AuthProvider } from '@/providers/auth-provider';
 import { LanguageProvider } from '@/providers/language-provider';
 import { WhatsAppButton } from '@/components/common/WhatsAppButton';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
+import { ToastProvider } from '@/components/ui/Toast';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -50,8 +52,11 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <LanguageProvider>
-              {children}
-              <WhatsAppButton />
+              <ToastProvider>
+                {children}
+                <WhatsAppButton />
+                <OfflineBanner />
+              </ToastProvider>
             </LanguageProvider>
           </AuthProvider>
         </QueryProvider>
