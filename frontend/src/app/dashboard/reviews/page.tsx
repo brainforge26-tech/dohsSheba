@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api-client';
 import { CustomerEmptyState } from '@/components/dashboard/customer/CustomerEmptyState';
 import { Star, Edit3, Trash2, Plus, Loader2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([]);
@@ -11,6 +13,7 @@ export default function ReviewsPage() {
   const [showModal, setShowModal] = useState(false);
   const [selectedRating, setSelectedRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
+  const { confirm, dialogProps } = useConfirm();
 
   useEffect(() => {
     setLoading(true);
@@ -35,7 +38,13 @@ export default function ReviewsPage() {
   }, []);
 
   const deleteReview = async (id: string) => {
-    if (!confirm('Delete this review?')) return;
+    const ok = await confirm({
+      title: 'Delete Review',
+      message: 'Are you sure you want to delete this review?',
+      confirmText: 'Delete Review',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await fetchApi(`/reviews/${id}`, { method: 'DELETE' });
       setReviews((prev) => prev.filter((r) => r.id !== id));
@@ -168,6 +177,9 @@ export default function ReviewsPage() {
           </div>
         </div>
       )}
+
+      {/* ── Confirm Dialog ── */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

@@ -12,11 +12,14 @@ import {
 } from 'lucide-react';
 
 import { useSocket } from '@/hooks/useSocket';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 export default function AdminEcommercePage() {
   const { language } = useLanguageStore();
   const { socket } = useSocket();
   const isBn = language === 'BN';
+  const { confirm, dialogProps } = useConfirm();
 
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'categories'>('products');
   const [products, setProducts] = useState<any[]>([]);
@@ -146,8 +149,14 @@ export default function AdminEcommercePage() {
     };
   }, [socket, loadOrders, loadAvailableRiders]);
 
-  const handleDeleteProduct = (id: string) => {
-    if (!confirm(isBn ? 'আপনি কি এই পণ্যটি মুছে ফেলতে চান?' : 'Delete this product?')) return;
+  const handleDeleteProduct = async (id: string) => {
+    const ok = await confirm({
+      title: isBn ? 'পণ্য মুছুন' : 'Delete Product',
+      message: isBn ? 'আপনি কি এই পণ্যটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this product? This action cannot be undone.',
+      confirmText: isBn ? 'মুছে ফেলুন' : 'Delete Product',
+      variant: 'danger',
+    });
+    if (!ok) return;
     setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
@@ -698,6 +707,8 @@ export default function AdminEcommercePage() {
         </div>
       )}
 
+      {/* ── Confirm Dialog ── */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

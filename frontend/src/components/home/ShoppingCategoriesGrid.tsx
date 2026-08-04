@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Grid } from 'lucide-react';
 
 const FALLBACK_CATEGORIES = [
   { id: 'pcat_veg',    name: 'Vegetables & Fruits',    slug: 'vegetables',   image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&auto=format&fit=crop&q=80' },
@@ -26,9 +26,13 @@ interface ProductCategory {
 
 export function ShoppingCategoriesGrid() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [categories, setCategories] = useState<ProductCategory[] | null>(null); // null = loading
+  const [categories, setCategories] = useState<ProductCategory[] | null>(null);
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftState, setScrollLeftState] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Fetch from database; use fallback only if API fails or returns empty
+  // Fetch from database
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/product-categories`)
       .then((r) => r.json())
@@ -48,50 +52,125 @@ export function ShoppingCategoriesGrid() {
       .catch(() => setCategories(FALLBACK_CATEGORIES));
   }, []);
 
-  const scrollLeft  = () => scrollContainerRef.current?.scrollBy({ left: -260, behavior: 'smooth' });
-  const scrollRight = () => scrollContainerRef.current?.scrollBy({ left:  260, behavior: 'smooth' });
-
-  // Auto-scroll loop (pauses on hover)
-  useEffect(() => {
-    let isHovered = false;
-    const container = scrollContainerRef.current;
-    const interval = setInterval(() => {
-      if (!isHovered && container) {
-        const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 15;
-        atEnd ? container.scrollTo({ left: 0, behavior: 'smooth' }) : container.scrollBy({ left: 240, behavior: 'smooth' });
-      }
-    }, 3500);
-    const onEnter = () => (isHovered = true);
-    const onLeave = () => (isHovered = false);
-    container?.addEventListener('mouseenter', onEnter);
-    container?.addEventListener('mouseleave', onLeave);
-    return () => { clearInterval(interval); container?.removeEventListener('mouseenter', onEnter); container?.removeEventListener('mouseleave', onLeave); };
+  const scrollLeft = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollBy({ left: -280, behavior: 'smooth' });
   }, []);
+
+  const scrollRight = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollBy({ left: 280, behavior: 'smooth' });
+  }, []);
+
+  // Smooth Auto-scroll Loop
+  useEffect(() => {
+    let isPaused = false;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const interval = setInterval(() => {
+      if (!isPaused && !isMouseDown && container) {
+        const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 20;
+        if (atEnd) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollBy({ left: 240, behavior: 'smooth' });
+        }
+      }
+    }, 4000);
+
+    const onEnter = () => { isPaused = true; };
+    const onLeave = () => { isPaused = false; };
+
+    container.addEventListener('mouseenter', onEnter);
+    container.addEventListener('mouseleave', onLeave);
+    container.addEventListener('touchstart', onEnter, { passive: true });
+    container.addEventListener('touchend', onLeave, { passive: true });
+
+    return () => {
+      clearInterval(interval);
+      container.removeEventListener('mouseenter', onEnter);
+      container.removeEventListener('mouseleave', onLeave);
+      container.removeEventListener('touchstart', onEnter);
+      container.removeEventListener('touchend', onLeave);
+    };
+  }, [isMouseDown]);
+
+  // Mouse Drag Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    setIsMouseDown(true);
+    setIsDragging(false);
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeftState(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleMouseLeaveOrUp = () => {
+    setIsMouseDown(false);
+    setTimeout(() => setIsDragging(false), 50);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMouseDown || !scrollContainerRef.current) return;
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    if (Math.abs(walk) > 5) {
+      setIsDragging(true);
+    }
+    scrollContainerRef.current.scrollLeft = scrollLeftState - walk;
+  };
 
   return (
     <section className="py-6 px-4 bg-white select-none">
       <div className="max-w-7xl mx-auto space-y-4">
 
         {/* Header Title */}
-        <div className="border-b border-slate-100 pb-3">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Popular Categories
-          </h2>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+              <Grid className="w-5 h-5" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Popular Categories
+            </h2>
+          </div>
+          <Link href="/services/shopping" className="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:border-[#7eb343] hover:text-[#7eb343] font-bold text-xs transition-all cursor-pointer">
+            Explore All
+          </Link>
         </div>
 
-        {/* Carousel with Floating Nav Arrows */}
-        <div className="relative group">
+        {/* Carousel with Nav Arrows & Drag */}
+        <div className="relative group/carousel">
 
-          <button onClick={scrollLeft} className="absolute -left-2 sm:-left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white shadow-md border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-slate-50 hover:text-[#7eb343] transition-all cursor-pointer opacity-90 group-hover:opacity-100" title="Previous">
+          {/* Left Arrow */}
+          <button
+            onClick={scrollLeft}
+            className="absolute -left-2 sm:-left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white shadow-md border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-slate-50 hover:text-[#7eb343] transition-all cursor-pointer opacity-90 group-hover/carousel:opacity-100 active:scale-95"
+            title="Previous Categories"
+          >
             <ChevronLeft className="w-5 h-5" />
           </button>
 
-          <button onClick={scrollRight} className="absolute -right-2 sm:-right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white shadow-md border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-slate-50 hover:text-[#7eb343] transition-all cursor-pointer opacity-90 group-hover:opacity-100" title="Next">
+          {/* Right Arrow */}
+          <button
+            onClick={scrollRight}
+            className="absolute -right-2 sm:-right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white shadow-md border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-slate-50 hover:text-[#7eb343] transition-all cursor-pointer opacity-90 group-hover/carousel:opacity-100 active:scale-95"
+            title="Next Categories"
+          >
             <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* Scrollable Row */}
-          <div ref={scrollContainerRef} className="flex items-start gap-6 sm:gap-8 overflow-x-auto py-2 px-4 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            ref={scrollContainerRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeaveOrUp}
+            onMouseUp={handleMouseLeaveOrUp}
+            onMouseMove={handleMouseMove}
+            className={`flex items-start gap-6 sm:gap-8 overflow-x-auto py-3 px-4 scroll-smooth overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+              isMouseDown ? 'cursor-grabbing' : 'cursor-grab'
+            }`}
+          >
             {categories === null
               ? Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="flex flex-col items-center shrink-0 w-24 sm:w-28 animate-pulse">
@@ -100,9 +179,18 @@ export function ShoppingCategoriesGrid() {
                   </div>
                 ))
               : categories.map((cat) => (
-                  <Link key={cat.id} href={`/services/shopping/${cat.slug}`} className="flex flex-col items-center group/item shrink-0 w-24 sm:w-28 text-center">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-100/90 p-1 border border-slate-200 group-hover/item:border-[#7eb343] group-hover/item:shadow-md transition-all overflow-hidden flex items-center justify-center bg-white shrink-0">
-                      <img src={cat.image} alt={cat.name} className="w-full h-full object-cover rounded-full group-hover/item:scale-105 transition-transform duration-300" />
+                  <Link
+                    key={cat.id}
+                    href={`/services/shopping/${cat.slug}`}
+                    onClick={(e) => { if (isDragging) e.preventDefault(); }}
+                    className="flex flex-col items-center group/item shrink-0 w-24 sm:w-28 text-center transition-transform hover:-translate-y-1 duration-200"
+                  >
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-50 p-1 border-2 border-slate-100 group-hover/item:border-[#7eb343] group-hover/item:shadow-md transition-all overflow-hidden flex items-center justify-center bg-white shrink-0">
+                      <img
+                        src={cat.image}
+                        alt={cat.name}
+                        className="w-full h-full object-cover rounded-full group-hover/item:scale-108 transition-transform duration-300 pointer-events-none"
+                      />
                     </div>
                     <h3 className="font-bold text-xs text-slate-800 group-hover/item:text-[#7eb343] transition-colors leading-tight line-clamp-2 mt-2.5 max-w-[100px]">
                       {cat.name}

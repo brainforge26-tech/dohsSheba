@@ -196,6 +196,11 @@ export function DashboardSidebar({
               icon: <ImageIcon className="w-4 h-4" />,
             },
             {
+              label: 'Hero Slides & Promos',
+              href: '/admin/homepage',
+              icon: <Sliders className="w-4 h-4 text-violet-400" />,
+            },
+            {
               label: 'Coupons & Offers',
               href: '/admin/dashboard/cms#coupons',
               icon: <Tag className="w-4 h-4" />,

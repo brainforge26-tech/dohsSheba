@@ -10,6 +10,8 @@ import {
   ChevronLeft, ChevronRight, RefreshCw, X, Filter,
   SortAsc, MoreVertical, Eye, Loader2, Check,
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 // ─── Mock Data ─────────────────────────────────────────────────────────────────
 
@@ -63,6 +65,7 @@ export default function ProductsPage() {
   const [page,     setPage]     = useState(1);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const { confirm, dialogProps } = useConfirm();
 
   const loadProducts = () => {
     setLoading(true);
@@ -158,7 +161,13 @@ export default function ProductsPage() {
   // ─── Actions ────────────────────────────────────────────────────────────────
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this product? This action cannot be undone.')) return;
+    const ok = await confirm({
+      title: 'Delete Product',
+      message: 'Are you sure you want to delete this product? This action is permanent and cannot be undone.',
+      confirmText: 'Delete Product',
+      variant: 'danger',
+    });
+    if (!ok) return;
     setDeleting(id);
     setProducts((prev) => prev.filter((p) => p.id !== id));
     try {
@@ -180,7 +189,13 @@ export default function ProductsPage() {
   };
 
   const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selected.size} product(s)?`)) return;
+    const ok = await confirm({
+      title: `Delete ${selected.size} Product(s)`,
+      message: `You are about to permanently delete ${selected.size} selected product(s). This cannot be undone.`,
+      confirmText: `Delete ${selected.size} Product(s)`,
+      variant: 'danger',
+    });
+    if (!ok) return;
     setProducts((prev) => prev.filter((p) => !selected.has(p.id)));
     for (const id of selected) {
       try { await fetchApi(`/products/${id}`, { method: 'DELETE' }).catch(() => {}); } catch {}
@@ -495,6 +510,9 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+
+      {/* ── Custom Professional Confirmation Modal ── */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

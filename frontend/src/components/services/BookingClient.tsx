@@ -28,7 +28,7 @@ export function BookingClient({ service }: BookingClientProps) {
   const [address, setAddress] = useState<string>('House 42, Road 7, DOHS Mohakhali, Dhaka');
   const [phone, setPhone] = useState<string>('+880 1712-345678');
   const [notes, setNotes] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'card' | 'cod'>('bkash');
+  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'card' | 'cod'>('cod');
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   const selectedAddons: ServiceAddon[] = (service.addons || []).filter((a) =>
@@ -314,26 +314,38 @@ export function BookingClient({ service }: BookingClientProps) {
               </div>
 
               <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
-                  Select Payment Method
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
+                    Select Payment Method
+                  </label>
+                  <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                    Cash After Service Active
+                  </span>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { id: 'bkash', label: 'bKash Mobile' },
-                    { id: 'nagad', label: 'Nagad Wallet' },
-                    { id: 'card', label: 'Debit/Credit Card' },
-                    { id: 'cod', label: 'Cash After Service' },
+                    { id: 'cod', label: 'Cash After Service', available: true },
+                    { id: 'bkash', label: 'bKash Mobile', available: false },
+                    { id: 'nagad', label: 'Nagad Wallet', available: false },
+                    { id: 'card', label: 'Debit/Credit Card', available: false },
                   ].map((pm) => (
                     <div
                       key={pm.id}
-                      onClick={() => setPaymentMethod(pm.id as any)}
-                      className={`p-3.5 rounded-2xl border text-center cursor-pointer transition-all text-xs font-bold ${
-                        paymentMethod === pm.id
-                          ? 'bg-primary/10 border-primary text-primary shadow-sm'
-                          : 'border-border hover:bg-secondary'
+                      onClick={() => {
+                        if (pm.available) setPaymentMethod(pm.id as any);
+                      }}
+                      className={`relative p-3.5 rounded-2xl border text-center transition-all text-xs font-bold ${
+                        pm.available && paymentMethod === pm.id
+                          ? 'bg-primary/10 border-primary text-primary shadow-sm cursor-pointer'
+                          : 'border-border bg-slate-50/50 text-slate-400 opacity-60 cursor-not-allowed'
                       }`}
                     >
-                      {pm.label}
+                      <span>{pm.label}</span>
+                      {!pm.available && (
+                        <span className="block text-[9px] font-normal text-slate-400 mt-0.5">
+                          (Coming Soon)
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>

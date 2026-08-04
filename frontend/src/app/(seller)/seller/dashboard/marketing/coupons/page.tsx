@@ -9,6 +9,8 @@ import {
   Clock, Trash2, Edit2, AlertTriangle, Filter, CheckCircle2,
   XCircle, ToggleLeft, ToggleRight, Loader2, X, Info, ShieldAlert,
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 // ─── Mock Coupons ─────────────────────────────────────────────────────────────
 
@@ -31,6 +33,7 @@ export default function CouponsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const { confirm, dialogProps } = useConfirm();
 
   // Create Modal State
   const [showModal, setShowModal] = useState(false);
@@ -58,7 +61,13 @@ export default function CouponsPage() {
   };
 
   const deleteCoupon = async (id: string) => {
-    if (!confirm('Delete this coupon?')) return;
+    const ok = await confirm({
+      title: 'Delete Coupon',
+      message: 'Are you sure you want to delete this coupon code? Customers will no longer be able to use it.',
+      confirmText: 'Delete Coupon',
+      variant: 'danger',
+    });
+    if (!ok) return;
     setCoupons((prev) => prev.filter((c) => c.id !== id));
   };
 
@@ -247,6 +256,9 @@ export default function CouponsPage() {
           </form>
         </div>
       )}
+
+      {/* ── Confirm Dialog ── */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

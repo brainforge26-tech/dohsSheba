@@ -1,52 +1,125 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ALL_PRODUCTS } from '@/constants/products';
-import { ProductCategory, ProductCategorySlug } from '@/types/shopping';
+import { ProductCategory, ProductCategorySlug, ProductItem } from '@/types/shopping';
 import { ProductCard } from '@/components/cards/ProductCard';
 import { ProductFilterSidebar } from '@/components/shopping/ProductFilterSidebar';
-import { ShoppingBag, SlidersHorizontal } from 'lucide-react';
+import { ShoppingBag, SlidersHorizontal, Loader2 } from 'lucide-react';
 
 interface ShoppingCategoryClientProps {
-  categorySlug: ProductCategorySlug | 'all';
+  categorySlug: ProductCategorySlug | 'all' | string;
   currentCategory?: ProductCategory;
+}
+
+// Helper to normalize and flexibly match category slugs & names
+function isCategoryMatch(
+  prodSlug: string = '',
+  prodCatName: string = '',
+  targetSlug: string = ''
+): boolean {
+  if (!targetSlug || targetSlug === 'all') return true;
+
+  const clean = (str: string) =>
+    str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const normTarget = clean(targetSlug);
+  const normSlug = clean(prodSlug);
+  const normName = clean(prodCatName);
+
+  if (normSlug === normTarget || normName === normTarget) return true;
+
+  // Flexible cross-matching (e.g. "vegetables" <-> "vegetables-fruits", "rice" <-> "rice-grains")
+  if (normSlug.includes(normTarget) || normTarget.includes(normSlug)) return true;
+  if (normName.includes(normTarget) || normTarget.includes(normName)) return true;
+
+  return false;
 }
 
 export function ShoppingCategoryClient({
   categorySlug,
   currentCategory,
 }: ShoppingCategoryClientProps) {
-  const [maxPrice, setMaxPrice] = useState(2000);
+  const [dbProducts, setDbProducts] = useState<ProductItem[]>([]);
+  const [loadingDb, setLoadingDb] = useState(true);
+
+  const [maxPrice, setMaxPrice] = useState(3000);
   const [organicOnly, setOrganicOnly] = useState(false);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState('popular');
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  let products = ALL_PRODUCTS.filter((p) => {
-    if (categorySlug !== 'all' && p.categorySlug !== categorySlug) return false;
-    if (p.price > maxPrice) return false;
-    if (organicOnly && !p.isOrganic) return false;
-    if (inStockOnly && p.stock <= 0) return false;
-    return true;
-  });
+  // Fetch real products from backend API
+  useEffect(() => {
+    setLoadingDb(true);
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/products?limit=100`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped: ProductItem[] = res.data.map((p: any) => ({
+            id: p.id,
+            title: p.name || p.title || 'Untitled Product',
+            slug: p.slug || p.id,
+            categorySlug: p.category?.slug || p.categorySlug || 'general',
+            categoryName: p.category?.name || p.categoryName || 'General',
+            shopName: p.sellerProfile?.shopName || 'Green Market DOHS',
+            price: Number(p.price || 0),
+            originalPrice: p.originalPrice ? Number(p.originalPrice) : p.discount > 0 ? Math.round(Number(p.price) / (1 - Number(p.discount) / 100)) : undefined,
+            unit: p.unit || 'unit',
+            rating: p.rating || 4.8,
+            reviewCount: p._count?.reviews || 24,
+            image: Array.isArray(p.images) && p.images[0] ? p.images[0] : p.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80',
+            stock: Number(p.stock ?? 50),
+            isOrganic: Boolean(p.isOrganic),
+            badge: p.discount > 0 ? `${p.discount}% OFF` : p.isFeatured ? 'HOT' : undefined,
+            discountPercentage: p.discount || undefined,
+            description: p.description || '',
+          }));
+          setDbProducts(mapped);
+        } else {
+          setDbProducts([]);
+        }
+      })
+      .catch(() => setDbProducts([]))
+      .finally(() => setLoadingDb(false));
+  }, []);
 
-  if (sortBy === 'price-asc') {
-    products.sort((a, b) => a.price - b.price);
-  } else if (sortBy === 'price-desc') {
-    products.sort((a, b) => b.price - a.price);
-  } else {
-    products.sort((a, b) => b.rating - a.rating);
-  }
+  // Merge DB products with static ALL_PRODUCTS for complete coverage
+  const allAvailableProducts = useMemo(() => {
+    const dbIds = new Set(dbProducts.map((p) => p.id));
+    const extraStatic = ALL_PRODUCTS.filter((p) => !dbIds.has(p.id));
+    return [...dbProducts, ...extraStatic];
+  }, [dbProducts]);
+
+  // Filter & Sort
+  const filteredProducts = useMemo(() => {
+    let list = allAvailableProducts.filter((p) => {
+      if (!isCategoryMatch(p.categorySlug, p.categoryName, categorySlug)) return false;
+      if (p.price > maxPrice) return false;
+      if (organicOnly && !p.isOrganic) return false;
+      if (inStockOnly && p.stock <= 0) return false;
+      return true;
+    });
+
+    if (sortBy === 'price-asc') {
+      list.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      list.sort((a, b) => b.price - a.price);
+    } else {
+      list.sort((a, b) => b.rating - a.rating);
+    }
+
+    return list;
+  }, [allAvailableProducts, categorySlug, maxPrice, organicOnly, inStockOnly, sortBy]);
 
   const handleReset = () => {
-    setMaxPrice(2000);
+    setMaxPrice(3000);
     setOrganicOnly(false);
     setInStockOnly(false);
     setSortBy('popular');
   };
 
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-
-  const activeFilterCount = (organicOnly ? 1 : 0) + (inStockOnly ? 1 : 0) + (maxPrice < 2000 ? 1 : 0);
+  const activeFilterCount = (organicOnly ? 1 : 0) + (inStockOnly ? 1 : 0) + (maxPrice < 3000 ? 1 : 0);
 
   return (
     <div className="space-y-6">
@@ -81,7 +154,7 @@ export function ShoppingCategoryClient({
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
           <ProductFilterSidebar
-            currentCategorySlug={categorySlug}
+            currentCategorySlug={categorySlug as ProductCategorySlug}
             maxPrice={maxPrice}
             setMaxPrice={setMaxPrice}
             organicOnly={organicOnly}
@@ -94,7 +167,7 @@ export function ShoppingCategoryClient({
           />
         </div>
 
-        {/* ── Mobile Filter Slide-Over Drawer Modal ── */}
+        {/* ── Mobile Filter Drawer Modal ── */}
         {isMobileFilterOpen && (
           <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
             <div className="w-full max-w-lg bg-background border border-border rounded-t-3xl sm:rounded-3xl p-6 space-y-6 shadow-2xl max-h-[85vh] overflow-y-auto">
@@ -113,7 +186,7 @@ export function ShoppingCategoryClient({
               </div>
 
               <ProductFilterSidebar
-                currentCategorySlug={categorySlug}
+                currentCategorySlug={categorySlug as ProductCategorySlug}
                 maxPrice={maxPrice}
                 setMaxPrice={setMaxPrice}
                 organicOnly={organicOnly}
@@ -138,40 +211,45 @@ export function ShoppingCategoryClient({
                   onClick={() => setIsMobileFilterOpen(false)}
                   className="flex-1 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-lg"
                 >
-                  Apply Filters ({products.length} Items)
+                  Apply Filters ({filteredProducts.length} Items)
                 </button>
               </div>
             </div>
           </div>
         )}
 
+        {/* ── Main Products Grid ── */}
         <div className="flex-1 w-full space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-lg">
-              Found {products.length} {products.length === 1 ? 'Product' : 'Products'}
+              Found {filteredProducts.length} {filteredProducts.length === 1 ? 'Product' : 'Products'}
             </h2>
             <span className="text-xs text-muted-foreground">Showing local DOHS bazaar items</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {products.length === 0 ? (
+            {loadingDb ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-64 rounded-3xl bg-secondary/50 animate-pulse" />
+              ))
+            ) : filteredProducts.length === 0 ? (
               <div className="col-span-full p-12 text-center border border-border rounded-3xl bg-card space-y-3">
                 <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto stroke-[1.5]" />
                 <div className="space-y-1">
-                  <p className="font-bold text-lg">No grocery products match your filters</p>
+                  <p className="font-bold text-lg">No grocery products found in this category</p>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                    Try adjusting your price range slider or unchecking organic filter.
+                    Try adjusting your price filter or reset to view all available items.
                   </p>
                 </div>
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold text-xs mt-2 shadow-sm"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs mt-2 shadow-sm transition-all"
                 >
                   Reset Filters
                 </button>
               </div>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))
             )}

@@ -30,7 +30,7 @@ export function CheckoutClient() {
   const [deliverySpeed, setDeliverySpeed] = useState<'express' | 'scheduled'>('express');
   const [address, setAddress] = useState('House 42, Road 7, DOHS Mohakhali, Dhaka');
   const [phone, setPhone] = useState('+880 1712-345678');
-  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'card' | 'cod'>('bkash');
+  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'card' | 'cod'>('cod');
   const [isPlaced, setIsPlaced] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState('');
 
@@ -282,24 +282,36 @@ export function CheckoutClient() {
 
               {/* Payment Choice */}
               <div className="p-6 rounded-3xl border border-border bg-card shadow-card space-y-4">
-                <h3 className="font-extrabold text-base">Payment Method</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-extrabold text-base">Payment Method</h3>
+                  <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    Cash on Delivery Available
+                  </span>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { id: 'bkash', label: 'bKash' },
-                    { id: 'nagad', label: 'Nagad' },
-                    { id: 'card', label: 'Card' },
-                    { id: 'cod', label: 'Cash on Delivery' },
+                    { id: 'cod', label: 'Cash on Delivery', available: true },
+                    { id: 'bkash', label: 'bKash', available: false },
+                    { id: 'nagad', label: 'Nagad', available: false },
+                    { id: 'card', label: 'Card', available: false },
                   ].map((pm) => (
                     <div
                       key={pm.id}
-                      onClick={() => setPaymentMethod(pm.id as any)}
-                      className={`p-3 rounded-2xl border text-center cursor-pointer transition-all text-xs font-bold ${
-                        paymentMethod === pm.id
-                          ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 shadow-sm'
-                          : 'border-border hover:bg-secondary'
+                      onClick={() => {
+                        if (pm.available) setPaymentMethod(pm.id as any);
+                      }}
+                      className={`relative p-3 rounded-2xl border text-center transition-all text-xs font-bold ${
+                        pm.available && paymentMethod === pm.id
+                          ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 shadow-sm cursor-pointer'
+                          : 'border-border bg-slate-50/50 text-slate-400 opacity-60 cursor-not-allowed'
                       }`}
                     >
-                      {pm.label}
+                      <span>{pm.label}</span>
+                      {!pm.available && (
+                        <span className="block text-[9px] font-normal text-slate-400 mt-0.5">
+                          (Coming Soon)
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>

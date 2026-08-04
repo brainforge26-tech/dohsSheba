@@ -8,10 +8,13 @@ import {
   Wrench, ShieldCheck, Check, X, Plus, Search, Filter,
   Trash2, Edit2, Clock, CheckCircle2, AlertCircle, Phone, FileText
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 export default function AdminServicesPage() {
   const { language } = useLanguageStore();
   const isBn = language === 'BN';
+  const { confirm, dialogProps } = useConfirm();
 
   const [activeTab, setActiveTab] = useState<'catalog' | 'approvals'>('catalog');
   const [services, setServices] = useState<any[]>([]);
@@ -92,7 +95,13 @@ export default function AdminServicesPage() {
   };
 
   const handleDeleteService = async (id: string) => {
-    if (!confirm(isBn ? 'আপনি কি এই সার্ভিসটি মুছে ফেলতে চান?' : 'Delete this service?')) return;
+    const ok = await confirm({
+      title: isBn ? 'সার্ভিস মুছুন' : 'Delete Service',
+      message: isBn ? 'আপনি কি এই সার্ভিসটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this service?',
+      confirmText: isBn ? 'মুছে ফেলুন' : 'Delete Service',
+      variant: 'danger',
+    });
+    if (!ok) return;
     setServices((prev) => prev.filter((s) => s.id !== id));
     await fetchApi(`/services/${id}`, { method: 'DELETE' }).catch(() => null);
   };
@@ -424,6 +433,8 @@ export default function AdminServicesPage() {
         </div>
       )}
 
+      {/* ── Confirm Dialog ── */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

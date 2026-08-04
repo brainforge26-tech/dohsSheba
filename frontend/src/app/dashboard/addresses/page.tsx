@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { fetchApi } from '@/lib/api-client';
 import { MapPin, Plus, Home, Briefcase, Trash2, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { fetchApi } from '@/lib/api-client';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 export default function AddressesPage() {
   const [mounted, setMounted] = useState(false);
@@ -15,6 +17,7 @@ export default function AddressesPage() {
   const [area, setArea] = useState('DOHS Mirpur');
   const [modalError, setModalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const { confirm, dialogProps } = useConfirm();
 
   const loadAddresses = () => {
     setLoading(true);
@@ -60,7 +63,13 @@ export default function AddressesPage() {
   };
 
   const removeAddress = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this address?')) return;
+    const ok = await confirm({
+      title: 'Delete Address',
+      message: 'Are you sure you want to remove this delivery address from your account?',
+      confirmText: 'Remove Address',
+      variant: 'danger',
+    });
+    if (!ok) return;
     setAddresses((prev) => prev.filter((a) => a.id !== id));
     setSuccessMsg('Address removed successfully!');
     setTimeout(() => setSuccessMsg(''), 3000);
@@ -309,6 +318,9 @@ export default function AddressesPage() {
           </form>
         </div>
       )}
+
+      {/* ── Confirm Dialog ── */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

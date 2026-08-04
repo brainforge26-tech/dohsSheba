@@ -20,6 +20,8 @@ import {
   Save,
   X,
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 export default function AdminHomepageManagementPage() {
   const {
@@ -42,6 +44,7 @@ export default function AdminHomepageManagementPage() {
 
   const [showPromoModal, setShowPromoModal] = useState(false);
   const [editingPromo, setEditingPromo] = useState<Partial<PromoCardData> | null>(null);
+  const { confirm, dialogProps } = useConfirm();
 
   // Form State for Hero Slide
   const [heroForm, setHeroForm] = useState<Partial<HeroSlideData>>({
@@ -107,7 +110,13 @@ export default function AdminHomepageManagementPage() {
   };
 
   const handleDeleteHero = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this slide?')) return;
+    const ok = await confirm({
+      title: 'Delete Hero Slide',
+      message: 'Are you sure you want to delete this hero banner slide?',
+      confirmText: 'Delete Slide',
+      variant: 'danger',
+    });
+    if (!ok) return;
     await deleteHero(id);
   };
 
@@ -152,7 +161,13 @@ export default function AdminHomepageManagementPage() {
   };
 
   const handleDeletePromo = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this promo card?')) return;
+    const ok = await confirm({
+      title: 'Delete Promo Card',
+      message: 'Are you sure you want to delete this homepage promo card?',
+      confirmText: 'Delete Promo Card',
+      variant: 'danger',
+    });
+    if (!ok) return;
     await deletePromo(id);
   };
 
@@ -557,6 +572,8 @@ export default function AdminHomepageManagementPage() {
         </div>
       )}
 
+      {/* ── Confirm Dialog ── */}
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }
