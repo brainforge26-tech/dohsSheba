@@ -182,6 +182,51 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
   const [newCatParentId, setNewCatParentId] = useState('');
   const [creatingCat, setCreatingCat] = useState(false);
 
+  // Inline Instant Brand Creation state
+  const [showAddBrandModal, setShowAddBrandModal] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
+  const [creatingBrand, setCreatingBrand] = useState(false);
+
+  const handleCreateBrand = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newBrandName.trim()) return;
+    setCreatingBrand(true);
+    const cleanName = newBrandName.trim();
+    try {
+      const res = await fetchApi<any>('/brands', {
+        method: 'POST',
+        body: JSON.stringify({ name: cleanName }),
+      });
+      const createdBrand = res.success && res.data ? res.data : {
+        id: `b_${Date.now()}`,
+        name: cleanName,
+        slug: cleanName.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+      };
+
+      setBrands((prev) => {
+        const exists = prev.some((b) => b.name.toLowerCase() === cleanName.toLowerCase());
+        return exists ? prev : [createdBrand, ...prev];
+      });
+
+      try {
+        const saved = localStorage.getItem('dohssheba_seller_brands');
+        const list = saved ? JSON.parse(saved) : [];
+        if (!list.some((item: any) => item.name.toLowerCase() === cleanName.toLowerCase())) {
+          const updated = [{ id: createdBrand.id, name: cleanName, origin: 'Bangladesh', products: 0, logo: '🏷️' }, ...list];
+          localStorage.setItem('dohssheba_seller_brands', JSON.stringify(updated));
+        }
+      } catch (_) {}
+
+      set('brand', createdBrand.name);
+      setShowAddBrandModal(false);
+      setNewBrandName('');
+    } catch (err: any) {
+      alert(err?.message || 'Failed to create brand');
+    } finally {
+      setCreatingBrand(false);
+    }
+  };
+
   // Sync category dropdown state when categoryId or categories change
   useEffect(() => {
     if (!form.categoryId || categories.length === 0) return;
@@ -442,7 +487,14 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                 <div className="relative">
                   <Select
                     value={form.brand}
-                    onChange={(e) => set('brand', e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'CREATE_NEW_BRAND') {
+                        setShowAddBrandModal(true);
+                      } else {
+                        set('brand', val);
+                      }
+                    }}
                   >
                     <option value="">Select Brand</option>
                     {brands.map((b: any) => (
@@ -450,6 +502,9 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                         {b.name}
                       </option>
                     ))}
+                    <option value="CREATE_NEW_BRAND" className="font-bold text-indigo-400">
+                      + Create New Brand...
+                    </option>
                   </Select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
                 </div>
@@ -872,6 +927,57 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                 Create & Select
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Create Brand Modal */}
+      {showAddBrandModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1e1f32] border border-white/10 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="font-black text-white text-sm flex items-center gap-2">
+                <Tag className="w-4 h-4 text-indigo-400" /> Create New Brand
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAddBrandModal(false)}
+                className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateBrand} className="space-y-3">
+              <div>
+                <Label required>Brand Name</Label>
+                <Input
+                  autoFocus
+                  required
+                  placeholder="e.g. DOHS Organic, Nestle, Pran..."
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddBrandModal(false)}
+                  className="px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/15"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingBrand || !newBrandName.trim()}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-2 disabled:opacity-50"
+                >
+                  {creatingBrand && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Create & Select</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
