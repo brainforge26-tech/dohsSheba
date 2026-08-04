@@ -27,9 +27,9 @@ interface ServiceCategory {
 
 export function ServiceCategoriesGrid() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [services, setServices] = useState<ServiceCategory[]>(FALLBACK_SERVICES);
+  const [services, setServices] = useState<ServiceCategory[] | null>(null); // null = loading
 
-  // Fetch from database
+  // Fetch from database; use fallback only if API fails or returns empty
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/service-categories`)
       .then((r) => r.json())
@@ -44,9 +44,11 @@ export function ServiceCategoriesGrid() {
             image: cat.image || cat.imageUrl || FALLBACK_SERVICES[0].image,
           }));
           setServices(mapped);
+        } else {
+          setServices(FALLBACK_SERVICES);
         }
       })
-      .catch(() => {}); // silently keep fallback
+      .catch(() => setServices(FALLBACK_SERVICES));
   }, []);
 
   const scrollLeft  = () => scrollContainerRef.current?.scrollBy({ left: -260, behavior: 'smooth' });
@@ -101,27 +103,32 @@ export function ServiceCategoriesGrid() {
 
         {/* Scrollable Row */}
         <div ref={scrollContainerRef} className="flex items-center gap-6 sm:gap-8 overflow-x-auto py-2 px-1 scroll-smooth select-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          {services.map((service) => (
-            <Link
-              key={service.id}
-              href={`/services/home-service/${service.slug}`}
-              className="flex flex-col items-center group shrink-0 w-24 sm:w-28 text-center"
-            >
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-slate-200 p-1 shadow-2xs group-hover:border-[#7eb343] transition-all bg-white shrink-0 flex items-center justify-center overflow-hidden">
-                <img src={service.image} alt={service.name} className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300" />
-              </div>
-              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-amber-500 mt-2">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                <span>{service.rating}</span>
-              </div>
-              <h3 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors leading-tight line-clamp-1 mt-1 max-w-[110px]">
-                {service.name}
-              </h3>
-              <span className="text-[10px] text-slate-400 font-semibold mt-0.5 whitespace-nowrap">
-                {service.bookings}
-              </span>
-            </Link>
-          ))}
+          {services === null
+            ? Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center shrink-0 w-24 sm:w-28 animate-pulse">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-200" />
+                  <div className="h-2.5 w-16 bg-slate-200 rounded mt-3" />
+                  <div className="h-2 w-12 bg-slate-100 rounded mt-1.5" />
+                </div>
+              ))
+            : services.map((service) => (
+                <Link key={service.id} href={`/services/home-service/${service.slug}`} className="flex flex-col items-center group shrink-0 w-24 sm:w-28 text-center">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-slate-200 p-1 shadow-2xs group-hover:border-[#7eb343] transition-all bg-white shrink-0 flex items-center justify-center overflow-hidden">
+                    <img src={service.image} alt={service.name} className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                  <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-amber-500 mt-2">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span>{service.rating}</span>
+                  </div>
+                  <h3 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors leading-tight line-clamp-1 mt-1 max-w-[110px]">
+                    {service.name}
+                  </h3>
+                  <span className="text-[10px] text-slate-400 font-semibold mt-0.5 whitespace-nowrap">
+                    {service.bookings}
+                  </span>
+                </Link>
+              ))
+          }
         </div>
 
       </div>

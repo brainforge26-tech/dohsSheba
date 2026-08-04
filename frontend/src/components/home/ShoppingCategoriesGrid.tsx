@@ -26,9 +26,9 @@ interface ProductCategory {
 
 export function ShoppingCategoriesGrid() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [categories, setCategories] = useState<ProductCategory[]>(FALLBACK_CATEGORIES);
+  const [categories, setCategories] = useState<ProductCategory[] | null>(null); // null = loading
 
-  // Fetch from database
+  // Fetch from database; use fallback only if API fails or returns empty
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/product-categories`)
       .then((r) => r.json())
@@ -41,9 +41,11 @@ export function ShoppingCategoriesGrid() {
             image: cat.image || cat.imageUrl || FALLBACK_CATEGORIES[0].image,
           }));
           setCategories(mapped);
+        } else {
+          setCategories(FALLBACK_CATEGORIES);
         }
       })
-      .catch(() => {}); // silently keep fallback
+      .catch(() => setCategories(FALLBACK_CATEGORIES));
   }, []);
 
   const scrollLeft  = () => scrollContainerRef.current?.scrollBy({ left: -260, behavior: 'smooth' });
@@ -90,20 +92,24 @@ export function ShoppingCategoriesGrid() {
 
           {/* Scrollable Row */}
           <div ref={scrollContainerRef} className="flex items-start gap-6 sm:gap-8 overflow-x-auto py-2 px-4 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/services/shopping/${cat.slug}`}
-                className="flex flex-col items-center group/item shrink-0 w-24 sm:w-28 text-center"
-              >
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-100/90 p-1 border border-slate-200 group-hover/item:border-[#7eb343] group-hover/item:shadow-md transition-all overflow-hidden flex items-center justify-center bg-white shrink-0">
-                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover rounded-full group-hover/item:scale-105 transition-transform duration-300" />
-                </div>
-                <h3 className="font-bold text-xs text-slate-800 group-hover/item:text-[#7eb343] transition-colors leading-tight line-clamp-2 mt-2.5 max-w-[100px]">
-                  {cat.name}
-                </h3>
-              </Link>
-            ))}
+            {categories === null
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex flex-col items-center shrink-0 w-24 sm:w-28 animate-pulse">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-200" />
+                    <div className="h-2.5 w-16 bg-slate-200 rounded mt-3" />
+                  </div>
+                ))
+              : categories.map((cat) => (
+                  <Link key={cat.id} href={`/services/shopping/${cat.slug}`} className="flex flex-col items-center group/item shrink-0 w-24 sm:w-28 text-center">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-100/90 p-1 border border-slate-200 group-hover/item:border-[#7eb343] group-hover/item:shadow-md transition-all overflow-hidden flex items-center justify-center bg-white shrink-0">
+                      <img src={cat.image} alt={cat.name} className="w-full h-full object-cover rounded-full group-hover/item:scale-105 transition-transform duration-300" />
+                    </div>
+                    <h3 className="font-bold text-xs text-slate-800 group-hover/item:text-[#7eb343] transition-colors leading-tight line-clamp-2 mt-2.5 max-w-[100px]">
+                      {cat.name}
+                    </h3>
+                  </Link>
+                ))
+            }
           </div>
 
         </div>
