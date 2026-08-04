@@ -6,7 +6,6 @@ import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/cn';
 import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function CartDrawer() {
@@ -58,7 +57,7 @@ export function CartDrawer() {
             <ShoppingBag className="w-5 h-5 text-[#7eb343]" />
             <span>{isBn ? 'আপনার কার্ট' : 'Your Shopping Cart'}</span>
             <span className="text-xs bg-[#7eb343]/10 text-[#7eb343] px-2 py-0.5 rounded-full font-bold">
-              {items.reduce((acc, i) => acc + i.quantity, 0)} {isBn ? 'টি পণ্য' : 'items'}
+              {items.reduce((acc, i) => acc + (i.quantity || 1), 0)} {isBn ? 'টি পণ্য' : 'items'}
             </span>
           </div>
           <button
@@ -95,58 +94,68 @@ export function CartDrawer() {
               </button>
             </div>
           ) : (
-            items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-all group"
-              >
-                <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-slate-100 shrink-0">
-                  <img
-                    src={item.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200'}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                </div>
+            items.map((item: any) => {
+              const prod = item.product || item;
+              const id = prod.id || item.id;
+              const title = prod.title || prod.name || item.name || 'Product';
+              const price = prod.price ?? item.price ?? 0;
+              const image = (Array.isArray(prod.images) && prod.images[0]) || prod.image || item.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200';
+              const unit = prod.unit || item.unit;
+              const quantity = item.quantity || 1;
 
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-slate-800 text-xs truncate">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-[#7eb343] font-extrabold mt-0.5">
-                    ৳{formatCurrency(item.price)}
-                    {item.unit && <span className="text-[10px] text-slate-400 font-normal"> / {item.unit}</span>}
-                  </p>
+              return (
+                <div
+                  key={id}
+                  className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 bg-slate-50/50 hover:border-slate-200 transition-all group"
+                >
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-slate-100 shrink-0">
+                    <img
+                      src={image}
+                      alt={title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                  </div>
 
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-slate-800 text-xs truncate">
+                      {title}
+                    </h4>
+                    <p className="text-xs text-[#7eb343] font-extrabold mt-0.5">
+                      ৳{formatCurrency(price)}
+                      {unit && <span className="text-[10px] text-slate-400 font-normal"> / {unit}</span>}
+                    </p>
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
+                        <button
+                          onClick={() => updateQuantity(id, quantity - 1)}
+                          className="p-1 hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="px-2 text-xs font-extrabold text-slate-800 min-w-[20px] text-center">
+                          {quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(id, quantity + 1)}
+                          className="p-1 hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-1 hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+                        onClick={() => removeItem(id)}
+                        className="p-1 hover:text-red-500 text-slate-400 transition-colors ml-auto cursor-pointer"
+                        title="Remove item"
                       >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="px-2 text-xs font-extrabold text-slate-800 min-w-[20px] text-center">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-1 hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-1 hover:text-red-500 text-slate-400 transition-colors ml-auto cursor-pointer"
-                      title="Remove item"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
