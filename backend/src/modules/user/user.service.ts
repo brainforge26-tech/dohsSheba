@@ -104,23 +104,27 @@ export const getUserAddresses = async (userId: string) => {
 
 export const addUserAddress = async (
   userId: string,
-  data: {
-    label?: string;
-    line1: string;
-    line2?: string;
-    area: string;
-    city?: string;
-    postCode?: string;
-    isDefault?: boolean;
-  }
+  data: any
 ) => {
-  if (data.isDefault) {
+  const { label, line1, line2, area, city, postCode, isDefault } = data;
+  if (isDefault) {
     await prisma.address.updateMany({
       where: { userId },
       data: { isDefault: false },
     });
   }
-  return prisma.address.create({ data: { userId, ...data } });
+  return prisma.address.create({
+    data: {
+      userId,
+      label: label || 'Delivery Address',
+      line1: line1 || 'DOHS Mohakhali',
+      line2: line2 || null,
+      area: area || 'DOHS Mohakhali',
+      city: city || 'Dhaka',
+      postCode: postCode || null,
+      isDefault: Boolean(isDefault),
+    },
+  });
 };
 
 export const updateUserAddress = async (

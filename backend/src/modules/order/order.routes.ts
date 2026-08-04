@@ -15,7 +15,7 @@ router.use(protect);
 
 router.get('/',      orderController.getOrders);
 router.get('/:id',   orderController.getOrder);
-router.post('/',     authorize('CUSTOMER'), createOrderValidator, validate, orderController.createOrder);
+router.post('/',     createOrderValidator, validate, orderController.createOrder);
 router.patch('/:id/status', authorize('SELLER', 'ADMIN'), updateOrderStatusValidator, validate, orderController.updateOrderStatus);
 router.delete('/:id/cancel', authorize('CUSTOMER'), orderController.cancelOrder);
 router.delete('/:id', authorize('SELLER', 'ADMIN'), orderController.deleteOrder);

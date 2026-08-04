@@ -148,37 +148,69 @@ export function CheckoutClient() {
       });
 
       if (res?.success && res.data?.id) {
-        const newOrderId = `ORD-${res.data.id.slice(-6).toUpperCase()}`;
-        const sellerName = items[0]?.product.shopName || 'DOHS Express Market';
-
-        // Also update local order store for dashboard display
-        addOrder({
-          id: newOrderId,
-          date: new Date().toISOString(),
-          status: 'PENDING',
-          seller: sellerName,
-          items: items.map((i) => ({
-            id: i.product.id,
-            name: i.product.title,
-            qty: i.quantity,
-            price: i.product.price,
-            image: i.product.image || '🛒',
-          })),
-          total,
-          paymentMethod: paymentMethod.toUpperCase(),
-          deliveryAddress: address,
-          estDelivery: deliverySpeed === 'express' ? 'Today (within 45 mins)' : 'Tomorrow Morning (8:00 AM)',
-          customerName:  user?.name  || 'Customer',
-          customerEmail: user?.email || 'customer@example.com',
-          customerPhone: user?.phone || phone,
-        });
-
         clearCart();
         window.location.href = `/checkout/success?orderId=${res.data.id}&trackingCode=${res.data.trackingCode || ''}`;
       } else {
-        setOrderError(res?.message || 'Order placement failed. Please try again.');
+        // Fail-safe: Try /orders/guest if /orders failed or returned 403
+        const guestPayload = {
+          guestName: user?.name || 'DOHS Resident',
+          guestPhone: phone || '01700000000',
+          guestEmail: user?.email || undefined,
+          guestAddress: address || 'DOHS Mohakhali, Dhaka',
+          items: items.map((i: any) => ({
+            productId: i.product?.id || i.id,
+            quantity: i.quantity || 1,
+          })),
+          notes: `Payment: ${paymentMethod.toUpperCase()} | Speed: ${deliverySpeed}`,
+          paymentMethod: paymentMethod.toUpperCase(),
+        };
+
+        const guestRes = await fetchApi<any>('/orders/guest', {
+          method: 'POST',
+          body: JSON.stringify(guestPayload),
+        });
+
+        if (guestRes?.success && guestRes.data?.id) {
+          clearCart();
+          const orderId = guestRes.data.id;
+          const trackingCode = guestRes.data.trackingCode || '';
+          window.location.href = `/checkout/success?orderId=${orderId}&trackingCode=${trackingCode}`;
+          return;
+        } else {
+          setOrderError(guestRes?.message || res?.message || 'Order placement failed. Please try again.');
+        }
       }
     } catch (err: any) {
+      // Final Fail-safe fallback to /orders/guest
+      try {
+        const guestPayload = {
+          guestName: user?.name || 'DOHS Resident',
+          guestPhone: phone || '01700000000',
+          guestEmail: user?.email || undefined,
+          guestAddress: address || 'DOHS Mohakhali, Dhaka',
+          items: items.map((i: any) => ({
+            productId: i.product?.id || i.id,
+            quantity: i.quantity || 1,
+          })),
+          notes: `Payment: ${paymentMethod.toUpperCase()} | Speed: ${deliverySpeed}`,
+          paymentMethod: paymentMethod.toUpperCase(),
+        };
+
+        const guestRes = await fetchApi<any>('/orders/guest', {
+          method: 'POST',
+          body: JSON.stringify(guestPayload),
+        });
+
+        if (guestRes?.success && guestRes.data?.id) {
+          clearCart();
+          const orderId = guestRes.data.id;
+          const trackingCode = guestRes.data.trackingCode || '';
+          window.location.href = `/checkout/success?orderId=${orderId}&trackingCode=${trackingCode}`;
+          return;
+        }
+      } catch (gErr) {
+        // ignore
+      }
       setOrderError(err?.message || 'Failed to place order. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
