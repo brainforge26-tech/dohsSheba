@@ -52,7 +52,8 @@ const PAGE_SIZE = 10;
 
 export default function ProductsPage() {
   const [mounted, setMounted] = useState(false);
-  const [products, setProducts] = useState<any[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<any[]>([]);
+  const [allCategories, setAllCategories] = useState<string[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search,   setSearch]   = useState('');
@@ -67,7 +68,7 @@ export default function ProductsPage() {
     setLoading(true);
     fetchApi<any>('/products/seller/my-products')
       .then((res) => {
-        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        if (res && res.success && Array.isArray(res.data)) {
           const mapped = res.data.map((p: any) => ({
             id: p.id,
             name: p.name || 'Untitled Product',
@@ -91,14 +92,30 @@ export default function ProductsPage() {
       .finally(() => setLoading(false));
   };
 
+  const loadCategories = () => {
+    fetchApi<any>('/product-categories')
+      .then((res) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          const names = res.data.map((c: any) => c.name).filter(Boolean) as string[];
+          setAllCategories(names);
+        }
+      })
+      .catch(() => {});
+  };
+
   useEffect(() => {
     setMounted(true);
     loadProducts();
+    loadCategories();
   }, []);
 
   // ─── Filters ────────────────────────────────────────────────────────────────
 
-  const categories = useMemo(() => [...new Set(products.map((p) => p.category?.name).filter(Boolean))], [products]);
+  // Merge DB categories with product categories (so seller's product categories always appear)
+  const categories = useMemo(() => {
+    const fromProducts = products.map((p) => p.category?.name).filter(Boolean) as string[];
+    return [...new Set([...allCategories, ...fromProducts])];
+  }, [products, allCategories]);
 
   const filtered = useMemo(() => {
     let list = [...products];
