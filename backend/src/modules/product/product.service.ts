@@ -193,14 +193,42 @@ export const createProduct = async (
   sellerId: string,
   data: any
 ) => {
-  const { name, description, price, discount, categoryId, brandId, images, stock, unit, isFeatured } = data;
-  const slug = `${generateSlug(name || 'product')}-${Date.now()}`;
+  const { name, description, price, discount, categoryId, brand, brandId, images, stock, unit, isFeatured, isFlashSale, isActive } = data;
+  const slug = data.slug ? `${generateSlug(data.slug)}-${Date.now().toString().slice(-4)}` : `${generateSlug(name || 'product')}-${Date.now()}`;
+
+  // Resolve Brand ID from brand string if provided
+  let resolvedBrandId = brandId || null;
+  if (!resolvedBrandId && brand && typeof brand === 'string') {
+    const cleanBrandName = brand.trim();
+    if (cleanBrandName) {
+      let b = await prisma.brand.findFirst({
+        where: { name: { equals: cleanBrandName, mode: 'insensitive' } },
+      });
+      if (!b) {
+        b = await prisma.brand.create({
+          data: { name: cleanBrandName, slug: generateSlug(cleanBrandName) },
+        }).catch(() => null);
+      }
+      if (b) resolvedBrandId = b.id;
+    }
+  }
+
+  // Resolve Category ID fallback
+  let resolvedCategoryId = categoryId;
+  if (!resolvedCategoryId) {
+    const firstCat = await prisma.productCategory.findFirst();
+    if (firstCat) resolvedCategoryId = firstCat.id;
+    else {
+      const newCat = await prisma.productCategory.create({ data: { name: 'General', slug: `gen-${Date.now()}` } });
+      resolvedCategoryId = newCat.id;
+    }
+  }
 
   return prisma.product.create({
     data: {
       sellerId,
-      categoryId,
-      brandId:     brandId || null,
+      categoryId: resolvedCategoryId,
+      brandId:     resolvedBrandId,
       name:        name || 'Untitled Product',
       slug,
       description: description || '',
@@ -209,7 +237,9 @@ export const createProduct = async (
       stock:       Number(stock || 0),
       unit:        unit || 'unit',
       isFeatured:  Boolean(isFeatured),
-      images:      Array.isArray(images) ? images : [],
+      isFlashSale: Boolean(isFlashSale),
+      isActive:    isActive !== undefined ? Boolean(isActive) : true,
+      images:      Array.isArray(images) && images.length > 0 ? images : ['https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600'],
     },
     include: {
       category: true,
@@ -223,49 +253,42 @@ export const updateProduct = async (
 ) => {
   const existing = await prisma.product.findUnique({ where: { id: productId } });
 
-  const { name, description, price, discount, categoryId, brandId, images, stock, unit, isFeatured, isActive } = data;
+  const { name, description, price, discount, categoryId, brand, brandId, images, stock, unit, isFeatured, isFlashSale, isActive } = data;
   const updateData: any = {};
   if (name !== undefined)        updateData.name = name;
   if (description !== undefined) updateData.description = description;
   if (price !== undefined)       updateData.price = Number(price);
   if (discount !== undefined)    updateData.discount = Number(discount);
   if (categoryId !== undefined)  updateData.categoryId = categoryId;
-  if (brandId !== undefined)     updateData.brandId = brandId || null;
+
+  // Resolve Brand ID
+  if (brandId !== undefined) updateData.brandId = brandId || null;
+  else if (brand && typeof brand === 'string') {
+    const cleanBrandName = brand.trim();
+    if (cleanBrandName) {
+      let b = await prisma.brand.findFirst({
+        where: { name: { equals: cleanBrandName, mode: 'insensitive' } },
+      });
+      if (!b) {
+        b = await prisma.brand.create({
+          data: { name: cleanBrandName, slug: generateSlug(cleanBrandName) },
+        }).catch(() => null);
+      }
+      if (b) updateData.brandId = b.id;
+    }
+  }
+
   if (images !== undefined)      updateData.images = Array.isArray(images) ? images : [];
   if (stock !== undefined)       updateData.stock = Number(stock);
   if (unit !== undefined)        updateData.unit = unit;
   if (isFeatured !== undefined)  updateData.isFeatured = Boolean(isFeatured);
+  if (isFlashSale !== undefined) updateData.isFlashSale = Boolean(isFlashSale);
   if (isActive !== undefined)    updateData.isActive = Boolean(isActive);
 
   if (existing) {
     return prisma.product.update({ where: { id: productId }, data: updateData });
   } else {
-    let validCategoryId = categoryId;
-    if (!validCategoryId) {
-      const firstCat = await prisma.productCategory.findFirst();
-      if (firstCat) validCategoryId = firstCat.id;
-      else {
-        const newCat = await prisma.productCategory.create({ data: { name: 'General', slug: `gen-${Date.now()}` } });
-        validCategoryId = newCat.id;
-      }
-    }
-    return prisma.product.create({
-      data: {
-        id: productId,
-        sellerId,
-        categoryId: validCategoryId,
-        name: name || 'Updated Product',
-        slug: `${generateSlug(name || 'product')}-${Date.now()}`,
-        description: description || '',
-        price: Number(price || 0),
-        discount: Number(discount || 0),
-        stock: Number(stock || 0),
-        unit: unit || 'unit',
-        isFeatured: Boolean(isFeatured),
-        isActive: isActive !== false,
-        images: Array.isArray(images) ? images : [],
-      },
-    });
+    return createProduct(sellerId, { id: productId, ...data });
   }
 };
 
