@@ -94,6 +94,7 @@ app.use(`${API}/products`,            productRoutes);
 app.use(`${API}/product-categories`,  productCategoryRoutes);
 import homepageRoutes                         from './routes/homepage.routes';
 import adminHomepageRoutes                    from './routes/adminHomepage.routes';
+import brandRoutes                            from './routes/brand.routes';
 
 app.use(`${API}/cart`,                cartRoutes);
 app.use(`${API}/orders`,              orderRoutes);
@@ -107,6 +108,7 @@ app.use(`${API}/rider`,               riderRoutes);
 app.use(`${API}/banners`,             bannerRoutes);
 app.use(`${API}/homepage`,            homepageRoutes);
 app.use(`${API}/admin/homepage`,      adminHomepageRoutes);
+app.use(`${API}/brands`,              brandRoutes);
 app.get(`${API}/settings`,            adminController.getSiteSettings);
 
 // ─── 404 & Error ─────────────────────────────────────────────────────────────

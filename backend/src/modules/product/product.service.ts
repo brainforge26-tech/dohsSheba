@@ -130,6 +130,7 @@ export const getProductById = async (id: string) => {
     where: { id, isActive: true },
     include: {
       category: true,
+      brand: true,
       seller: {
         select: {
           id: true, name: true, avatar: true,
@@ -152,13 +153,14 @@ export const createProduct = async (
   sellerId: string,
   data: any
 ) => {
-  const { name, description, price, discount, categoryId, images, stock, unit, isFeatured } = data;
+  const { name, description, price, discount, categoryId, brandId, images, stock, unit, isFeatured } = data;
   const slug = `${generateSlug(name || 'product')}-${Date.now()}`;
 
   return prisma.product.create({
     data: {
       sellerId,
       categoryId,
+      brandId:     brandId || null,
       name:        name || 'Untitled Product',
       slug,
       description: description || '',
@@ -169,6 +171,10 @@ export const createProduct = async (
       isFeatured:  Boolean(isFeatured),
       images:      Array.isArray(images) ? images : [],
     },
+    include: {
+      category: true,
+      brand: true,
+    },
   });
 };
 
@@ -177,13 +183,14 @@ export const updateProduct = async (
 ) => {
   const existing = await prisma.product.findUnique({ where: { id: productId } });
 
-  const { name, description, price, discount, categoryId, images, stock, unit, isFeatured, isActive } = data;
+  const { name, description, price, discount, categoryId, brandId, images, stock, unit, isFeatured, isActive } = data;
   const updateData: any = {};
   if (name !== undefined)        updateData.name = name;
   if (description !== undefined) updateData.description = description;
   if (price !== undefined)       updateData.price = Number(price);
   if (discount !== undefined)    updateData.discount = Number(discount);
   if (categoryId !== undefined)  updateData.categoryId = categoryId;
+  if (brandId !== undefined)     updateData.brandId = brandId || null;
   if (images !== undefined)      updateData.images = Array.isArray(images) ? images : [];
   if (stock !== undefined)       updateData.stock = Number(stock);
   if (unit !== undefined)        updateData.unit = unit;

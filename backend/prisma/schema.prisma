@@ -275,12 +275,31 @@ model Product {
 
   seller        User            @relation(fields: [sellerId], references: [id])
   category      ProductCategory @relation(fields: [categoryId], references: [id])
+  brandId       String?
+  brand         Brand?          @relation(fields: [brandId], references: [id])
   cartItems     CartItem[]
   wishlistItems WishlistItem[]
   orderItems    OrderItem[]
   reviews       Review[]
 
   @@map("products")
+}
+
+// ─── Brand ────────────────────────────────────────────────────────────────────
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  logo        String?
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products    Product[]
+
+  @@map("brands")
 }
 
 // ─── Cart ─────────────────────────────────────────────────────────────────────

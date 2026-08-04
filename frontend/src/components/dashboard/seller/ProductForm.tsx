@@ -12,11 +12,13 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Category { id: string; name: string; slug: string; parentId?: string; children?: Category[] }
+interface Brand { id: string; name: string; slug: string }
 
 interface ProductFormData {
   name: string;
   description: string;
   brand: string;
+  brandId?: string;
   tags: string;
   categoryId: string;
   sku: string;
@@ -49,7 +51,7 @@ interface ProductFormProps {
 }
 
 const DEFAULT: ProductFormData = {
-  name: '', description: '', brand: '', tags: '',
+  name: '', description: '', brand: '', brandId: '', tags: '',
   categoryId: '', sku: '', barcode: '',
   price: '', salePrice: '', costPrice: '', discount: '',
   stock: '', lowStockAlert: '10', unit: 'piece',
@@ -117,9 +119,12 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
   const router = useRouter();
   const [form, setForm] = useState<ProductFormData>(DEFAULT);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
   // Two-level Category & Subcategory selection state
   const [selectedParentCatId, setSelectedParentCatId] = useState('');
   const [selectedSubCatId, setSelectedSubCatId] = useState('');
@@ -129,6 +134,11 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
   const [newCatName, setNewCatName] = useState('');
   const [newCatParentId, setNewCatParentId] = useState('');
   const [creatingCat, setCreatingCat] = useState(false);
+
+  // Inline Instant Brand Creation modal state
+  const [showAddBrandModal, setShowAddBrandModal] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
+  const [creatingBrand, setCreatingBrand] = useState(false);
 
   // Sync category dropdown state when categoryId or categories change
   useEffect(() => {
@@ -178,6 +188,33 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
     }
   };
 
+  const handleCreateBrand = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newBrandName.trim()) return;
+    setCreatingBrand(true);
+    try {
+      const res = await fetchApi<any>('/brands', {
+        method: 'POST',
+        body: JSON.stringify({ name: newBrandName.trim() }),
+      });
+      if (res.success && res.data) {
+        const newBrand = res.data;
+        setBrands((prev) => {
+          const exists = prev.some((b) => b.id === newBrand.id);
+          return exists ? prev : [...prev, newBrand];
+        });
+        set('brand', newBrand.name);
+        set('brandId', newBrand.id);
+        setShowAddBrandModal(false);
+        setNewBrandName('');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Failed to create brand');
+    } finally {
+      setCreatingBrand(false);
+    }
+  };
+
   // Populate form when editing
   useEffect(() => {
     if (initialData) {
@@ -186,6 +223,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
         name:        initialData.name        || '',
         description: initialData.description || '',
         categoryId:  initialData.categoryId  || '',
+        brandId:     initialData.brandId     || '',
         price:       String(initialData.price   || ''),
         discount:    String(initialData.discount || ''),
         stock:       String(initialData.stock   || ''),
@@ -195,7 +233,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
         images:      initialData.images     || [],
         slug:        initialData.slug       || '',
         sku:         initialData.sku        || '',
-        brand:       initialData.brand      || '',
+        brand:       initialData.brand?.name || initialData.brand || '',
       });
     }
   }, [initialData]);
@@ -205,7 +243,6 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
     fetchApi<any>('/product-categories')
       .then((res) => { if (res.success) setCategories(res.data || []); })
       .catch(() => {
-        // fallback mock categories
         setCategories([
           { id: 'c1', name: 'Dairy & Eggs', slug: 'dairy' },
           { id: 'c2', name: 'Fruits', slug: 'fruits' },
@@ -215,6 +252,25 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
           { id: 'c6', name: 'Poultry & Meat', slug: 'meat' },
           { id: 'c7', name: 'Spices & Oils', slug: 'spices' },
           { id: 'c8', name: 'Snacks & Beverages', slug: 'snacks' },
+        ]);
+      });
+  }, []);
+
+  // Fetch Brands from database
+  useEffect(() => {
+    fetchApi<any>('/brands')
+      .then((res) => { if (res.success) setBrands(res.data || []); })
+      .catch(() => {
+        setBrands([
+          { id: 'b1', name: 'Nestle', slug: 'nestle' },
+          { id: 'b2', name: 'Pran', slug: 'pran' },
+          { id: 'b3', name: 'Square', slug: 'square' },
+          { id: 'b4', name: 'ACI', slug: 'aci' },
+          { id: 'b5', name: 'Unilever', slug: 'unilever' },
+          { id: 'b6', name: 'DOHS Organic', slug: 'dohs-organic' },
+          { id: 'b7', name: 'Teer', slug: 'teer' },
+          { id: 'b8', name: 'Radhuni', slug: 'radhuni' },
+          { id: 'b9', name: 'Fresh', slug: 'fresh' },
         ]);
       });
   }, []);
@@ -251,144 +307,185 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
     }
   };
 
-  const addImage = () => {
-    if (form.imageInput.trim()) {
-      set('images', [...form.images, form.imageInput.trim()]);
-      set('imageInput', '');
-    }
+  const handleAddImageUrl = () => {
+    if (!form.imageInput.trim()) return;
+    set('images', [...form.images, form.imageInput.trim()]);
+    set('imageInput', '');
   };
 
-  const removeImage = (idx: number) =>
+  const handleRemoveImage = (idx: number) => {
     set('images', form.images.filter((_, i) => i !== idx));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.price || !form.categoryId) {
-      setError('Name, price, and category are required.');
-      return;
-    }
     setError('');
+    setSuccess('');
+
+    if (!form.name.trim()) return setError('Product name is required');
+    if (!form.categoryId) return setError('Please select a category');
+    if (!form.price || isNaN(Number(form.price))) return setError('Valid price is required');
+
     setSaving(true);
 
-    try {
-      const payload = {
-        name:        form.name,
-        description: form.description,
-        price:       Number(form.price),
-        discount:    Number(form.discount || 0),
-        categoryId:  form.categoryId,
-        images:      form.images,
-        stock:       Number(form.stock || 0),
-        unit:        form.unit,
-        isFeatured:  form.isFeatured,
-        isActive:    form.status === 'ACTIVE',
-        // Extended fields (stored if schema supports)
-        sku:         form.sku,
-        brand:       form.brand,
-        slug:        form.slug,
-      };
+    const payload = {
+      name:        form.name,
+      description: form.description,
+      categoryId:  form.categoryId,
+      brandId:     form.brandId || undefined,
+      brand:       form.brand,
+      price:       Number(form.price),
+      discount:    Number(form.discount || 0),
+      stock:       Number(form.stock || 0),
+      unit:        form.unit,
+      isFeatured:  form.isFeatured,
+      isActive:    form.status === 'ACTIVE',
+      images:      form.images,
+    };
 
-      if (mode === 'edit' && productId) {
-        try {
-          await fetchApi(`/products/${productId}`, { method: 'PUT', body: JSON.stringify(payload) });
-        } catch {
-          // Fallback local update
-        }
-        setSuccess('Product updated successfully!');
-        setTimeout(() => router.push('/seller/dashboard/products'), 1200);
+    try {
+      let res: any;
+      if (mode === 'add') {
+        res = await fetchApi('/products', { method: 'POST', body: JSON.stringify(payload) });
       } else {
-        try {
-          await fetchApi('/products', { method: 'POST', body: JSON.stringify(payload) });
-        } catch {
-          // Fallback create
-        }
-        setSuccess('Product created successfully!');
-        setTimeout(() => router.push('/seller/dashboard/products'), 1200);
+        res = await fetchApi(`/products/${productId}`, { method: 'PUT', body: JSON.stringify(payload) });
+      }
+
+      if (res.success) {
+        setSuccess(mode === 'add' ? 'Product created successfully!' : 'Product updated successfully!');
+        setTimeout(() => router.push('/seller/dashboard/products'), 1000);
+      } else {
+        setError(res.message || 'Operation failed');
       }
     } catch (err: any) {
-      setError(err?.message || 'Failed to save product. Please try again.');
+      setError(err?.message || 'An unexpected error occurred');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-
-      {/* ── Top Bar ── */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-6 pb-20 font-sans text-slate-100">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push('/seller/dashboard/products')}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all"
+            onClick={() => router.back()}
+            className="p-2.5 rounded-2xl bg-[#1f2136] border border-white/10 hover:bg-[#282a44] text-slate-400 hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-black text-white text-lg">
-              {mode === 'add' ? 'Add New Product' : 'Edit Product'}
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              {mode === 'add' ? 'Add New Product' : `Edit Product`}
             </h1>
-            <p className="text-[11px] text-slate-400">
-              {mode === 'add' ? 'Fill in the details to list a new product' : 'Update your product information'}
-            </p>
+            <p className="text-xs text-slate-400">Fill in the details to publish your product on Savar DOHS Marketplace</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => { set('status', 'DRAFT'); }}
-            className="px-4 py-2 rounded-xl border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 transition-all"
+            onClick={() => router.back()}
+            className="px-4 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-slate-300 font-bold text-xs hover:bg-slate-800 transition-colors"
           >
-            Save Draft
+            Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition-all disabled:opacity-60"
+            className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            {saving ? 'Saving...' : mode === 'add' ? 'Publish Product' : 'Save Changes'}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <span>{mode === 'add' ? 'Publish Product' : 'Save Changes'}</span>
           </button>
         </div>
       </div>
 
       {/* Alerts */}
-      {error   && <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-center gap-2"><AlertTriangle className="w-4 h-4 shrink-0" />{error}</div>}
-      {success && <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm">{success}</div>}
+      {error && (
+        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2">
+          <Info className="w-4 h-4 shrink-0" />
+          <span>{success}</span>
+        </div>
+      )}
 
-      {/* ══ Two-Column Layout ══ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        {/* ── Left Column ── */}
-        <div className="lg:col-span-8 space-y-6">
-
-          {/* General Info */}
+      {/* Main Form Body */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column (2 Cols) */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* General Information */}
           <Section title="General Information" icon={<Package className="w-4 h-4" />}>
             <div>
               <Label required>Product Name</Label>
               <Input
                 value={form.name}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="e.g. Organic Full Cream Milk (1L)"
+                placeholder="e.g. Fresh Organic Tomatoes 1kg"
                 required
               />
             </div>
+
             <div>
               <Label>Description</Label>
               <Textarea
                 value={form.description}
                 onChange={(e) => set('description', e.target.value)}
                 rows={5}
-                placeholder="Describe your product — freshness, source, nutritional info, special qualities..."
+                placeholder="Describe your product — freshness, source, nutritional info..."
               />
             </div>
+
+            {/* Brand Dropdown & Tags */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Dynamic Brand Select Dropdown with Instant Brand Creation */}
               <div>
-                <Label>Brand</Label>
-                <Input value={form.brand} onChange={(e) => set('brand', e.target.value)} placeholder="e.g. DOHS Fresh" />
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label>Brand</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddBrandModal(true)}
+                    className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" /> Create Brand
+                  </button>
+                </div>
+                <div className="relative">
+                  <Select
+                    value={form.brand}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'CREATE_NEW') {
+                        setShowAddBrandModal(true);
+                      } else {
+                        const matched = brands.find((b) => b.name === val);
+                        set('brand', val);
+                        set('brandId', matched ? matched.id : '');
+                      }
+                    }}
+                  >
+                    <option value="">Select Brand</option>
+                    {brands.map((b) => (
+                      <option key={b.id} value={b.name}>
+                        🏷️ {b.name}
+                      </option>
+                    ))}
+                    <option value="CREATE_NEW" className="font-bold text-indigo-400">+ Add / Create New Brand...</option>
+                  </Select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                </div>
               </div>
+
               <div>
                 <Label>Tags</Label>
                 <Input value={form.tags} onChange={(e) => set('tags', e.target.value)} placeholder="organic, fresh, dairy (comma separated)" />
@@ -399,18 +496,17 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
           {/* Categorization */}
           <Section title="Categorization & Identification" icon={<Tag className="w-4 h-4" />}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-slate-400 font-medium">Select Category and Subcategory separately:</span>
+              <span className="text-xs text-slate-400 font-medium">Select Category and Subcategory:</span>
               <button
                 type="button"
                 onClick={() => setShowAddCatModal(true)}
-                className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3 h-3" /> Add Category / Subcategory
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* 1. Main Category Select */}
               <div>
                 <Label required>Main Category</Label>
                 <div className="relative">
@@ -435,7 +531,6 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                 </div>
               </div>
 
-              {/* 2. Separate Subcategory Select */}
               <div>
                 <Label>Subcategory (Optional)</Label>
                 <div className="relative">
@@ -448,321 +543,197 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                     }}
                     disabled={!selectedParentCatId}
                   >
-                    <option value="">
-                      {!selectedParentCatId
-                        ? 'Select Main Category First'
-                        : 'Select Subcategory (Optional)'}
-                    </option>
+                    <option value="">Select Subcategory</option>
                     {categories
                       .filter((c: any) => c.parentId === selectedParentCatId)
-                      .map((sub: any) => (
-                        <option key={sub.id} value={sub.id}>🏷️ {sub.name}</option>
+                      .map((c: any) => (
+                        <option key={c.id} value={c.id}>↳ {c.name}</option>
                       ))}
                   </Select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
                 </div>
               </div>
-              <div>
-                <Label>Unit</Label>
-                <div className="relative">
-                  <Select value={form.unit} onChange={(e) => set('unit', e.target.value)}>
-                    {['piece', 'kg', 'gram', 'liter', 'ml', 'dozen', 'pack', 'bottle', 'bag', 'box'].map((u) => (
-                      <option key={u} value={u}>{u}</option>
-                    ))}
-                  </Select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-              <div>
-                <Label>SKU</Label>
-                <Input value={form.sku} onChange={(e) => set('sku', e.target.value)} placeholder="e.g. DH-MILK-001" />
-              </div>
-              <div>
-                <Label>Barcode</Label>
-                <Input value={form.barcode} onChange={(e) => set('barcode', e.target.value)} placeholder="e.g. 8901234567890" />
-              </div>
             </div>
           </Section>
 
-          {/* Pricing */}
-          <Section title="Pricing" icon={<DollarSign className="w-4 h-4" />}>
+          {/* Pricing & Stock */}
+          <Section title="Pricing & Inventory" icon={<DollarSign className="w-4 h-4" />}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <Label required>Regular Price (৳)</Label>
-                <Input type="number" min="0" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="0.00" required />
+                <Label required>Price (৳)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={form.price}
+                  onChange={(e) => set('price', e.target.value)}
+                  placeholder="0.00"
+                  required
+                />
               </div>
-              <div>
-                <Label>Sale Price (৳)</Label>
-                <Input type="number" min="0" value={form.salePrice} onChange={(e) => set('salePrice', e.target.value)} placeholder="0.00" />
-              </div>
-              <div>
-                <Label>Cost Price (৳)</Label>
-                <Input type="number" min="0" value={form.costPrice} onChange={(e) => set('costPrice', e.target.value)} placeholder="0.00" />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
               <div>
                 <Label>Discount (%)</Label>
-                <Input type="number" min="0" max="100" value={form.discount} onChange={(e) => set('discount', e.target.value)} placeholder="0" />
+                <Input
+                  type="number"
+                  value={form.discount}
+                  onChange={(e) => set('discount', e.target.value)}
+                  placeholder="e.g. 15"
+                />
               </div>
-              <div className="flex items-end">
-                {form.price && form.discount ? (
-                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 w-full">
-                    <span className="font-bold">After discount:</span> ৳{(Number(form.price) * (1 - Number(form.discount) / 100)).toFixed(0)}
-                  </div>
-                ) : (
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-xs text-slate-500 w-full flex items-center gap-2">
-                    <Info className="w-3.5 h-3.5" /> Enter price and discount to see final price
-                  </div>
-                )}
-              </div>
-            </div>
-          </Section>
 
-          {/* Inventory */}
-          <Section title="Inventory" icon={<Package className="w-4 h-4" />}>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <Label>Stock Quantity</Label>
-                <Input type="number" min="0" value={form.stock} onChange={(e) => set('stock', e.target.value)} placeholder="0" />
+                <Input
+                  type="number"
+                  value={form.stock}
+                  onChange={(e) => set('stock', e.target.value)}
+                  placeholder="e.g. 50"
+                />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label>Low Stock Alert (units)</Label>
-                <Input type="number" min="0" value={form.lowStockAlert} onChange={(e) => set('lowStockAlert', e.target.value)} placeholder="10" />
-              </div>
-              <div>
-                <Label>Unit Type</Label>
-                <Input value={form.unit} onChange={(e) => set('unit', e.target.value)} placeholder="kg, piece, bottle..." />
+                <Label>Unit of Measurement</Label>
+                <Select value={form.unit} onChange={(e) => set('unit', e.target.value)}>
+                  <option value="kg">Kilogram (kg)</option>
+                  <option value="gram">Gram (g)</option>
+                  <option value="liter">Liter (L)</option>
+                  <option value="piece">Piece (pc)</option>
+                  <option value="pack">Pack</option>
+                  <option value="box">Box</option>
+                </Select>
               </div>
             </div>
           </Section>
 
-          {/* Shipping */}
-          <Section title="Shipping & Dimensions" icon={<Truck className="w-4 h-4" />}>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div>
-                <Label>Weight (kg)</Label>
-                <Input type="number" min="0" step="0.01" value={form.weight} onChange={(e) => set('weight', e.target.value)} placeholder="0.00" />
-              </div>
-              <div>
-                <Label>Length (cm)</Label>
-                <Input type="number" min="0" value={form.length} onChange={(e) => set('length', e.target.value)} placeholder="0" />
-              </div>
-              <div>
-                <Label>Width (cm)</Label>
-                <Input type="number" min="0" value={form.width} onChange={(e) => set('width', e.target.value)} placeholder="0" />
-              </div>
-              <div>
-                <Label>Height (cm)</Label>
-                <Input type="number" min="0" value={form.height} onChange={(e) => set('height', e.target.value)} placeholder="0" />
-              </div>
-            </div>
-          </Section>
-
-          {/* Variants & Attributes — Placeholder */}
-          <Section title="Variants & Attributes" icon={<Package className="w-4 h-4" />}>
-            <div className="p-6 rounded-2xl bg-[#181928]/60 border border-dashed border-white/10 text-center space-y-2">
-              <Package className="w-8 h-8 text-slate-600 mx-auto" />
-              <p className="text-sm font-bold text-slate-400">Variants Coming Soon</p>
-              <p className="text-xs text-slate-500">Size, color, and custom attributes will be available in the next update.</p>
-            </div>
-          </Section>
-
-          {/* SEO */}
-          <Section title="SEO" icon={<Globe className="w-4 h-4" />}>
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <Label>URL Slug</Label>
-                <Input value={form.slug} onChange={(e) => set('slug', e.target.value)} placeholder="auto-generated-from-name" />
-                <p className="text-[10px] text-slate-500 mt-1">yourstore.com/products/<span className="text-indigo-400">{form.slug || 'product-slug'}</span></p>
-              </div>
-              <div>
-                <Label>Meta Title</Label>
-                <Input value={form.metaTitle} onChange={(e) => set('metaTitle', e.target.value)} placeholder="SEO title (60 chars recommended)" maxLength={70} />
-                <p className="text-[10px] text-slate-500 mt-1">{form.metaTitle.length}/70 characters</p>
-              </div>
-              <div>
-                <Label>Meta Description</Label>
-                <Textarea value={form.metaDescription} onChange={(e) => set('metaDescription', e.target.value)} rows={3} placeholder="Brief description for search engines (160 chars recommended)" maxLength={170} />
-                <p className="text-[10px] text-slate-500 mt-1">{form.metaDescription.length}/170 characters</p>
-              </div>
-            </div>
-          </Section>
-        </div>
-
-        {/* ── Right Sidebar ── */}
-        <div className="lg:col-span-4 space-y-6">
-
-          {/* Product Images */}
+          {/* Product Media */}
           <Section title="Product Images" icon={<ImageIcon className="w-4 h-4" />}>
-            {/* Existing images */}
-            {form.images.length > 0 && (
-              <div className="grid grid-cols-3 gap-2">
-                {form.images.map((img, i) => (
-                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-[#181928] border border-white/10 group">
-                    <img src={img} alt={`Product ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { (e.target as any).src = ''; }} />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                    {i === 0 && <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-600 text-white">Main</span>}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Cloudinary File Uploader Box */}
-            <div className="space-y-2">
-              <Label>Upload Product Images (Cloudinary)</Label>
-              <label className="relative flex flex-col items-center justify-center p-6 border-2 border-dashed border-indigo-500/40 hover:border-indigo-500 rounded-2xl bg-indigo-500/5 hover:bg-indigo-500/10 cursor-pointer transition-all text-center">
+            <div className="space-y-4">
+              {/* File Upload Zone */}
+              <div className="p-6 rounded-2xl border-2 border-dashed border-white/20 hover:border-indigo-500/50 bg-[#181928] text-center transition-colors">
                 <input
                   type="file"
+                  id="product-images-upload"
                   multiple
                   accept="image/*"
                   onChange={handleFileUpload}
-                  disabled={uploadingImages}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  className="hidden"
                 />
-                {uploadingImages ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
-                    <p className="text-xs font-bold text-indigo-300">Uploading to Cloudinary…</p>
+                <label
+                  htmlFor="product-images-upload"
+                  className="cursor-pointer flex flex-col items-center justify-center space-y-2"
+                >
+                  <div className="w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                    <Upload className="w-6 h-6" />
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-1.5">
-                    <Upload className="w-6 h-6 text-indigo-400 mb-1" />
-                    <p className="text-xs font-bold text-white">Click or drag images to upload</p>
-                    <p className="text-[10px] text-slate-400">JPG, PNG, WEBP up to 5MB (Saved to Cloudinary)</p>
+                  <div>
+                    <span className="font-bold text-sm text-indigo-400">Click to upload images</span>
+                    <p className="text-xs text-slate-500 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                  </div>
+                </label>
+                {uploadingImages && (
+                  <div className="mt-3 flex items-center justify-center gap-2 text-xs font-bold text-indigo-400">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Uploading images...</span>
                   </div>
                 )}
-              </label>
-            </div>
+              </div>
 
-            {/* Fallback URL input */}
-            <div className="space-y-1.5 pt-2 border-t border-white/10">
-              <Label>Or Paste Image URL</Label>
+              {/* URL Fallback */}
               <div className="flex gap-2">
                 <Input
                   value={form.imageInput}
                   onChange={(e) => set('imageInput', e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImage())}
+                  placeholder="Or paste image URL (https://...)"
                 />
                 <button
                   type="button"
-                  onClick={addImage}
-                  className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shrink-0"
+                  onClick={handleAddImageUrl}
+                  className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shrink-0 cursor-pointer"
                 >
-                  <Plus className="w-4 h-4" />
+                  Add Image URL
                 </button>
               </div>
-              <p className="text-[10px] text-slate-500">First image is shown as the main product image</p>
-            </div>
 
-            {/* Video URL */}
-            <div>
-              <Label>Product Video URL</Label>
-              <Input value={form.videoUrl} onChange={(e) => set('videoUrl', e.target.value)} placeholder="YouTube or direct video URL" />
+              {/* Image Previews */}
+              {form.images.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 pt-2">
+                  {form.images.map((url, i) => (
+                    <div key={i} className="relative h-24 rounded-xl overflow-hidden border border-white/10 group bg-[#181928]">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(i)}
+                        className="absolute top-1 right-1 p-1 rounded-lg bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </Section>
 
-          {/* Status */}
-          <Section title="Product Status" icon={<Star className="w-4 h-4" />}>
-            <div className="space-y-3">
-              {(['ACTIVE', 'DRAFT', 'ARCHIVED'] as const).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => set('status', s)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-xs font-bold transition-all ${
-                    form.status === s
-                      ? s === 'ACTIVE'   ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
-                      : s === 'DRAFT'    ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-                      : 'bg-slate-500/20 border-slate-500/40 text-slate-300'
-                      : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${s === 'ACTIVE' ? 'bg-emerald-400' : s === 'DRAFT' ? 'bg-amber-400' : 'bg-slate-400'}`} />
-                    {s === 'ACTIVE' ? 'Active — Visible to buyers' : s === 'DRAFT' ? 'Draft — Not published' : 'Archived — Hidden'}
-                  </span>
-                  {form.status === s && <span className="w-3.5 h-3.5 rounded-full border-2 border-current bg-current/30" />}
-                </button>
-              ))}
+        </div>
+
+        {/* Right Column (1 Col Sidebar) */}
+        <div className="space-y-6">
+          <Section title="Publishing Status" icon={<Globe className="w-4 h-4" />}>
+            <div>
+              <Label>Status</Label>
+              <Select value={form.status} onChange={(e) => set('status', e.target.value)}>
+                <option value="ACTIVE">🟢 Active (Visible on Market)</option>
+                <option value="DRAFT">🟡 Draft (Hidden)</option>
+                <option value="ARCHIVED">🔴 Archived</option>
+              </Select>
             </div>
 
-            {/* Featured toggle */}
-            <div className="flex items-center justify-between pt-2 border-t border-white/10">
+            <div className="pt-3 border-t border-white/10 flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-white">Featured Product</p>
-                <p className="text-[10px] text-slate-400">Show in homepage featured section</p>
+                <span className="font-bold text-xs text-white block">Featured Product</span>
+                <span className="text-[11px] text-slate-400 block">Showcase in top section</span>
               </div>
               <button
                 type="button"
                 onClick={() => set('isFeatured', !form.isFeatured)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                  form.isFeatured ? 'bg-amber-500/20 border-amber-500/30 text-amber-300' : 'bg-white/5 border-white/10 text-slate-400'
+                className={`p-1 rounded-full transition-colors cursor-pointer ${
+                  form.isFeatured ? 'text-indigo-400' : 'text-slate-600'
                 }`}
               >
-                <Star className={`w-3.5 h-3.5 ${form.isFeatured ? 'fill-amber-400 text-amber-400' : ''}`} />
-                {form.isFeatured ? 'Featured' : 'Set Featured'}
+                {form.isFeatured ? <ToggleRight className="w-7 h-7" /> : <ToggleLeft className="w-7 h-7" />}
               </button>
             </div>
           </Section>
-
-          {/* Quick Tips */}
-          <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 space-y-2">
-            <p className="text-xs font-bold text-indigo-300 flex items-center gap-2"><Info className="w-3.5 h-3.5" /> Tips</p>
-            <ul className="space-y-1 text-[11px] text-slate-400">
-              <li>• Add high-quality images for better conversions</li>
-              <li>• Set a sale price to show discount badges</li>
-              <li>• Enable Featured for homepage visibility</li>
-              <li>• Fill SEO fields for better search ranking</li>
-            </ul>
-          </div>
         </div>
+
       </div>
 
-      {/* Bottom Save Bar */}
-      <div className="sticky bottom-4 flex justify-end gap-3 p-4 rounded-2xl bg-[#1f2136]/90 backdrop-blur border border-white/10 shadow-2xl">
-        <button type="button" onClick={() => router.push('/seller/dashboard/products')} className="px-4 py-2 rounded-xl border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 transition-all">
-          Discard
-        </button>
-        <button type="button" onClick={() => set('status', 'DRAFT')} className="px-4 py-2 rounded-xl border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/10 transition-all">
-          Save as Draft
-        </button>
-        <button type="submit" disabled={saving} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition-all disabled:opacity-60 shadow-lg">
-          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-          <span>{saving ? 'Saving...' : mode === 'add' ? 'Publish Product' : 'Save Changes'}</span>
-        </button>
-      </div>
-      {/* Quick Add Category / Subcategory Modal */}
+      {/* ── Modal: Instant Create New Category / Subcategory ── */}
       {showAddCatModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1e1f32] border border-white/10 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1f2136] border border-white/10 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="font-black text-white text-sm flex items-center gap-2">
-                <Tag className="w-4 h-4 text-indigo-400" /> Create New Category or Subcategory
+              <h3 className="font-bold text-base text-white flex items-center gap-2">
+                <Tag className="w-4 h-4 text-indigo-400" /> Create New Category
               </h3>
               <button
                 type="button"
                 onClick={() => setShowAddCatModal(false)}
-                className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 text-xs"
+                className="text-slate-400 hover:text-white"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-3">
+            <form onSubmit={handleCreateCategory} className="space-y-4">
               <div>
-                <Label required>Category / Subcategory Name</Label>
+                <Label required>Category Name</Label>
                 <Input
                   autoFocus
                   required
-                  placeholder="e.g. Organic Cheese, Fresh Milk, Spices..."
+                  placeholder="e.g. Organic Cheese, Fresh Milk..."
                   value={newCatName}
                   onChange={(e) => setNewCatName(e.target.value)}
                 />
@@ -783,33 +754,86 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                       </option>
                     ))}
                 </Select>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  Select a parent category if you want to create a subcategory.
-                </p>
               </div>
-            </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowAddCatModal(false)}
-                className="px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-bold hover:bg-white/15"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={(e) => handleCreateCategory(e as any)}
-                disabled={creatingCat}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-2"
-              >
-                {creatingCat && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                Create & Select
-              </button>
-            </div>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddCatModal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingCat}
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
+                >
+                  {creatingCat && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  Create & Select
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
+      {/* ── Modal: Instant Create New Brand ── */}
+      {showAddBrandModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1f2136] border border-white/10 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="font-bold text-base text-white flex items-center gap-2">
+                <Tag className="w-4 h-4 text-indigo-400" /> Create New Brand
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAddBrandModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateBrand} className="space-y-4">
+              <div>
+                <Label required>Brand Name</Label>
+                <Input
+                  type="text"
+                  required
+                  autoFocus
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  placeholder="e.g. DOHS Organic, Nestle, Pran"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddBrandModal(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingBrand || !newBrandName.trim()}
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50"
+                >
+                  {creatingBrand ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Plus className="w-3.5 h-3.5" />
+                  )}
+                  <span>Save & Select Brand</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </form>
   );
 }
