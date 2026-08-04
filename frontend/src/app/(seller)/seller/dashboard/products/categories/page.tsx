@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Tag, Plus, Search, Edit2, Trash2, Package, Loader2, FolderTree, AlertTriangle, X, Image as ImageIcon, Sparkles } from 'lucide-react';
-import { fetchApi } from '@/lib/api-client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Tag, Plus, Search, Edit2, Trash2, Package, Loader2, FolderTree, AlertTriangle, X, Image as ImageIcon, Sparkles, Upload } from 'lucide-react';
+import { fetchApi, uploadFile } from '@/lib/api-client';
 
 const SUGGESTED_IMAGES = [
   { label: 'Vegetables & Fruits', url: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80' },
@@ -40,6 +40,12 @@ export default function CategoriesPage() {
   const [deletingCat, setDeletingCat] = useState<any | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Uploading status
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const addFileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
+
   const loadCategories = async () => {
     try {
       setLoading(true);
@@ -59,6 +65,25 @@ export default function CategoriesPage() {
   useEffect(() => {
     loadCategories();
   }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingImage(true);
+      const uploadedUrl = await uploadFile(file);
+      if (isEdit) {
+        setEditImage(uploadedUrl);
+      } else {
+        setNewImage(uploadedUrl);
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Failed to upload image. Please try again.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const addCat = async () => {
     if (!newName.trim()) return;
@@ -150,7 +175,7 @@ export default function CategoriesPage() {
           <h1 className="font-black text-white text-xl flex items-center gap-2">
             <Tag className="w-5 h-5 text-indigo-400" /> Categories & Subcategories
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">Manage category images, banners and hierarchies for your store catalog</p>
+          <p className="text-xs text-slate-400 mt-0.5">Upload category images directly from your device for homepage showcase</p>
         </div>
         <button
           onClick={() => setAdding(true)}
@@ -160,12 +185,28 @@ export default function CategoriesPage() {
         </button>
       </div>
 
+      {/* Hidden file input elements */}
+      <input
+        ref={addFileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleFileUpload(e, false)}
+        className="hidden"
+      />
+      <input
+        ref={editFileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => handleFileUpload(e, true)}
+        className="hidden"
+      />
+
       {/* Add Form Card */}
       {adding && (
         <div className="rounded-2xl bg-[#1e1f32] border border-indigo-500/40 p-5 space-y-4 shadow-2xl animate-in fade-in duration-200">
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
             <h3 className="font-bold text-white text-sm flex items-center gap-2">
-              <Plus className="w-4 h-4 text-indigo-400" /> Create New Category (Homepage Showcase)
+              <Plus className="w-4 h-4 text-indigo-400" /> Create New Category (Upload Picture)
             </h3>
             <button onClick={() => setAdding(false)} className="text-slate-400 hover:text-white p-1">
               <X className="w-4 h-4" />
@@ -186,14 +227,34 @@ export default function CategoriesPage() {
                 />
               </div>
 
+              {/* Direct Upload Button & URL input */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Category Image URL *</label>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Category Picture (Upload File or URL)
+                </label>
+                
+                <div className="flex gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => addFileInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
+                  >
+                    {uploadingImage ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    <span>{uploadingImage ? 'Uploading Image...' : 'Upload Image from Device'}</span>
+                  </button>
+                </div>
+
                 <div className="relative">
                   <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     value={newImage}
                     onChange={(e) => setNewImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/... or paste image link"
+                    placeholder="Or paste image URL (https://...)"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
                   />
                 </div>
@@ -227,13 +288,33 @@ export default function CategoriesPage() {
             {/* Right Image Preview & Presets */}
             <div className="space-y-3">
               <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">Image Preview</label>
-              <div className="h-32 rounded-2xl bg-[#12131f] border border-dashed border-white/15 overflow-hidden flex items-center justify-center relative group">
+              <div className="h-36 rounded-2xl bg-[#12131f] border border-dashed border-white/15 overflow-hidden flex items-center justify-center relative group">
                 {newImage ? (
-                  <img src={newImage} alt="Preview" className="w-full h-full object-cover" />
+                  <>
+                    <img src={newImage} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setNewImage('')}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 hover:bg-rose-500 text-white transition-colors"
+                      title="Remove image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </>
                 ) : (
                   <div className="text-center p-4">
-                    <ImageIcon className="w-8 h-8 text-slate-600 mx-auto mb-1" />
-                    <p className="text-xs text-slate-500 font-medium">Paste image URL above or pick a sample picture below</p>
+                    {uploadingImage ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+                        <p className="text-xs text-indigo-300 font-bold">Uploading file to server...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-8 h-8 text-slate-600 mx-auto mb-1" />
+                        <p className="text-xs text-slate-400 font-medium">No image selected yet</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">Click "Upload Image from Device" or pick a sample below</p>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -241,7 +322,7 @@ export default function CategoriesPage() {
               {/* Sample Picture Presets */}
               <div>
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1 mb-1.5">
-                  <Sparkles className="w-3 h-3 text-amber-400" /> Quick Preset Pictures:
+                  <Sparkles className="w-3 h-3 text-amber-400" /> Or pick a sample picture preset:
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTED_IMAGES.map((img) => (
@@ -268,8 +349,8 @@ export default function CategoriesPage() {
             </button>
             <button
               onClick={addCat}
-              disabled={submitting}
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20"
+              disabled={submitting || uploadingImage}
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20 disabled:opacity-50"
             >
               {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save Category
             </button>
@@ -303,14 +384,34 @@ export default function CategoriesPage() {
                 />
               </div>
 
+              {/* Direct Upload Button & URL input */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Category Image URL</label>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Category Picture (Upload File or URL)
+                </label>
+                
+                <div className="flex gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => editFileInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
+                  >
+                    {uploadingImage ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    <span>{uploadingImage ? 'Uploading Image...' : 'Upload New Image from Device'}</span>
+                  </button>
+                </div>
+
                 <div className="relative">
                   <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     value={editImage}
                     onChange={(e) => setEditImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/... or paste image link"
+                    placeholder="Or paste image URL (https://...)"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -346,13 +447,32 @@ export default function CategoriesPage() {
             {/* Right Image Preview & Presets */}
             <div className="space-y-3">
               <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">Image Preview</label>
-              <div className="h-32 rounded-2xl bg-[#12131f] border border-dashed border-white/15 overflow-hidden flex items-center justify-center relative">
+              <div className="h-36 rounded-2xl bg-[#12131f] border border-dashed border-white/15 overflow-hidden flex items-center justify-center relative">
                 {editImage ? (
-                  <img src={editImage} alt="Preview" className="w-full h-full object-cover" />
+                  <>
+                    <img src={editImage} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setEditImage('')}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/70 hover:bg-rose-500 text-white transition-colors"
+                      title="Remove image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </>
                 ) : (
                   <div className="text-center p-4">
-                    <ImageIcon className="w-8 h-8 text-slate-600 mx-auto mb-1" />
-                    <p className="text-xs text-slate-500 font-medium">No picture set for this category</p>
+                    {uploadingImage ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+                        <p className="text-xs text-amber-300 font-bold">Uploading file to server...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-8 h-8 text-slate-600 mx-auto mb-1" />
+                        <p className="text-xs text-slate-400 font-medium">No picture set for this category</p>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -360,7 +480,7 @@ export default function CategoriesPage() {
               {/* Sample Picture Presets */}
               <div>
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1 mb-1.5">
-                  <Sparkles className="w-3 h-3 text-amber-400" /> Quick Preset Pictures:
+                  <Sparkles className="w-3 h-3 text-amber-400" /> Or pick a sample picture preset:
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTED_IMAGES.map((img) => (
@@ -387,8 +507,8 @@ export default function CategoriesPage() {
             </button>
             <button
               onClick={updateCat}
-              disabled={editSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-500 transition-all flex items-center gap-2 shadow-lg shadow-amber-600/20"
+              disabled={editSubmitting || uploadingImage}
+              className="px-5 py-2.5 rounded-xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-500 transition-all flex items-center gap-2 shadow-lg shadow-amber-600/20 disabled:opacity-50"
             >
               {editSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Update Category
             </button>
