@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Tag, Plus, Search, Edit2, Trash2, Package, Loader2, FolderTree, AlertTriangle, X, Image as ImageIcon, Sparkles, Upload } from 'lucide-react';
+import { Tag, Plus, Search, Edit2, Trash2, Package, Loader2, FolderTree, AlertTriangle, X, Image as ImageIcon, Sparkles, Upload, ChevronRight, Layers } from 'lucide-react';
 import { fetchApi, uploadSingleImageApi } from '@/lib/api-client';
 
 const SUGGESTED_IMAGES = [
@@ -22,6 +22,7 @@ export default function CategoriesPage() {
   
   // Add modal state
   const [adding, setAdding] = useState(false);
+  const [categoryType, setCategoryType] = useState<'PARENT' | 'SUB'>('PARENT');
   const [newName, setNewName] = useState('');
   const [newImage, setNewImage] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -85,8 +86,27 @@ export default function CategoriesPage() {
     }
   };
 
+  const openAddForParent = (parentCategory?: any) => {
+    if (parentCategory) {
+      setCategoryType('SUB');
+      setParentId(parentCategory.id);
+    } else {
+      setCategoryType('PARENT');
+      setParentId('');
+    }
+    setNewName('');
+    setNewImage('');
+    setNewDesc('');
+    setAdding(true);
+  };
+
   const addCat = async () => {
     if (!newName.trim()) return;
+    if (categoryType === 'SUB' && !parentId) {
+      alert('Please select a Parent Category for this subcategory.');
+      return;
+    }
+
     try {
       setSubmitting(true);
       const res = await fetchApi<any>('/product-categories', {
@@ -95,7 +115,7 @@ export default function CategoriesPage() {
           name: newName.trim(),
           image: newImage.trim() || undefined,
           description: newDesc.trim() || undefined,
-          parentId: parentId || undefined,
+          parentId: categoryType === 'SUB' ? parentId : undefined,
         }),
       });
       if (res.success) {
@@ -163,66 +183,134 @@ export default function CategoriesPage() {
     }
   };
 
-  const parentCategories = cats.filter((c) => !c.parentId);
-  const filtered = cats.filter((c) => !search || c.name?.toLowerCase().includes(search.toLowerCase()));
+  // Grouping categories into Parents and Subcategories
+  const mainParentCategories = cats.filter((c) => !c.parentId);
+  const subCategoriesList    = cats.filter((c) => !!c.parentId);
+
+  const filterCat = (cat: any) =>
+    !search ||
+    cat.name?.toLowerCase().includes(search.toLowerCase()) ||
+    cat.slug?.toLowerCase().includes(search.toLowerCase());
+
+  const filteredParents = mainParentCategories.filter(filterCat);
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-16">
+      {/* Hidden file input elements */}
+      <input ref={addFileInputRef} type="file" accept="image/*" onChange={(e) => handleFileUpload(e, false)} className="hidden" />
+      <input ref={editFileInputRef} type="file" accept="image/*" onChange={(e) => handleFileUpload(e, true)} className="hidden" />
+
       {/* Top Header Bar */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <p className="text-xs text-slate-500 mb-0.5">Products / Categories</p>
+          <p className="text-xs text-slate-500 mb-0.5">Products / Category Hierarchy</p>
           <h1 className="font-black text-white text-xl flex items-center gap-2">
-            <Tag className="w-5 h-5 text-indigo-400" /> Categories & Subcategories
+            <Layers className="w-5 h-5 text-indigo-400" /> Parent Categories & Subcategories
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">Upload category images directly from your device for homepage showcase</p>
+          <p className="text-xs text-slate-400 mt-0.5">Create parent categories and group subcategories neatly under them</p>
         </div>
-        <button
-          onClick={() => setAdding(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
-        >
-          <Plus className="w-4 h-4" /> Add Category with Picture
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => openAddForParent()}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+          >
+            <Plus className="w-4 h-4" /> Add Parent Category
+          </button>
+          <button
+            onClick={() => {
+              if (mainParentCategories.length === 0) {
+                alert('Please create a Parent Category first!');
+                return;
+              }
+              openAddForParent(mainParentCategories[0]);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-lg shadow-purple-600/20 active:scale-95"
+          >
+            <FolderTree className="w-4 h-4" /> Add Subcategory
+          </button>
+        </div>
       </div>
 
-      {/* Hidden file input elements */}
-      <input
-        ref={addFileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleFileUpload(e, false)}
-        className="hidden"
-      />
-      <input
-        ref={editFileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleFileUpload(e, true)}
-        className="hidden"
-      />
-
-      {/* Add Form Card */}
+      {/* Add Category Modal Card */}
       {adding && (
         <div className="rounded-2xl bg-[#1e1f32] border border-indigo-500/40 p-5 space-y-4 shadow-2xl animate-in fade-in duration-200">
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
-            <h3 className="font-bold text-white text-sm flex items-center gap-2">
-              <Plus className="w-4 h-4 text-indigo-400" /> Create New Category (Upload Picture)
-            </h3>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-indigo-400" />
+              <h3 className="font-bold text-white text-sm">
+                Create {categoryType === 'PARENT' ? '📁 Main Parent Category' : '🏷️ Subcategory under Parent'}
+              </h3>
+            </div>
             <button onClick={() => setAdding(false)} className="text-slate-400 hover:text-white p-1">
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Type Switcher Tabs */}
+          <div className="flex items-center gap-2 p-1 rounded-xl bg-[#12131f] border border-white/10 max-w-md">
+            <button
+              type="button"
+              onClick={() => setCategoryType('PARENT')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                categoryType === 'PARENT'
+                  ? 'bg-indigo-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              📁 Main Parent Category
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (mainParentCategories.length === 0) {
+                  alert('Please create a Parent Category first!');
+                  return;
+                }
+                setCategoryType('SUB');
+                if (!parentId && mainParentCategories[0]) setParentId(mainParentCategories[0].id);
+              }}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                categoryType === 'SUB'
+                  ? 'bg-purple-600 text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              🏷️ Subcategory
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
             {/* Left Inputs */}
             <div className="space-y-3">
+              {categoryType === 'SUB' && (
+                <div>
+                  <label className="block text-[11px] font-bold text-purple-300 uppercase tracking-wider mb-1">
+                    Select Parent Category *
+                  </label>
+                  <select
+                    value={parentId}
+                    onChange={(e) => setParentId(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#12131f] border border-purple-500/40 text-white text-xs font-bold focus:outline-none focus:border-purple-400"
+                  >
+                    <option value="">-- Choose Parent Category --</option>
+                    {mainParentCategories.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        📁 {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Category Name *</label>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  {categoryType === 'PARENT' ? 'Parent Category Name *' : 'Subcategory Name *'}
+                </label>
                 <input
                   autoFocus
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="e.g. Fresh Meat & Poultry, Beverages..."
+                  placeholder={categoryType === 'PARENT' ? 'e.g. Meat & Poultry, Beverages...' : 'e.g. Broiler Chicken, Soft Drinks...'}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500"
                 />
               </div>
@@ -240,11 +328,7 @@ export default function CategoriesPage() {
                     disabled={uploadingImage}
                     className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
                   >
-                    {uploadingImage ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Upload className="w-4 h-4" />
-                    )}
+                    {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                     <span>{uploadingImage ? 'Uploading Image...' : 'Upload Image from Device'}</span>
                   </button>
                 </div>
@@ -258,20 +342,6 @@ export default function CategoriesPage() {
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Parent Category</label>
-                <select
-                  value={parentId}
-                  onChange={(e) => setParentId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
-                >
-                  <option value="">Main Category (No Parent)</option>
-                  {parentCategories.map((p) => (
-                    <option key={p.id} value={p.id}>Subcategory of: {p.name}</option>
-                  ))}
-                </select>
               </div>
 
               <div>
@@ -350,15 +420,18 @@ export default function CategoriesPage() {
             <button
               onClick={addCat}
               disabled={submitting || uploadingImage}
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+              className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 ${
+                categoryType === 'SUB' ? 'bg-purple-600 hover:bg-purple-500 shadow-purple-600/20' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/20'
+              }`}
             >
-              {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Save Category
+              {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Save {categoryType === 'PARENT' ? 'Parent Category' : 'Subcategory'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Edit Form Card */}
+      {/* Edit Category Modal Card */}
       {editingCat && (
         <div className="rounded-2xl bg-[#1e1f32] border border-amber-500/40 p-5 space-y-4 shadow-2xl animate-in fade-in duration-200">
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
@@ -384,6 +457,22 @@ export default function CategoriesPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Parent Category</label>
+                <select
+                  value={editParentId}
+                  onChange={(e) => setEditParentId(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs focus:outline-none focus:border-amber-500"
+                >
+                  <option value="">Main Parent Category (No Parent)</option>
+                  {mainParentCategories
+                    .filter((p) => p.id !== editingCat.id)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>Subcategory of: {p.name}</option>
+                    ))}
+                </select>
+              </div>
+
               {/* Direct Upload Button & URL input */}
               <div>
                 <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
@@ -397,11 +486,7 @@ export default function CategoriesPage() {
                     disabled={uploadingImage}
                     className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
                   >
-                    {uploadingImage ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Upload className="w-4 h-4" />
-                    )}
+                    {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                     <span>{uploadingImage ? 'Uploading Image...' : 'Upload New Image from Device'}</span>
                   </button>
                 </div>
@@ -415,22 +500,6 @@ export default function CategoriesPage() {
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-amber-500"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Parent Category</label>
-                <select
-                  value={editParentId}
-                  onChange={(e) => setEditParentId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs focus:outline-none focus:border-amber-500"
-                >
-                  <option value="">Main Category (No Parent)</option>
-                  {parentCategories
-                    .filter((p) => p.id !== editingCat.id)
-                    .map((p) => (
-                      <option key={p.id} value={p.id}>Subcategory of: {p.name}</option>
-                    ))}
-                </select>
               </div>
 
               <div>
@@ -523,112 +592,147 @@ export default function CategoriesPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search categories & subcategories…"
+          placeholder="Search parent categories & subcategories…"
           className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#1e1f32] border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500"
         />
       </div>
 
-      {/* Homepage-Style Category Cards Grid */}
+      {/* Nested Parent & Subcategory Hierarchy View */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
-          {Array(8).fill(0).map((_, i) => (
-            <div key={i} className="h-56 rounded-2xl bg-[#1e1f32] border border-white/5" />
+        <div className="space-y-6 animate-pulse">
+          {Array(3).fill(0).map((_, i) => (
+            <div key={i} className="h-64 rounded-3xl bg-[#1e1f32] border border-white/5" />
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : filteredParents.length === 0 ? (
         <div className="p-12 rounded-3xl bg-[#1e1f32] border border-white/10 text-center text-slate-400 space-y-2">
           <Tag className="w-10 h-10 mx-auto opacity-40 text-indigo-400" />
-          <p className="font-bold text-sm">No categories found</p>
-          <p className="text-xs text-slate-500">Click "Add Category with Picture" above to create your first visual category.</p>
+          <p className="font-bold text-sm">No parent categories found</p>
+          <p className="text-xs text-slate-500">Click "Add Parent Category" above to create your first main category.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((c) => {
-            const productCount = c._count?.products ?? c.products ?? 0;
-            const isSub = !!c.parentId;
-            const parentCat = isSub ? cats.find((p) => p.id === c.parentId) : null;
-            const catImg = c.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80';
+        <div className="space-y-6">
+          {filteredParents.map((parent) => {
+            const children = subCategoriesList.filter((sub) => sub.parentId === parent.id);
+            const parentProductCount = parent._count?.products ?? parent.products ?? 0;
+            const parentImg = parent.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80';
 
             return (
               <div
-                key={c.id}
-                className="group rounded-2xl bg-[#1e1f32] border border-white/10 hover:border-indigo-500/40 overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-xl hover:shadow-indigo-500/10"
+                key={parent.id}
+                className="rounded-3xl bg-[#1e1f32] border border-white/10 overflow-hidden shadow-2xl transition-all hover:border-indigo-500/30"
               >
-                {/* Image Banner Header */}
-                <div className="relative h-32 w-full overflow-hidden bg-slate-900">
-                  <img
-                    src={catImg}
-                    alt={c.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1e1f32] via-[#1e1f32]/40 to-transparent" />
-
-                  {/* Badges on Image */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                    {isSub ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/80 text-white backdrop-blur-md border border-purple-400/40 flex items-center gap-1 shadow">
-                        <FolderTree className="w-3 h-3" /> Subcategory
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/80 text-white backdrop-blur-md border border-emerald-400/40 shadow">
-                        Main Category
-                      </span>
-                    )}
-
-                    {/* Quick Edit/Delete icons */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleEditClick(c)}
-                        className="p-1.5 rounded-lg bg-black/60 hover:bg-amber-500 text-white transition-colors backdrop-blur-md"
-                        title="Edit Picture & Details"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => setDeletingCat(c)}
-                        className="p-1.5 rounded-lg bg-black/60 hover:bg-rose-500 text-white transition-colors backdrop-blur-md"
-                        title="Delete Category"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                {/* Parent Category Header Banner */}
+                <div className="relative p-5 sm:p-6 bg-gradient-to-r from-[#181928] via-[#1a1c30] to-[#1e1f32] border-b border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-900 border border-white/15 shrink-0 shadow-lg">
+                      <img src={parentImg} alt={parent.name} className="w-full h-full object-cover" />
                     </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                          📁 Main Parent Category
+                        </span>
+                        <span className="text-xs text-slate-400 font-mono">/{parent.slug}</span>
+                      </div>
+                      <h2 className="text-lg font-black text-white mt-1 truncate">{parent.name}</h2>
+                      {parent.description && (
+                        <p className="text-xs text-slate-400 mt-0.5 truncate">{parent.description}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions & Add Subcategory button */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => openAddForParent(parent)}
+                      className="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-bold transition-all flex items-center gap-1.5 shadow"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Add Subcategory
+                    </button>
+                    <button
+                      onClick={() => handleEditClick(parent)}
+                      className="p-2 rounded-xl bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 border border-white/10 transition-colors"
+                      title="Edit Parent Category"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setDeletingCat(parent)}
+                      className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-white/10 transition-colors"
+                      title="Delete Parent Category"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Card Content Details */}
-                <div className="p-4 pt-1 space-y-2 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-black text-white text-base leading-tight group-hover:text-indigo-300 transition-colors">
-                      {c.name}
-                    </h3>
-                    {parentCat && (
-                      <p className="text-[11px] text-indigo-300 font-semibold mt-0.5">Parent: {parentCat.name}</p>
-                    )}
-                    {c.description && (
-                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{c.description}</p>
-                    )}
-                    <p className="text-[10px] text-slate-500 font-mono mt-1">slug: /{c.slug}</p>
+                {/* Subcategories Container under this Parent */}
+                <div className="p-4 sm:p-5 bg-[#171827]/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <FolderTree className="w-3.5 h-3.5 text-purple-400" />
+                      Subcategories under "{parent.name}" ({children.length})
+                    </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs text-slate-400">
-                    <span className="flex items-center gap-1.5 font-semibold">
-                      <Package className="w-3.5 h-3.5 text-indigo-400" /> {productCount} products
-                    </span>
-                    <div className="flex gap-2">
+                  {children.length === 0 ? (
+                    <div className="p-6 rounded-2xl bg-white/5 border border-dashed border-white/10 text-center space-y-2">
+                      <p className="text-xs text-slate-400">No subcategories created under "{parent.name}" yet.</p>
                       <button
-                        onClick={() => handleEditClick(c)}
-                        className="text-[11px] font-bold text-amber-400 hover:underline flex items-center gap-1"
+                        onClick={() => openAddForParent(parent)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-400 hover:text-purple-300 hover:underline"
                       >
-                        <Edit2 className="w-3 h-3" /> Edit
-                      </button>
-                      <button
-                        onClick={() => setDeletingCat(c)}
-                        className="text-[11px] font-bold text-rose-400 hover:underline flex items-center gap-1"
-                      >
-                        <Trash2 className="w-3 h-3" /> Delete
+                        <Plus className="w-3.5 h-3.5" /> Create first subcategory
                       </button>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                      {children.map((sub) => {
+                        const subImg = sub.image || parentImg;
+                        const subProdCount = sub._count?.products ?? sub.products ?? 0;
+                        return (
+                          <div
+                            key={sub.id}
+                            className="rounded-2xl bg-[#1e1f32] border border-white/10 hover:border-purple-500/40 p-3.5 transition-all flex flex-col justify-between space-y-3 group shadow"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-white/10 shrink-0">
+                                <img src={subImg} alt={sub.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[9px] font-bold text-purple-300 uppercase tracking-wider block">🏷️ Subcategory</span>
+                                <h4 className="font-bold text-white text-xs truncate group-hover:text-purple-300 transition-colors">
+                                  {sub.name}
+                                </h4>
+                                <span className="text-[10px] text-slate-500 font-mono block truncate">/{sub.slug}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] text-slate-400">
+                              <span className="flex items-center gap-1 font-medium">
+                                <Package className="w-3 h-3 text-purple-400" /> {subProdCount} products
+                              </span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleEditClick(sub)}
+                                  className="font-bold text-amber-400 hover:underline"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => setDeletingCat(sub)}
+                                  className="font-bold text-rose-400 hover:underline"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             );
