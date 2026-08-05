@@ -442,6 +442,7 @@ export function GlobalSearchModal() {
           </div>
         )}
 
+        </div>
       </div>
     </div>
   );
