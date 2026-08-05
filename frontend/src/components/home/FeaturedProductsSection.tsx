@@ -14,6 +14,8 @@ interface FeaturedProduct {
   price: number;
   discount?: number;
   unit?: string;
+  unitAmount?: number;
+  amount?: number;
   images?: string[];
   image?: string;
   rating?: number;
