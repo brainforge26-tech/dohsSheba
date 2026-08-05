@@ -150,7 +150,7 @@ export default function AdminHomepageManagementPage() {
       title: 'Delete Hero Slide',
       message: 'Are you sure you want to delete this hero slide?',
       confirmText: 'Delete Slide',
-      confirmVariant: 'danger',
+      variant: 'danger',
     });
     if (isConfirmed) {
       try {
@@ -214,7 +214,7 @@ export default function AdminHomepageManagementPage() {
       title: 'Delete Promo Card',
       message: 'Are you sure you want to delete this homepage promo card?',
       confirmText: 'Delete Promo',
-      confirmVariant: 'danger',
+      variant: 'danger',
     });
     if (isConfirmed) {
       try {
@@ -266,7 +266,7 @@ export default function AdminHomepageManagementPage() {
       title: 'Delete Shortcut',
       message: 'Are you sure you want to delete this featured shortcut?',
       confirmText: 'Delete Shortcut',
-      confirmVariant: 'danger',
+      variant: 'danger',
     });
     if (isConfirmed) {
       try {
@@ -329,7 +329,7 @@ export default function AdminHomepageManagementPage() {
       title: 'Delete Location',
       message: 'Are you sure you want to delete this coverage area location?',
       confirmText: 'Delete Location',
-      confirmVariant: 'danger',
+      variant: 'danger',
     });
     if (isConfirmed) {
       try {
