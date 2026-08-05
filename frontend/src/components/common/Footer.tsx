@@ -17,9 +17,12 @@ import {
 } from 'lucide-react';
 
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function Footer() {
   const { siteName } = useSiteSettingsStore();
+  const { isBn } = useTranslation();
+
   return (
     <footer className="bg-white text-slate-700 border-t border-slate-200 font-sans">
       {/* Top Value Proposition Bar */}
@@ -30,8 +33,8 @@ export function Footer() {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-slate-900">Verified Professionals</h4>
-              <p className="text-xs text-slate-500">Background checked technicians</p>
+              <h4 className="font-bold text-sm text-slate-900">{isBn ? 'যাচাইকৃত টেকনিশিয়ান' : 'Verified Professionals'}</h4>
+              <p className="text-xs text-slate-500">{isBn ? 'ব্যাকগ্রাউন্ড চেক সম্পন্ন টেকনিশিয়ান' : 'Background checked technicians'}</p>
             </div>
           </div>
 
@@ -40,8 +43,8 @@ export function Footer() {
               <Truck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-slate-900">Fast DOHS Delivery</h4>
-              <p className="text-xs text-slate-500">Groceries delivered in 45 mins</p>
+              <h4 className="font-bold text-sm text-slate-900">{isBn ? 'দ্রুত ডিএইচএস ডেলিভারি' : 'Fast DOHS Delivery'}</h4>
+              <p className="text-xs text-slate-500">{isBn ? '৪৫ মিনিটে বাসা পর্যন্ত ডেলিভারি' : 'Groceries delivered in 45 mins'}</p>
             </div>
           </div>
 
@@ -50,8 +53,8 @@ export function Footer() {
               <CreditCard className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-slate-900">Secure Payments</h4>
-              <p className="text-xs text-slate-500">Cash on Delivery & bKash</p>
+              <h4 className="font-bold text-sm text-slate-900">{isBn ? 'নিরাপদ পেমেন্ট' : 'Secure Payments'}</h4>
+              <p className="text-xs text-slate-500">{isBn ? 'ক্যাশ অন ডেলিভারি ও বিকাশ' : 'Cash on Delivery & bKash'}</p>
             </div>
           </div>
 
@@ -60,8 +63,8 @@ export function Footer() {
               <Headphones className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-slate-900">24/7 DOHS Support</h4>
-              <p className="text-xs text-slate-500">Dedicated resident customer help</p>
+              <h4 className="font-bold text-sm text-slate-900">{isBn ? '২৪/৭ সাপোর্ট' : '24/7 DOHS Support'}</h4>
+              <p className="text-xs text-slate-500">{isBn ? 'ডেডিকেটেড রেসিডেন্ট সহায়তা' : 'Dedicated resident customer help'}</p>
             </div>
           </div>
         </div>

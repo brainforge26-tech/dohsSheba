@@ -129,22 +129,22 @@ export function HeroBanner() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#7eb343] hover:bg-[#6e9e38] text-white font-bold text-xs sm:text-sm shadow-xs transition-colors shrink-0 cursor-pointer"
           >
             <Menu className="w-4 h-4" />
-            <span>All Categories</span>
+            <span>{isBn ? 'সব ক্যাটাগরি' : 'All Categories'}</span>
           </button>
 
           {/* Quick Shortcuts */}
           <div className="flex items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-600 overflow-x-auto no-scrollbar py-1">
             <Link href="/offers" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>Promotions</span>
+              <span>{isBn ? 'প্রমোশন' : 'Promotions'}</span>
             </Link>
             <Link href="/category/dairy-eggs-bakery" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
               <Milk className="w-3.5 h-3.5 text-blue-500" />
-              <span>Ideas For Breakfast</span>
+              <span>{isBn ? 'ব্রেকফাস্ট আইডিয়া' : 'Ideas For Breakfast'}</span>
             </Link>
             <Link href="/offers" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
               <Flame className="w-3.5 h-3.5 text-rose-500" />
-              <span>Weekly Discounts</span>
+              <span>{isBn ? 'সাপ্তাহিক ছাড়' : 'Weekly Discounts'}</span>
             </Link>
           </div>
 

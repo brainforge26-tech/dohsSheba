@@ -8,6 +8,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import { useSearchStore } from '@/store/useSearchStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -17,8 +18,7 @@ export function MobileBottomNav() {
     setMounted(true);
   }, []);
 
-  const { language } = useLanguageStore();
-  const isBn = mounted ? language === 'BN' : true;
+  const { isBn } = useTranslation();
 
   const { getTotalCount, openCart } = useCartStore();
   const { user, role } = useAuthStore();

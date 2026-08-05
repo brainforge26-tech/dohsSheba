@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { SERVICE_CATEGORIES } from '@/constants/services';
 import { SHOPPING_CATEGORIES } from '@/constants/products';
-import { useLanguageStore } from '@/store/useLanguageStore';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 import { useSearchStore } from '@/store/useSearchStore';
 import { getApiBaseUrl } from '@/lib/api-client';
@@ -33,15 +33,14 @@ import { useEffect } from 'react';
 
 export function Header() {
   const { siteName } = useSiteSettingsStore();
-  const { openSearch } = useSearchStore();
-  const [mounted, setMounted] = useState(false);
-  const [location, setLocation] = useState('Savar DOHS');
+  const [categories, setCategories] = useState<any[]>([]);
+  const [searchCategory, setSearchCategory] = useState<'all' | 'services' | 'shopping'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [megaMenuOpen, setMegaMenuOpen] = useState<'service' | 'shopping' | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState<'services' | 'shopping' | null>(null);
-  const [megaMenuOpen, setMegaMenuOpen] = useState<'service' | 'shopping' | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchCategory, setSearchCategory] = useState<'all' | 'services' | 'shopping'>('all');
-  const [apiCategories, setApiCategories] = useState<any[]>([]);
+  const [location, setLocation] = useState('Savar DOHS');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -50,24 +49,25 @@ export function Header() {
       .then((r) => r.json())
       .then((res) => {
         if (res?.success && Array.isArray(res.data)) {
-          setApiCategories(res.data);
+          const parents = res.data.filter((cat: any) => !cat.parentId);
+          setCategories(parents.length > 0 ? parents : res.data);
         }
       })
-      .catch(() => {});
+      .catch(() => null);
   }, []);
 
-  const displayCategories = apiCategories.length > 0
-    ? apiCategories.map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-        itemCount: c._count?.products ?? (Array.isArray(c.products) ? c.products.length : 0),
+  const displayCategories = categories.length > 0
+    ? categories.map((cat) => ({
+        id: cat.id || cat.slug,
+        name: cat.name,
+        slug: cat.slug,
+        itemCount: Array.isArray(cat.children) ? cat.children.length : (cat.itemCount ?? 4),
       }))
     : SHOPPING_CATEGORIES;
 
   const { getTotalCount, openCart } = useCartStore();
   const { user, role, logout } = useAuthStore();
-  const { language, toggleLanguage } = useLanguageStore();
+  const { isBn, language, toggleLanguage } = useTranslation();
   const cartCount = getTotalCount();
 
   return (
@@ -103,7 +103,7 @@ export function Header() {
               className="flex items-center gap-1 font-extrabold text-white bg-emerald-800/60 hover:bg-emerald-800 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] transition-all border border-emerald-400/40 shrink-0 whitespace-nowrap"
             >
               <Truck className="w-3 h-3 text-amber-300 shrink-0" />
-              <span>Track Order</span>
+              <span>{isBn ? 'অর্ডার ট্র্যাক' : 'Track Order'}</span>
             </Link>
 
             <span className="hidden md:inline text-emerald-200">|</span>
@@ -113,7 +113,7 @@ export function Header() {
               className="hidden md:flex items-center gap-1 font-bold text-amber-200 hover:underline text-[11px] shrink-0"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Offers & Coupons</span>
+              <span>{isBn ? 'অফার ও কুপন' : 'Offers & Coupons'}</span>
             </Link>
 
             <span className="text-emerald-200">|</span>
@@ -142,7 +142,7 @@ export function Header() {
               {siteName}
             </span>
             <span className="text-[9px] sm:text-[10px] font-extrabold text-slate-400 tracking-wider uppercase leading-tight whitespace-nowrap mt-0.5">
-              Grocery & Services
+              {isBn ? 'গ্রোসারি ও সার্ভিসসমূহ' : 'Grocery & Services'}
             </span>
           </div>
         </Link>
@@ -158,15 +158,15 @@ export function Header() {
               onChange={(e) => setSearchCategory(e.target.value as any)}
               className="bg-transparent text-xs font-semibold px-3 py-2.5 border-r border-border focus:outline-none text-muted-foreground cursor-pointer"
             >
-              <option value="all">All Market</option>
-              <option value="services">Home Services</option>
-              <option value="shopping">Groceries</option>
+              <option value="all">{isBn ? 'সব মার্কেট' : 'All Market'}</option>
+              <option value="services">{isBn ? 'হোম সার্ভিস' : 'Home Services'}</option>
+              <option value="shopping">{isBn ? 'গ্রোসারি' : 'Groceries'}</option>
             </select>
             <input
               type="text"
               readOnly
               onFocus={() => openSearch(searchQuery)}
-              placeholder="Search Electrician, AC Repair, Fresh Fruits, Rice..."
+              placeholder={isBn ? 'সার্চ ইলেকট্রিশিয়ান, এসি রিপেয়ার, তাজা ফল, চাল...' : 'Search Electrician, AC Repair, Fresh Fruits, Rice...'}
               className="w-full bg-transparent px-3.5 py-2.5 text-sm focus:outline-none text-foreground placeholder:text-muted-foreground cursor-pointer"
             />
             <button
