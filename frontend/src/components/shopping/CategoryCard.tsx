@@ -49,9 +49,11 @@ export function CategoryCard({ category, basePath = '/category' }: CategoryCardP
       <h3 className="font-extrabold text-slate-800 text-sm sm:text-base group-hover:text-purple-700 transition-colors line-clamp-1">
         {category.name}
       </h3>
-      {category._count && (
+      {category && (
         <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
-          {category._count.children ? `${category._count.children} subcategories` : `${category._count.products || 0} items`}
+          {((category as any).children && (category as any).children.length > 0) || (category._count?.children && category._count.children > 0)
+            ? `${(category as any).children?.length || category._count?.children} subcategories`
+            : `${(category as any).totalItems ?? category._count?.products ?? 0} items`}
         </p>
       )}
     </Link>

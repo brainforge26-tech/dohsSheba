@@ -20,12 +20,31 @@ export const getAllProductCategories = async () => {
           where: { isActive: true },
           include: { _count: { select: { products: { where: { isActive: true } } } } },
         },
-        _count: { select: { products: { where: { isActive: true } } } },
+        _count: {
+          select: {
+            products: { where: { isActive: true } },
+            children: { where: { isActive: true } },
+          },
+        },
       },
       orderBy: { name: 'asc' },
     });
 
-    return cats || [];
+    return (cats || []).map((cat: any) => {
+      const subcategoryProductCount = Array.isArray(cat.children)
+        ? cat.children.reduce((sum: number, c: any) => sum + (c._count?.products || 0), 0)
+        : 0;
+      const totalItemCount = (cat._count?.products || 0) + subcategoryProductCount;
+
+      return {
+        ...cat,
+        totalItems: totalItemCount,
+        _count: {
+          ...cat._count,
+          totalItems: totalItemCount,
+        },
+      };
+    });
   } catch (err) {
     console.error('Error fetching product categories:', err);
     return [];
