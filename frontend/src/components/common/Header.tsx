@@ -281,10 +281,10 @@ export function Header() {
           {/* Cart Trigger Button */}
           <button
             onClick={openCart}
-            className="relative p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all flex items-center gap-2 shadow-2xs cursor-pointer"
+            className="hidden sm:flex relative p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all items-center gap-2 shadow-2xs cursor-pointer shrink-0"
           >
             <ShoppingBag className="w-5 h-5 text-[#7eb343]" />
-            <span className="hidden sm:inline font-bold text-xs">Cart</span>
+            <span className="font-bold text-xs">Cart</span>
             {mounted && cartCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-[#7eb343] text-white font-black text-[11px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
                 {cartCount}
@@ -294,7 +294,7 @@ export function Header() {
 
           {/* User Auth/Role Indicator */}
           {mounted && user ? (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 shrink-0">
               <Link
                 href={
                   role === 'ADMIN'
@@ -308,8 +308,8 @@ export function Header() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-[#7eb343] border border-emerald-200 transition-all font-bold text-xs"
               >
                 <User className="w-4 h-4" />
-                <div className="text-left hidden sm:block">
-                  <div className="font-bold text-xs">{user.name}</div>
+                <div className="text-left font-bold text-xs">
+                  <div>{user.name}</div>
                   <div className="text-[9px] uppercase font-semibold text-[#7eb343]">
                     {role}
                   </div>
@@ -326,7 +326,7 @@ export function Header() {
           ) : (
             <Link
               href="/login"
-              className="px-4 py-2.5 rounded-lg bg-[#7eb343] text-white font-bold text-xs hover:bg-[#6c9c36] transition-all shadow-2xs flex items-center gap-2"
+              className="hidden sm:flex px-4 py-2.5 rounded-lg bg-[#7eb343] text-white font-bold text-xs hover:bg-[#6c9c36] transition-all shadow-2xs items-center gap-2 shrink-0"
             >
               <User className="w-4 h-4" />
               <span>Login</span>
@@ -336,7 +336,7 @@ export function Header() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl text-foreground hover:bg-secondary"
+            className="md:hidden p-2 rounded-xl text-foreground hover:bg-secondary shrink-0"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
