@@ -67,6 +67,7 @@ export function Header() {
 
   const { getTotalCount, openCart } = useCartStore();
   const { user, role, logout } = useAuthStore();
+  const { openSearch } = useSearchStore();
   const { isBn, language, toggleLanguage } = useTranslation();
   const cartCount = getTotalCount();
 
