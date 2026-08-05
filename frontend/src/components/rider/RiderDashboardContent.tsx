@@ -477,8 +477,273 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
         </div>
       )}
 
-      {/* ── 2. TODAY'S SUMMARY CARDS (HIGH-VISIBILITY KPI METRICS) ── */}
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      {/* ── 2. MAIN WORKFLOW: RADAR WAITING SCREEN OR MISSION MODE (PRIMARY VIEW) ── */}
+      <div className="max-w-5xl mx-auto space-y-8">
+        {/* Navigation Tab Bar */}
+        <div className="flex items-center gap-3.5 border-b border-slate-800/80 pb-4 overflow-x-auto scrollbar-none">
+          <button
+            onClick={() => setActiveTab('mission')}
+            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
+              activeTab === 'mission'
+                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
+            }`}
+          >
+            <Navigation className="w-4 h-4 text-emerald-300" />
+            <span>{isBn ? 'চলতি মিশন' : 'Active Mission'}</span>
+            {hasActiveMission && <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />}
+          </button>
+          <button
+            onClick={() => { setActiveTab('history'); loadHistory(); }}
+            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
+              activeTab === 'history'
+                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
+            }`}
+          >
+            <Clock className="w-4 h-4 text-cyan-300" />
+            <span>{isBn ? 'ডেলিভারি হিস্ট্রি' : 'Delivery History'}</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('earnings')}
+            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
+              activeTab === 'earnings'
+                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
+            }`}
+          >
+            <DollarSign className="w-4 h-4 text-amber-300" />
+            <span>{isBn ? 'উপার্জন সামারি' : 'Earnings Overview'}</span>
+          </button>
+        </div>
+
+        {/* ── TAB 1: RADAR WAITING SCREEN OR ACTIVE MISSION ── */}
+        {activeTab === 'mission' && (
+          <div>
+            {!hasActiveMission ? (
+              openOrdersList.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-extrabold text-slate-300 flex items-center gap-2 uppercase tracking-wider">
+                      <Compass className="w-4 h-4 text-amber-400" />
+                      {isBn ? 'উপলব্ধ সার্ভিস রিকোয়েস্ট' : 'Open Available Dispatch Orders'}
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs">{openOrdersList.length}</span>
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {openOrdersList.map((order) => {
+                      const customerName = order.customer?.name || order.customerName || 'DOHS Resident';
+                      const customerPhone = order.customer?.phone || order.customerPhone || '01306031982';
+                      const customerAddress = order.address ? `${order.address.line1}, ${order.address.area}` : order.deliveryAddress || 'Mohakhali DOHS';
+                      const storeName = order.items?.[0]?.product?.seller?.sellerProfile?.shopName || order.items?.[0]?.product?.seller?.name || order.storeName || 'DOHS Merchant';
+                      const orderSummary = order.items?.map((it: any) => `${it.product?.name || 'Item'} x${it.quantity}`).join(', ') || 'Grocery & Food Delivery';
+
+                      return (
+                        <div key={order.id} className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl hover:border-emerald-500/50 transition-all space-y-4">
+                          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <span className="font-mono text-xs text-amber-400 font-extrabold">ORDER #{order.id.slice(-8).toUpperCase()}</span>
+                            <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/30">
+                              {formatCurrency(order.deliveryFee || 50)} {isBn ? 'উপার্জন' : 'Earnings'}
+                            </span>
+                          </div>
+
+                          <div className="space-y-3 text-xs">
+                            <div className="flex items-start gap-2.5">
+                              <Store className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                              <div>
+                                <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Pickup Store:</span>
+                                <strong className="text-white block">{storeName}</strong>
+                              </div>
+                            </div>
+
+                            <div className="flex items-start gap-2.5">
+                              <MapPin className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                              <div>
+                                <strong className="text-white block">{customerName}</strong>
+                                <span className="text-slate-400 block">{customerAddress}</span>
+                              </div>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-800/60 space-y-1">
+                              <span className="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">Order Summary:</span>
+                              <p className="text-slate-200 font-medium truncate">{orderSummary}</p>
+                            </div>
+                          </div>
+
+                          <div className="pt-3 border-t border-slate-800 space-y-3">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-slate-400 font-bold">Total Amount:</span>
+                              <span className="text-white font-black text-sm">{formatCurrency(order.totalAmount)}</span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <a
+                                href={`tel:${customerPhone}`}
+                                className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-2xl border border-slate-700 flex items-center justify-center gap-1.5 transition-all"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                                <span>Call Customer</span>
+                              </a>
+
+                              <button
+                                type="button"
+                                onClick={() => setConfirmOrderToAccept(order)}
+                                className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg flex items-center justify-center gap-1.5 transition-all"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Accept Mission</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* Radar Pulse Radar View when Idle */
+                <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-10 text-center space-y-6 shadow-2xl relative overflow-hidden">
+                  <div className="relative w-32 h-32 mx-auto flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping" />
+                    <div className="absolute inset-2 rounded-full bg-emerald-500/20 animate-pulse" />
+                    <div className="w-20 h-20 rounded-3xl bg-slate-950 border-2 border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-2xl relative z-10">
+                      <Radio className="w-10 h-10 animate-pulse text-emerald-400" />
+                    </div>
+                  </div>
+
+                  <div className="max-w-md mx-auto space-y-2">
+                    <h2 className="text-2xl font-black text-white">{isBn ? 'রাইড রিকোয়েস্টের অপেক্ষায়...' : 'Waiting for Delivery Request'}</h2>
+                    <p className="text-slate-400 text-xs">
+                      {isBn
+                        ? 'মহাখালী DOHS এরিয়াতে সরাসরি নতুন রাইড ও অর্ডার নোটিফিকেশন পেতে প্রস্তুত থাকুন।'
+                        : 'Stay online to automatically receive delivery requests in Mohakhali DOHS area.'}
+                    </p>
+                  </div>
+
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    ONLINE • AVAILABLE • Listening for new dispatch requests...
+                  </div>
+                </div>
+              )
+            ) : (
+              /* Active Mission View Component */
+              activeMission && (
+                <CurrentMissionView
+                  mission={activeMission}
+                  currentLocation={currentPos ? { lat: currentPos.lat, lng: currentPos.lng } : null}
+                  onMissionUpdate={() => {
+                    checkActiveMissions();
+                    loadStats();
+                  }}
+                />
+              )
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 2: DELIVERY HISTORY TAB ── */}
+        {activeTab === 'history' && (
+          <div className="space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-300 flex items-center gap-2 uppercase tracking-wider">
+              <Clock className="w-4 h-4 text-cyan-400" />
+              {isBn ? 'সম্পন্ন রাইড হিস্ট্রি' : 'Completed Delivery History'}
+            </h3>
+
+            {historyLoading ? (
+              <div className="p-8 text-center text-slate-500 text-sm">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-400" />
+                Loading history...
+              </div>
+            ) : historyOrders.length === 0 ? (
+              <div className="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 text-center text-slate-400 text-sm">
+                No delivery history found.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {historyOrders.map((h) => (
+                  <div key={h.id} className="bg-slate-900/80 border border-slate-800 p-5 rounded-3xl space-y-3 text-xs">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                      <span className="font-mono text-slate-400 font-bold">#{h.id.slice(-8).toUpperCase()}</span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[11px]">
+                        {h.status}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-slate-300">
+                      <span>Customer:</span>
+                      <strong className="text-white">{h.customer?.name || h.customerName || 'N/A'}</strong>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Delivered At:</span>
+                      <strong className="text-slate-300">
+                        {h.deliveredAt ? new Date(h.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Completed'}
+                      </strong>
+                    </div>
+                    <div className="flex justify-between text-slate-300 pt-1 border-t border-slate-800/60">
+                      <span>Rider Earnings:</span>
+                      <strong className="text-emerald-400 font-mono text-sm">{formatCurrency(h.deliveryFee || 50)}</strong>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 3: EARNINGS & WITHDRAWAL OVERVIEW ── */}
+        {activeTab === 'earnings' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+                <div>
+                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Total Fleet Earnings</span>
+                  <p className="text-3xl md:text-4xl font-black text-emerald-400 font-mono mt-1">
+                    {formatCurrency(stats?.totalEarnings || 0)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowWithdrawModal(true)}
+                  className="py-3.5 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all shrink-0"
+                >
+                  <Wallet className="w-4 h-4" />
+                  <span>Request Withdrawal</span>
+                </button>
+              </div>
+
+              {/* Withdrawal History Table */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Recent Payout Requests</h4>
+                {withdrawals.length === 0 ? (
+                  <p className="text-xs text-slate-500">No withdrawal requests found.</p>
+                ) : (
+                  <div className="space-y-2.5">
+                    {withdrawals.map((w) => (
+                      <div key={w.id} className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-between text-xs">
+                        <div>
+                          <strong className="text-white font-mono block">৳{formatCurrency(w.amount)}</strong>
+                          <span className="text-slate-400 text-[11px]">{w.paymentMethod} • {w.accountNumber}</span>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
+                          w.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-400' :
+                          w.status === 'REJECTED' ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'
+                        }`}>
+                          {w.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── 3. TODAY'S SUMMARY CARDS (HIGH-VISIBILITY KPI METRICS AT BOTTOM) ── */}
+      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-4 mt-8 mb-8">
         <div className="bg-gradient-to-br from-emerald-500/10 via-slate-900 to-slate-900 p-5 sm:p-6 rounded-3xl border border-emerald-500/20 shadow-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-slate-400 text-xs font-extrabold uppercase tracking-wider block">{isBn ? 'আজকের উপার্জন' : "Today's Earnings"}</span>
@@ -612,335 +877,6 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
           </div>
         </div>
       )}
-
-      {/* ── 4. MAIN WORKFLOW: RADAR WAITING SCREEN OR MISSION MODE ── */}
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Navigation Tab Bar */}
-        <div className="flex items-center gap-3.5 border-b border-slate-800/80 pb-4 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => setActiveTab('mission')}
-            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
-              activeTab === 'mission'
-                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
-                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
-            }`}
-          >
-            <Navigation className="w-4 h-4 text-emerald-300" />
-            <span>{isBn ? 'চলতি মিশন' : 'Active Mission'}</span>
-            {hasActiveMission && <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />}
-          </button>
-          <button
-            onClick={() => { setActiveTab('history'); loadHistory(); }}
-            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
-              activeTab === 'history'
-                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
-                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
-            }`}
-          >
-            <Clock className="w-4 h-4 text-cyan-300" />
-            <span>{isBn ? 'ডেলিভারি হিস্ট্রি' : 'Delivery History'}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('earnings')}
-            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
-              activeTab === 'earnings'
-                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
-                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
-            }`}
-          >
-            <DollarSign className="w-4 h-4 text-amber-300" />
-            <span>{isBn ? 'উপার্জন সামারি' : 'Earnings Overview'}</span>
-          </button>
-        </div>
-
-        {/* ── TAB 1: RADAR WAITING SCREEN OR ACTIVE MISSION ── */}
-        {activeTab === 'mission' && (
-          <div>
-            {!hasActiveMission ? (
-              openOrdersList.length > 0 ? (
-                /* AVAILABLE DISPATCH REQUEST CARDS */
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-black text-white flex items-center gap-2">
-                      <BellRing className="w-5 h-5 text-amber-400 animate-bounce" />
-                      {isBn ? `পিকআপের জন্য প্রস্তুত রাইড (${openOrdersList.length})` : `Available Dispatch Requests (${openOrdersList.length})`}
-                    </h3>
-                    <span className="text-xs text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
-                      Ready for Rider Pickup
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {openOrdersList.map((order: any) => {
-                      const storeName = order.items?.[0]?.product?.seller?.sellerProfile?.shopName || order.items?.[0]?.product?.seller?.name || 'DOHS Merchant Store';
-                      const customerAddress = `${order.address?.line1 || 'Block C'}, ${order.address?.area || 'Mohakhali DOHS'}`;
-                      const customerPhone = order.customerPhone || order.customer?.phone || '01306031982';
-                      const customerName = order.customer?.name || 'Resident Customer';
-                      const orderSummary = order.items?.map((i: any) => `${i.product?.name || 'Item'} (x${i.quantity})`).join(', ') || 'Grocery / Home Items';
-                      const earnings = order.netEarning || order.earnings || order.estimatedEarnings || Math.round((order.deliveryFee || 50) * 0.8);
-
-                      return (
-                        <div key={order.id} className="bg-slate-900 border-2 border-slate-800 hover:border-amber-500/50 p-6 rounded-3xl space-y-4 shadow-xl transition-all flex flex-col justify-between">
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                              <span className="font-mono font-black text-white text-sm">Order #{order.id.slice(-8).toUpperCase()}</span>
-                              <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/20">
-                                ৳{earnings} Earnings
-                              </span>
-                            </div>
-
-                            <div className="space-y-3 text-xs">
-                              {/* Merchant / Store */}
-                              <div className="flex items-start gap-2 text-slate-300">
-                                <Store className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                                <div>
-                                  <strong className="text-white block text-sm">{storeName}</strong>
-                                  <span className="text-slate-400">DOHS Central Market</span>
-                                </div>
-                              </div>
-
-                              {/* Customer & Address */}
-                              <div className="flex items-start gap-2 text-slate-300 pt-2 border-t border-slate-800/60">
-                                <MapPin className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                                <div>
-                                  <strong className="text-white block">{customerName}</strong>
-                                  <span className="text-slate-400 block">{customerAddress}</span>
-                                </div>
-                              </div>
-
-                              {/* Order Summary */}
-                              <div className="pt-2 border-t border-slate-800/60 space-y-1">
-                                <span className="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">Order Summary:</span>
-                                <p className="text-slate-200 font-medium truncate">{orderSummary}</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="pt-3 border-t border-slate-800 space-y-3">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-slate-400 font-bold">Total Amount:</span>
-                              <span className="text-white font-black text-sm">{formatCurrency(order.totalAmount)}</span>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                              <a
-                                href={`tel:${customerPhone}`}
-                                className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-2xl border border-slate-700 flex items-center justify-center gap-1.5 transition-all"
-                              >
-                                <Phone className="w-3.5 h-3.5" />
-                                <span>Call Customer</span>
-                              </a>
-
-                              <button
-                                type="button"
-                                onClick={() => setConfirmOrderToAccept(order)}
-                                disabled={actionLoading === order.id}
-                                className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
-                              >
-                                {actionLoading === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                                <span>Accept Delivery</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                /* RADAR SCANNING WAITING SCREEN */
-                <div className="bg-slate-900/70 p-12 md:p-16 rounded-3xl border border-slate-800 text-center space-y-6 shadow-2xl">
-                  <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
-                    <span className={`absolute inset-0 rounded-full ${isOnline ? 'bg-emerald-500/20 animate-ping' : 'bg-rose-500/10'}`} />
-                    <span className={`absolute inset-3 rounded-full ${isOnline ? 'bg-emerald-500/30 animate-pulse' : 'bg-rose-500/20'}`} />
-                    <div className={`relative w-20 h-20 rounded-2xl border flex items-center justify-center ${
-                      isOnline ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/40' : 'bg-rose-500/10 text-rose-400 border-rose-500/40'
-                    }`}>
-                      {isOnline ? <Radio className="w-10 h-10 animate-spin" /> : <WifiOff className="w-10 h-10" />}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-black text-white">
-                      {isOnline ? (isBn ? 'ডেলিভারি রিকুয়েস্টের জন্য অপেক্ষা করা হচ্ছে...' : 'Waiting for Delivery Request') : (isBn ? 'আপনি অফলাইনে আছেন' : 'You are Currently Offline')}
-                    </h3>
-                    <p className="text-slate-400 text-xs max-w-md mx-auto">
-                      {isOnline
-                        ? (isBn ? 'অনলাইন ও ফ্রি থাকুন। স্টোর অর্ডার ছাড়লেই সাথে সাথে ফুলস্ক্রিন রিকুয়েস্ট আসবে।' : 'Stay online to automatically receive delivery requests in Mohakhali DOHS area.')
-                        : (isBn ? 'নতুন রাইড পাওয়ার জন্য উপরে "GO ONLINE" বাটনে চাপ দিন।' : 'Click "GO ONLINE" button at the top to start receiving live delivery missions.')}
-                    </p>
-                  </div>
-
-                  {isOnline && (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full text-xs font-bold font-mono">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                      ONLINE • AVAILABLE • Listening for new dispatch requests...
-                    </div>
-                  )}
-                </div>
-              )
-            ) : (
-              /* ACTIVE MISSION MODE VIEW (OpenStreetMap PWA Navigation) */
-              <CurrentMissionView
-                mission={currentMission}
-                onMissionUpdate={() => {
-                  loadActiveMissions();
-                  loadStats();
-                }}
-              />
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 2: SIMPLE DELIVERY HISTORY (FILTERABLE CARDS ONLY - NO TABLES) ── */}
-        {activeTab === 'history' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                <Clock className="w-5 h-5 text-emerald-400" /> Completed Delivery History
-              </h3>
-              <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  placeholder="Search by order or customer..."
-                  value={historySearch}
-                  onChange={(e) => setHistorySearch(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-            </div>
-
-            {historyLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
-              </div>
-            ) : filteredHistory.length === 0 ? (
-              <p className="text-slate-400 text-xs py-10 text-center bg-slate-900/60 rounded-3xl border border-slate-800">
-                No past deliveries matching search.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredHistory.map((item: any) => (
-                  <div key={item.id} className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-lg">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                      <span className="font-black text-white text-sm">Order #{item.id.slice(-8).toUpperCase()}</span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                        DELIVERED
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-300 space-y-1">
-                      <p><strong className="text-slate-400">Customer:</strong> {item.customer?.name || 'Resident'}</p>
-                      <p><strong className="text-slate-400">Address:</strong> {item.address?.line1}, {item.address?.area}</p>
-                      <p><strong className="text-slate-400">Completed:</strong> {new Date(item.updatedAt || item.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
-                      <span className="text-slate-400 font-bold">Net Payout Earned</span>
-                      <span className="text-emerald-400 font-black text-base">{formatCurrency(item.netEarning || item.earnings || Math.round((item.deliveryFee || 50) * 0.8))}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 3: EARNINGS OVERVIEW & WITHDRAWALS ── */}
-        {activeTab === 'earnings' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-emerald-400" /> Financial Earnings & Payouts
-              </h3>
-              <button
-                onClick={() => setShowWithdrawModal(true)}
-                className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-2 shadow-lg shadow-emerald-950/50 transition-all"
-              >
-                <Wallet className="w-4 h-4" />
-                <span>{isBn ? '+ টাকা উত্তোলন রিকোয়েস্ট (Withdraw)' : '+ Request Withdrawal'}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
-                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Today's Earnings</span>
-                <p className="text-3xl font-black text-emerald-400">৳{formatCurrency(stats?.todayEarnings || 0)}</p>
-                <p className="text-[11px] text-slate-400 pt-1">{stats?.todayDeliveries || 0} completed rides</p>
-              </div>
-
-              <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
-                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Earnings</span>
-                <p className="text-3xl font-black text-white">৳{formatCurrency(stats?.totalEarnings || 0)}</p>
-                <p className="text-[11px] text-slate-400 pt-1">All time fleet payouts</p>
-              </div>
-
-              <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
-                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Withdrawable Balance</span>
-                <p className="text-3xl font-black text-amber-400">৳{formatCurrency(availableBalance > 0 ? availableBalance : (stats?.totalEarnings || 0))}</p>
-                <p className="text-[11px] text-emerald-400 pt-1 font-semibold">Available for payout</p>
-              </div>
-
-              <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
-                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Withdrawals</span>
-                <p className="text-3xl font-black text-cyan-400">{withdrawals.length} Reqs</p>
-                <p className="text-[11px] text-slate-400 pt-1">Payout history</p>
-              </div>
-            </div>
-
-            {/* Withdrawal History Section */}
-            <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 className="font-extrabold text-white text-sm flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-indigo-400" />
-                  {isBn ? 'আপনার উইথড্রয়াল আবেদনসমূহ' : 'My Withdrawal Requests'}
-                </h4>
-                <span className="text-xs text-slate-400 font-mono">{withdrawals.length} total</span>
-              </div>
-
-              {withdrawals.length === 0 ? (
-                <div className="py-8 text-center text-slate-400 text-xs space-y-2">
-                  <Wallet className="w-8 h-8 text-slate-600 mx-auto" />
-                  <p>{isBn ? 'এখনও কোনো উইথড্রয়াল আবেদন করা হয়নি।' : 'No withdrawal requests submitted yet.'}</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-800">
-                  {withdrawals.map((w: any) => (
-                    <div key={w.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-white text-sm">৳{formatCurrency(w.amount)}</span>
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                            w.status === 'PAID' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
-                            w.status === 'APPROVED' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
-                            w.status === 'REJECTED' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' :
-                            'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                          }`}>
-                            {w.status}
-                          </span>
-                        </div>
-                        <p className="text-slate-400">
-                          {w.paymentMethod} ({w.accountNumber}) • Requested on {new Date(w.requestedAt).toLocaleDateString()}
-                        </p>
-                        {w.transactionId && (
-                          <p className="text-emerald-400 font-mono text-[11px]">Trx ID: {w.transactionId}</p>
-                        )}
-                        {w.adminNote && (
-                          <p className="text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] inline-block">
-                            Admin Note: {w.adminNote}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right text-[11px] text-slate-500">
-                        REQ #{w.id.slice(-6).toUpperCase()}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* ── Request Withdrawal Modal ── */}
       {showWithdrawModal && (
