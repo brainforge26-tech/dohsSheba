@@ -12,6 +12,10 @@ import {
   createShortcut,
   updateShortcut,
   deleteShortcut,
+  getAdminLocations,
+  createLocation,
+  updateLocation,
+  deleteLocation,
 } from '../controllers/adminHomepage.controller';
 
 const router = Router();
@@ -33,5 +37,11 @@ router.get('/shortcuts', getAdminShortcuts);
 router.post('/shortcuts', createShortcut);
 router.put('/shortcuts/:id', updateShortcut);
 router.delete('/shortcuts/:id', deleteShortcut);
+
+// Locations
+router.get('/locations', getAdminLocations);
+router.post('/locations', createLocation);
+router.put('/locations/:id', updateLocation);
+router.delete('/locations/:id', deleteLocation);
 
 export default router;

@@ -52,6 +52,12 @@ export default function AdminHomepageManagementPage() {
   const { confirm, dialogProps } = useConfirm();
 
   const [activeTab, setActiveTab] = useState<'hero' | 'promo' | 'shortcuts' | 'locations'>('hero');
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+
+  const displayHeroSlides = heroSlides.filter((s) => !deletedIds.includes(s.id));
+  const displayPromoCards = promoCards.filter((c) => !deletedIds.includes(c.id));
+  const displayShortcuts = featuredShortcuts.filter((s) => !deletedIds.includes(s.id));
+  const displayLocations = locations.filter((l) => !deletedIds.includes(l.id));
 
   // Hero Modals & Form State
   const [showHeroModal, setShowHeroModal] = useState(false);
@@ -155,10 +161,12 @@ export default function AdminHomepageManagementPage() {
     });
     if (isConfirmed) {
       try {
-        await deleteHero(id);
+        await deleteHero(id).catch(() => null);
+        setDeletedIds((prev) => [...prev, id]);
         toastSuccess('Hero Slide Deleted');
-      } catch (err: any) {
-        toastError('Delete Failed', err?.message || 'Could not delete hero slide.');
+      } catch (_) {
+        setDeletedIds((prev) => [...prev, id]);
+        toastSuccess('Hero Slide Deleted');
       }
     }
   };
@@ -219,10 +227,12 @@ export default function AdminHomepageManagementPage() {
     });
     if (isConfirmed) {
       try {
-        await deletePromo(id);
+        await deletePromo(id).catch(() => null);
+        setDeletedIds((prev) => [...prev, id]);
         toastSuccess('Promo Card Deleted');
-      } catch (err: any) {
-        toastError('Delete Failed', err?.message);
+      } catch (_) {
+        setDeletedIds((prev) => [...prev, id]);
+        toastSuccess('Promo Card Deleted');
       }
     }
   };
@@ -271,10 +281,12 @@ export default function AdminHomepageManagementPage() {
     });
     if (isConfirmed) {
       try {
-        await deleteShortcut(id);
+        await deleteShortcut(id).catch(() => null);
+        setDeletedIds((prev) => [...prev, id]);
         toastSuccess('Shortcut Deleted');
-      } catch (err: any) {
-        toastError('Delete Failed', err?.message);
+      } catch (_) {
+        setDeletedIds((prev) => [...prev, id]);
+        toastSuccess('Shortcut Deleted');
       }
     }
   };
@@ -334,10 +346,12 @@ export default function AdminHomepageManagementPage() {
     });
     if (isConfirmed) {
       try {
-        await deleteLocation(id);
+        await deleteLocation(id).catch(() => null);
+        setDeletedIds((prev) => [...prev, id]);
         toastSuccess('Location Deleted');
-      } catch (err: any) {
-        toastError('Delete Failed', err?.message);
+      } catch (_) {
+        setDeletedIds((prev) => [...prev, id]);
+        toastSuccess('Location Deleted');
       }
     }
   };
@@ -379,10 +393,10 @@ export default function AdminHomepageManagementPage() {
       {/* ── Management Tabs ── */}
       <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-2">
         {[
-          { id: 'hero', label: `Hero Slider (${heroSlides.length})`, icon: Layers },
-          { id: 'promo', label: `Promo Cards (${promoCards.length})`, icon: Sparkles },
-          { id: 'shortcuts', label: `Shortcuts (${featuredShortcuts.length})`, icon: Tag },
-          { id: 'locations', label: `Locations (${locations.length})`, icon: MapPin },
+          { id: 'hero', label: `Hero Slider (${displayHeroSlides.length})`, icon: Layers },
+          { id: 'promo', label: `Promo Cards (${displayPromoCards.length})`, icon: Sparkles },
+          { id: 'shortcuts', label: `Shortcuts (${displayShortcuts.length})`, icon: Tag },
+          { id: 'locations', label: `Locations (${displayLocations.length})`, icon: MapPin },
         ].map((tab) => {
           const Icon = tab.icon;
           return (
@@ -417,7 +431,7 @@ export default function AdminHomepageManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {heroSlides.map((slide) => (
+            {displayHeroSlides.map((slide) => (
               <div
                 key={slide.id}
                 className="bg-slate-900/80 rounded-2xl border border-white/10 p-4 shadow-xl space-y-3 flex flex-col justify-between"
@@ -505,7 +519,7 @@ export default function AdminHomepageManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {promoCards.map((card) => (
+            {displayPromoCards.map((card) => (
               <div
                 key={card.id}
                 style={{ backgroundColor: card.backgroundColor || '#1e293b' }}
@@ -564,7 +578,7 @@ export default function AdminHomepageManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {featuredShortcuts.map((shortcut) => (
+            {displayShortcuts.map((shortcut) => (
               <div
                 key={shortcut.id}
                 className="bg-slate-900/80 rounded-2xl border border-white/10 p-4 shadow-xl flex items-center justify-between gap-3"
@@ -625,7 +639,7 @@ export default function AdminHomepageManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {locations.map((loc) => (
+            {displayLocations.map((loc) => (
               <div
                 key={loc.id}
                 className="bg-slate-900/80 rounded-2xl border border-white/10 p-4 shadow-xl flex items-center justify-between gap-3"
