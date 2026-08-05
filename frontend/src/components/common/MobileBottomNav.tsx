@@ -7,6 +7,7 @@ import { Home, LayoutGrid, Search, ShoppingBag, User } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useLanguageStore } from '@/store/useLanguageStore';
+import { useSearchStore } from '@/store/useSearchStore';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export function MobileBottomNav() {
 
   const { getTotalCount, openCart } = useCartStore();
   const { user, role } = useAuthStore();
+  const { openSearch } = useSearchStore();
   const cartCount = mounted ? getTotalCount() : 0;
 
   const getAccountHref = () => {
@@ -51,8 +53,8 @@ export function MobileBottomNav() {
       id: 'search',
       label: isBn ? 'সার্চ' : 'Search',
       icon: Search,
-      href: '/search',
-      isActive: pathname === '/search',
+      onClick: () => openSearch(),
+      isActive: false,
     },
     {
       id: 'cart',
