@@ -70,12 +70,21 @@ export default function CategoryPage() {
         ]}
       />
 
+      {/* Top Mobile Subcategories Chips & Menu Drawer Toggle Bar */}
+      <MobileCategoryBar
+        currentCategorySlug={categorySlug}
+        subcategories={subcategories}
+        basePath="/category"
+      />
+
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Sidebar (Matches Chaldal Navigation Tree) */}
-        <SidebarCategoryMenu
-          currentCategorySlug={categorySlug}
-          basePath="/category"
-        />
+        {/* Left Sidebar (Desktop Only) */}
+        <div className="hidden lg:block shrink-0 w-64">
+          <SidebarCategoryMenu
+            currentCategorySlug={categorySlug}
+            basePath="/category"
+          />
+        </div>
 
         {/* Main Content Area */}
         <main className="flex-1 space-y-6 min-w-0">

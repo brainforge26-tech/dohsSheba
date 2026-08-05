@@ -7,15 +7,16 @@ import { getApiBaseUrl } from '@/lib/api-client';
 import {
   ChevronDown,
   ChevronRight,
-  Sparkles,
-  Ticket,
   Percent,
   Heart,
   Flame,
   Star,
   Layers,
-  ShoppingBag,
-  Award
+  Award,
+  Menu,
+  X,
+  SlidersHorizontal,
+  Grid
 } from 'lucide-react';
 
 interface SubCategory {
@@ -37,12 +38,14 @@ interface SidebarCategoryMenuProps {
   currentCategorySlug?: string;
   currentSubCategorySlug?: string;
   basePath?: string;
+  onItemClick?: () => void;
 }
 
 export function SidebarCategoryMenu({
   currentCategorySlug,
   currentSubCategorySlug,
   basePath = '/category',
+  onItemClick,
 }: SidebarCategoryMenuProps) {
   const pathname = usePathname();
   const [categories, setCategories] = useState<CategoryNode[]>([]);
@@ -54,11 +57,9 @@ export function SidebarCategoryMenu({
       .then((r) => r.json())
       .then((res) => {
         if (res?.success && Array.isArray(res.data)) {
-          // Filter to top-level parent categories (no parentId or matching parent structure)
           const parents = res.data.filter((c: any) => !c.parentId);
           setCategories(parents);
 
-          // Auto-expand current active parent category
           if (currentCategorySlug) {
             const activeParent = parents.find(
               (p: any) => p.slug.toLowerCase() === currentCategorySlug.toLowerCase()
@@ -79,8 +80,8 @@ export function SidebarCategoryMenu({
   };
 
   return (
-    <aside className="w-full lg:w-64 bg-white border border-slate-200/80 rounded-2xl p-4 space-y-5 shadow-xs shrink-0 font-sans">
-      {/* ── Top Rewards Banner (Matches Chaldal Loyalty Card) ── */}
+    <aside className="w-full bg-white border border-slate-200/80 rounded-2xl p-4 space-y-5 shadow-xs font-sans">
+      {/* ── Top Rewards Banner ── */}
       <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-100 via-amber-50 to-orange-100 border border-amber-200/80 flex items-center justify-between shadow-2xs">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-lg bg-amber-500 text-white shadow-xs">
@@ -96,10 +97,11 @@ export function SidebarCategoryMenu({
         </span>
       </div>
 
-      {/* ── Quick Nav Items (Matches Chaldal Left Menu) ── */}
+      {/* ── Quick Nav Items ── */}
       <div className="space-y-1 pb-3 border-b border-slate-100 text-xs font-bold">
         <Link
           href="/services/shopping/coupons"
+          onClick={onItemClick}
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-purple-700 transition-colors"
         >
           <Percent className="w-4 h-4 text-emerald-600" />
@@ -107,6 +109,7 @@ export function SidebarCategoryMenu({
         </Link>
         <Link
           href="/dashboard/wishlist"
+          onClick={onItemClick}
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-purple-700 transition-colors"
         >
           <Heart className="w-4 h-4 text-rose-500" />
@@ -114,6 +117,7 @@ export function SidebarCategoryMenu({
         </Link>
         <Link
           href="/services/shopping?sort=popular"
+          onClick={onItemClick}
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-purple-700 transition-colors"
         >
           <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
@@ -121,6 +125,7 @@ export function SidebarCategoryMenu({
         </Link>
         <Link
           href="/services/shopping?flashSale=true"
+          onClick={onItemClick}
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-50 hover:text-purple-700 transition-colors"
         >
           <Flame className="w-4 h-4 text-orange-500" />
@@ -128,7 +133,7 @@ export function SidebarCategoryMenu({
         </Link>
       </div>
 
-      {/* ── Categories Tree Header ── */}
+      {/* ── Categories Tree ── */}
       <div className="space-y-2">
         <div className="px-3 text-[11px] font-black uppercase tracking-wider text-slate-400">
           Categories
@@ -153,6 +158,7 @@ export function SidebarCategoryMenu({
                 >
                   <Link
                     href={`${basePath}/${parent.slug}`}
+                    onClick={onItemClick}
                     className="flex-1 truncate flex items-center gap-2"
                   >
                     <Layers className={`w-3.5 h-3.5 ${isParentActive ? 'text-purple-600' : 'text-slate-400 group-hover:text-purple-600'}`} />
@@ -174,7 +180,7 @@ export function SidebarCategoryMenu({
                   )}
                 </div>
 
-                {/* Subcategories List (Indented under parent) */}
+                {/* Subcategories List */}
                 {hasChildren && isExpanded && (
                   <div className="pl-6 space-y-1 border-l-2 border-slate-100 ml-3">
                     {parent.children!.map((sub) => {
@@ -184,6 +190,7 @@ export function SidebarCategoryMenu({
                         <Link
                           key={sub.id}
                           href={`${basePath}/${parent.slug}/${sub.slug}`}
+                          onClick={onItemClick}
                           className={`block px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                             isSubActive
                               ? 'bg-purple-100/70 text-purple-800 font-extrabold shadow-2xs'
@@ -202,5 +209,105 @@ export function SidebarCategoryMenu({
         </nav>
       </div>
     </aside>
+  );
+}
+
+// ── Mobile Drawer & Top Category Chips Bar Component ──
+interface MobileCategoryBarProps {
+  currentCategorySlug: string;
+  currentSubCategorySlug?: string;
+  subcategories?: SubCategory[];
+  basePath?: string;
+}
+
+export function MobileCategoryBar({
+  currentCategorySlug,
+  currentSubCategorySlug,
+  subcategories = [],
+  basePath = '/category',
+}: MobileCategoryBarProps) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  return (
+    <div className="lg:hidden space-y-3 mb-4">
+      {/* Top Mobile Bar: Menu Drawer Button + Horizontal Subcategory Chips */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {/* Menu Drawer Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-700 text-white font-extrabold text-xs shadow-xs active:scale-95 transition-transform"
+        >
+          <Menu className="w-4 h-4" />
+          <span>Categories</span>
+        </button>
+
+        {/* All / Parent Pill */}
+        <Link
+          href={`${basePath}/${currentCategorySlug}`}
+          className={`shrink-0 px-3 py-2 rounded-xl text-xs font-extrabold transition-all border ${
+            !currentSubCategorySlug
+              ? 'bg-purple-100 text-purple-800 border-purple-300 shadow-2xs'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          All Items
+        </Link>
+
+        {/* Subcategories Horizontal Scroll Chips */}
+        {subcategories.map((sub) => {
+          const isSubActive =
+            currentSubCategorySlug?.toLowerCase() === sub.slug.toLowerCase();
+          return (
+            <Link
+              key={sub.id}
+              href={`${basePath}/${currentCategorySlug}/${sub.slug}`}
+              className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
+                isSubActive
+                  ? 'bg-purple-700 text-white border-purple-700 shadow-xs'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {sub.name}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Slide-over Drawer Modal for Mobile */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Backdrop Blur Overlay */}
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setDrawerOpen(false)}
+          />
+
+          {/* Drawer Content */}
+          <div className="relative w-4/5 max-w-xs bg-white h-full shadow-2xl overflow-y-auto z-10 p-4 space-y-4 font-sans animate-in slide-in-from-left duration-300">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2 font-black text-slate-900 text-sm">
+                <Grid className="w-4 h-4 text-purple-700" />
+                <span>Category Navigation</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <SidebarCategoryMenu
+              currentCategorySlug={currentCategorySlug}
+              currentSubCategorySlug={currentSubCategorySlug}
+              basePath={basePath}
+              onItemClick={() => setDrawerOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

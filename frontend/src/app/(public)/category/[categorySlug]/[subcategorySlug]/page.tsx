@@ -64,6 +64,7 @@ export default function SubCategoryProductPage() {
 
   const parentName = parentCat?.name || categorySlug.replace(/-/g, ' ').toUpperCase();
   const subName = subCat?.name || subcategorySlug.replace(/-/g, ' ').toUpperCase();
+  const subcategories = parentCat?.children || [];
 
   return (
     <div className="py-6 px-4 max-w-7xl mx-auto space-y-6 font-sans text-slate-800">
@@ -76,13 +77,23 @@ export default function SubCategoryProductPage() {
         ]}
       />
 
+      {/* Top Mobile Subcategories Chips & Menu Drawer Toggle Bar */}
+      <MobileCategoryBar
+        currentCategorySlug={categorySlug}
+        currentSubCategorySlug={subcategorySlug}
+        subcategories={subcategories}
+        basePath="/category"
+      />
+
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Sidebar (Highlighting Active Subcategory in Tree) */}
-        <SidebarCategoryMenu
-          currentCategorySlug={categorySlug}
-          currentSubCategorySlug={subcategorySlug}
-          basePath="/category"
-        />
+        {/* Left Sidebar (Desktop Only) */}
+        <div className="hidden lg:block shrink-0 w-64">
+          <SidebarCategoryMenu
+            currentCategorySlug={categorySlug}
+            currentSubCategorySlug={subcategorySlug}
+            basePath="/category"
+          />
+        </div>
 
         {/* Main Product Content Area */}
         <main className="flex-1 space-y-6 min-w-0">
