@@ -14,6 +14,8 @@ export interface ProductCardProps {
   price: number;
   originalPrice?: number;
   unit?: string;
+  unitAmount?: number;
+  amount?: number;
   image?: string;
   badge?: string;
   rating?: number;
@@ -29,7 +31,9 @@ export function ProductCard({
   slug,
   price,
   originalPrice,
-  unit = 'each',
+  unit = 'unit',
+  unitAmount,
+  amount,
   image = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80',
   badge,
   rating = 4.5,
@@ -45,6 +49,11 @@ export function ProductCard({
   const { success: toastSuccess } = useToast();
 
   const isLiked = isInWishlist(id);
+
+  const rawAmt = unitAmount ?? amount;
+  const displayUnit = (rawAmt !== undefined && rawAmt !== null && rawAmt !== 0 && !isNaN(Number(rawAmt)))
+    ? `${rawAmt} ${unit}`
+    : unit;
 
   const incrementQty = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -164,7 +173,7 @@ export function ProductCard({
               ৳{price.toFixed(2)}
             </span>
             <span className="text-slate-400 text-xs font-normal">
-              / {unit}
+              / {displayUnit}
             </span>
             {originalPrice && (
               <span className="line-through text-slate-300 text-[11px] ml-1">
@@ -187,7 +196,7 @@ export function ProductCard({
                 ৳{price.toFixed(2)}
               </span>
               <span className="text-slate-400 text-[10px] font-normal">
-                / {unit}
+                / {displayUnit}
               </span>
               {originalPrice && (
                 <span className="line-through text-slate-300 text-[10px] ml-1">

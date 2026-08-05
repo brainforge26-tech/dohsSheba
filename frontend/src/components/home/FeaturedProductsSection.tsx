@@ -118,6 +118,7 @@ export function FeaturedProductsSection() {
                   price={Number(p.price || 0)}
                   originalPrice={originalPrice}
                   unit={p.unit || 'unit'}
+                  unitAmount={p.unitAmount ?? p.amount}
                   image={prodImage}
                   rating={Number(p.rating || 4.8)}
                   categorySlug={p.category?.slug}

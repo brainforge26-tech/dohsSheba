@@ -173,6 +173,7 @@ export default function SubCategoryProductPage() {
                     price={Number(p.price || 0)}
                     originalPrice={p.discount > 0 ? Math.round(Number(p.price) / (1 - Number(p.discount) / 100)) : undefined}
                     unit={p.unit || 'unit'}
+                    unitAmount={p.unitAmount ?? p.amount}
                     image={Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : (p.image || undefined)}
                     rating={Number(p.rating || 4.5)}
                     categorySlug={subcategorySlug}

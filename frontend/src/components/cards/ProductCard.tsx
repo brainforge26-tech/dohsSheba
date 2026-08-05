@@ -96,7 +96,13 @@ export function ProductCard({ product }: ProductCardProps) {
               {product.title}
             </h3>
           </Link>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{product.unit}</p>
+          {(() => {
+            const rawAmt = (product as any).unitAmount ?? (product as any).amount;
+            const displayUnit = (rawAmt !== undefined && rawAmt !== null && rawAmt !== 0 && !isNaN(Number(rawAmt)))
+              ? `${rawAmt} ${product.unit}`
+              : product.unit;
+            return <p className="text-[11px] text-muted-foreground mt-0.5">{displayUnit}</p>;
+          })()}
         </div>
 
         {/* Price & Cart Control */}

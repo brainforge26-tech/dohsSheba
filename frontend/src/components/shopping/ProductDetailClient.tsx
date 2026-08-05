@@ -60,6 +60,12 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
           const origPrice = p.discount > 0 ? Math.round(p.price / (1 - p.discount / 100)) : undefined;
           const catSlug = p.category?.slug || p.categorySlug || initialProduct.categorySlug || 'groceries';
 
+          const rawAmt = p.unitAmount ?? p.amount ?? initialProduct?.unitAmount;
+          const rawUnit = p.unit || initialProduct?.unit || 'unit';
+          const formattedUnit = (rawAmt !== undefined && rawAmt !== null && rawAmt !== 0 && !isNaN(Number(rawAmt)))
+            ? `${rawAmt} ${rawUnit}`
+            : rawUnit;
+
           setProduct({
             id: p.id,
             title: p.name || p.title || initialProduct.title,
@@ -69,7 +75,7 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
             shopName: p.seller?.sellerProfile?.shopName || p.seller?.name || p.shopName || 'Savar DOHS Market',
             price: p.price ?? initialProduct.price,
             originalPrice: origPrice,
-            unit: p.unit || initialProduct.unit || '1 unit',
+            unit: formattedUnit,
             rating: p.rating || 4.8,
             reviewCount: p.totalReviews || p.reviewCount || 24,
             image: images[0],
