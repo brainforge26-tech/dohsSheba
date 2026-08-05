@@ -140,7 +140,7 @@ export function CategorySideDrawer() {
           <div className="flex-1 overflow-y-auto py-2 divide-y divide-slate-100">
             {categories.map((cat) => {
               const isSelected = activeCategorySlug === cat.slug;
-              const linkHref = `/services/shopping/${cat.slug}`;
+              const linkHref = `/category/${cat.slug}`;
 
               return (
                 <div
@@ -198,7 +198,7 @@ export function CategorySideDrawer() {
                 <p className="text-xs text-slate-400">Explore subcategories and fresh bazaar items</p>
               </div>
               <Link
-                href={`/services/shopping/${currentCategory.slug}`}
+                href={`/category/${currentCategory.slug}`}
                 onClick={closeDrawer}
                 className="text-xs font-bold text-[#7eb343] hover:underline flex items-center gap-1"
               >
@@ -216,7 +216,7 @@ export function CategorySideDrawer() {
                   {subCategories.map((sub) => (
                     <Link
                       key={sub.id}
-                      href={`/services/shopping/${sub.slug}`}
+                      href={`/category/${currentCategory.slug}/${sub.slug}`}
                       onClick={closeDrawer}
                       className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 hover:border-[#7eb343] hover:bg-emerald-50/50 transition-all group shadow-2xs"
                     >
@@ -248,7 +248,7 @@ export function CategorySideDrawer() {
                   45-Min Doorstep Delivery in DOHS
                 </h4>
                 <Link
-                  href={`/services/shopping/${currentCategory.slug}`}
+                  href={`/category/${currentCategory.slug}`}
                   onClick={closeDrawer}
                   className="inline-block px-4 py-1.5 rounded-lg bg-white text-emerald-800 font-bold text-xs shadow-2xs transition-all active:scale-95 hover:bg-slate-100"
                 >

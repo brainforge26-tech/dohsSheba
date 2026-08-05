@@ -146,22 +146,22 @@ export function Footer() {
           </h4>
           <ul className="space-y-2 text-xs font-medium text-slate-600">
             <li>
-              <Link href="/services/shopping/vegetables" className="hover:text-[#7eb343] transition-colors">
+              <Link href="/category/fresh-fruits-vegetables" className="hover:text-[#7eb343] transition-colors">
                 Fresh Vegetables & Fruits
               </Link>
             </li>
             <li>
-              <Link href="/services/shopping/meat" className="hover:text-[#7eb343] transition-colors">
+              <Link href="/category/meat-fish-seafood" className="hover:text-[#7eb343] transition-colors">
                 Fresh Meat & Poultry
               </Link>
             </li>
             <li>
-              <Link href="/services/shopping/fish" className="hover:text-[#7eb343] transition-colors">
+              <Link href="/category/meat-fish-seafood" className="hover:text-[#7eb343] transition-colors">
                 Fresh River Fish
               </Link>
             </li>
             <li>
-              <Link href="/services/shopping/dairy" className="hover:text-[#7eb343] transition-colors">
+              <Link href="/category/dairy-eggs-bakery" className="hover:text-[#7eb343] transition-colors">
                 Milk & Dairy Products
               </Link>
             </li>
@@ -171,7 +171,7 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/services/shopping/rice" className="hover:text-[#7eb343] transition-colors">
+              <Link href="/category/household-daily-cleaning" className="hover:text-[#7eb343] transition-colors">
                 Rice, Oil & Spices
               </Link>
             </li>

@@ -54,7 +54,7 @@ export function LeftCategoryRail() {
         {categories.slice(0, 7).map((item) => (
           <Link
             key={item.id}
-            href={`/services/shopping/${item.slug}`}
+            href={`/category/${item.slug}`}
             title={item.name}
             className="relative group p-1.5 rounded-xl transition-all text-slate-600 hover:text-[#7eb343] hover:bg-slate-50"
           >

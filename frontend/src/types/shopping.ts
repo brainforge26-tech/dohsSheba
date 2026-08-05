@@ -1,4 +1,5 @@
 export type ProductCategorySlug =
+  | string
   | 'groceries'
   | 'vegetables'
   | 'fruits'
@@ -9,10 +10,12 @@ export type ProductCategorySlug =
   | 'rice'
   | 'oil'
   | 'beverages'
-  | 'health-beauty'
-  | 'gadgets'
-  | 'household'
-  | 'mother-baby';
+  | 'fresh-fruits-vegetables'
+  | 'meat-fish-seafood'
+  | 'dairy-eggs-bakery'
+  | 'household-daily-cleaning'
+  | 'personal-care-beauty'
+  | 'snacks-beverages-drinks';
 
 export interface ProductCategory {
   id: string;

@@ -36,7 +36,7 @@ export function HeroBanner() {
       title: 'Pure Farm Milk & Organic Daily Eggs',
       subtitle: 'Pure organic dairy & daily essentials delivered straight to your door in 45 minutes.',
       buttonText: 'Order Now',
-      buttonLink: '/services/shopping/dairy',
+      buttonLink: '/category/dairy-eggs-bakery',
       backgroundImage: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=1000&auto=format&fit=crop&q=80',
       badge: 'Daily Fresh Farm Market',
       discountPercentage: 15,
@@ -48,7 +48,7 @@ export function HeroBanner() {
       title: 'Farm Fresh Organic Vegetables & Fruits',
       subtitle: '100% chemical-free organic produce harvested daily for DOHS residents.',
       buttonText: 'Explore Produce',
-      buttonLink: '/services/shopping/vegetables',
+      buttonLink: '/category/fresh-fruits-vegetables',
       backgroundImage: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1000&auto=format&fit=crop&q=80',
       badge: '100% Organic',
       discountPercentage: 20,
@@ -65,7 +65,7 @@ export function HeroBanner() {
       image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&auto=format&fit=crop&q=80',
       discount: '-35%',
       buttonText: 'Shop Now',
-      buttonUrl: '/services/shopping/beverages',
+      buttonUrl: '/category/snacks-beverages-drinks',
       backgroundColor: '#b5d8f7',
     },
     {
@@ -75,7 +75,7 @@ export function HeroBanner() {
       image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=500&auto=format&fit=crop&q=80',
       discount: '-15%',
       buttonText: 'Buy Now',
-      buttonUrl: '/services/shopping/meat',
+      buttonUrl: '/category/meat-fish-seafood',
       backgroundColor: '#f9da8b',
     },
   ];
@@ -85,19 +85,19 @@ export function HeroBanner() {
       id: 'fs_1',
       title: '-35% on Energy Drinks',
       icon: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=100&auto=format&fit=crop&q=80',
-      link: '/services/shopping/beverages',
+      link: '/category/snacks-beverages-drinks',
     },
     {
       id: 'fs_2',
       title: 'New Frozen Veg',
       icon: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=100&auto=format&fit=crop&q=80',
-      link: '/services/shopping/vegetables',
+      link: '/category/fresh-fruits-vegetables',
     },
     {
       id: 'fs_3',
       title: 'Save up 30% on milk',
       icon: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100&auto=format&fit=crop&q=80',
-      link: '/services/shopping/dairy',
+      link: '/category/dairy-eggs-bakery',
     },
     {
       id: 'fs_4',
@@ -138,7 +138,7 @@ export function HeroBanner() {
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>Promotions</span>
             </Link>
-            <Link href="/services/shopping/dairy" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
+            <Link href="/category/dairy-eggs-bakery" className="flex items-center gap-1.5 hover:text-[#7eb343] transition-colors whitespace-nowrap">
               <Milk className="w-3.5 h-3.5 text-blue-500" />
               <span>Ideas For Breakfast</span>
             </Link>

@@ -164,7 +164,7 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
         <ChevronRight className="w-3.5 h-3.5" />
         <Link href="/services/shopping" className="hover:text-emerald-600">Shopping</Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <Link href={`/services/shopping/${product.categorySlug}`} className="hover:text-emerald-600">
+        <Link href={`/category/${product.categorySlug}`} className="hover:text-emerald-600">
           {product.categoryName}
         </Link>
         <ChevronRight className="w-3.5 h-3.5" />
@@ -324,7 +324,7 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
               </h2>
             </div>
             <Link
-              href={`/services/shopping/${product.categorySlug}`}
+              href={`/category/${product.categorySlug}`}
               className="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1"
             >
               See All in {product.categoryName} <ChevronRight className="w-3.5 h-3.5" />

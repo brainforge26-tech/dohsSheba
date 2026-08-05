@@ -27,6 +27,7 @@ import { SHOPPING_CATEGORIES } from '@/constants/products';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 import { useSearchStore } from '@/store/useSearchStore';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 import { useEffect } from 'react';
 
@@ -40,10 +41,29 @@ export function Header() {
   const [megaMenuOpen, setMegaMenuOpen] = useState<'service' | 'shopping' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState<'all' | 'services' | 'shopping'>('all');
+  const [apiCategories, setApiCategories] = useState<any[]>([]);
 
   useEffect(() => {
     setMounted(true);
+    const API = getApiBaseUrl();
+    fetch(`${API}/product-categories`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (res?.success && Array.isArray(res.data)) {
+          setApiCategories(res.data);
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  const displayCategories = apiCategories.length > 0
+    ? apiCategories.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        itemCount: c._count?.products ?? (Array.isArray(c.products) ? c.products.length : 0),
+      }))
+    : SHOPPING_CATEGORIES;
 
   const { getTotalCount, openCart } = useCartStore();
   const { user, role, logout } = useAuthStore();
@@ -229,10 +249,10 @@ export function Header() {
                       Grocery & Daily Needs
                     </div>
                     <div className="grid grid-cols-1 gap-1 mt-1">
-                      {SHOPPING_CATEGORIES.slice(0, 6).map((pcat) => (
+                      {displayCategories.slice(0, 8).map((pcat) => (
                         <Link
                           key={pcat.id}
-                          href={`/services/shopping/${pcat.slug}`}
+                          href={`/category/${pcat.slug}`}
                           onClick={() => setMegaMenuOpen(null)}
                           className="flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary transition-colors group"
                         >
@@ -435,10 +455,10 @@ export function Header() {
 
               {mobileSubmenuOpen === 'shopping' && (
                 <div className="px-3 pb-3 space-y-1 bg-secondary/30 border-t border-border/50 animate-in fade-in duration-200 pt-2">
-                  {SHOPPING_CATEGORIES.map((pcat) => (
+                  {displayCategories.map((pcat) => (
                     <Link
                       key={pcat.id}
-                      href={`/services/shopping/${pcat.slug}`}
+                      href={`/category/${pcat.slug}`}
                       onClick={() => {
                         setMobileMenuOpen(false);
                         setMobileSubmenuOpen(null);

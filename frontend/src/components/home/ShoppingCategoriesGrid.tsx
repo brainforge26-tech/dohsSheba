@@ -182,7 +182,7 @@ export function ShoppingCategoriesGrid() {
               : categories.map((cat) => (
                   <Link
                     key={cat.id}
-                    href={`/services/shopping/${cat.slug}`}
+                    href={`/category/${cat.slug}`}
                     onClick={(e) => { if (isDragging) e.preventDefault(); }}
                     className="flex flex-col items-center group/item shrink-0 w-24 sm:w-28 text-center transition-transform hover:-translate-y-1 duration-200"
                   >

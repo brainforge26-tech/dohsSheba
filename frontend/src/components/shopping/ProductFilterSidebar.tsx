@@ -82,7 +82,7 @@ export function ProductFilterSidebar({
           {SHOPPING_CATEGORIES.map((cat) => (
             <Link
               key={cat.id}
-              href={`/services/shopping/${cat.slug}`}
+              href={`/category/${cat.slug}`}
               className={`block px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                 currentCategorySlug === cat.slug
                   ? 'bg-emerald-600 text-white font-bold shadow-sm'
