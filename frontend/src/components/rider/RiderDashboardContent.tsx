@@ -694,7 +694,7 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
                           <div className="pt-3 border-t border-slate-800 space-y-3">
                             <div className="flex items-center justify-between text-xs">
                               <span className="text-slate-400 font-bold">Total Amount:</span>
-                              <span className="text-white font-black text-sm">৳{formatCurrency(order.totalAmount)}</span>
+                              <span className="text-white font-black text-sm">{formatCurrency(order.totalAmount)}</span>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">

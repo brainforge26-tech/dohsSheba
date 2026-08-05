@@ -22,6 +22,7 @@ router.get('/orders/:id/assigned-rider', riderController.getAssignedRiderByOrder
 router.get('/orders/:id/location-history', riderController.getLocationHistory);
 router.post('/orders/:id/accept',      riderController.acceptOrder);
 router.patch('/orders/:id/accept',     riderController.acceptOrder);
+router.patch('/orders/:id/status',     riderController.updateOrderStatus);
 // ─── Withdrawal Requests ──────────────────────────────────────────────────────
 router.get('/withdraw',  riderController.getWithdrawalHistory);
 router.post('/withdraw', riderController.requestWithdrawal);

@@ -341,7 +341,7 @@ export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionV
 
           <div className="flex items-center justify-between text-xs pt-1">
             <span className="text-slate-400 font-bold">Collect Cash on Delivery:</span>
-            <span className="font-black text-white text-base">৳{formatCurrency(mission.totalAmount)}</span>
+            <span className="font-black text-white text-base">{formatCurrency(mission.totalAmount)}</span>
           </div>
         </div>
 
