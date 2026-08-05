@@ -510,8 +510,8 @@ export function CheckoutClient() {
                   </div>
                 ) : (
                   /* Coupon input + Apply */
-                  <div className="space-y-1.5">
-                    <div className="flex gap-2">
+                  <div className="space-y-1.5 w-full">
+                    <div className="relative flex items-center w-full min-w-0">
                       <input
                         type="text"
                         value={couponInput}
@@ -522,13 +522,13 @@ export function CheckoutClient() {
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
                         placeholder="Enter code e.g. DOHS10"
                         maxLength={30}
-                        className="flex-1 h-9 px-3 rounded-xl border border-emerald-200 bg-white text-xs font-bold placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:outline-none transition-all uppercase tracking-wider"
+                        className="w-full h-10 pl-3 pr-20 rounded-xl border border-emerald-300 bg-white text-xs font-bold placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent focus:outline-none transition-all uppercase tracking-wider"
                       />
                       <button
                         type="button"
                         onClick={applyCoupon}
                         disabled={couponLoading || !couponInput.trim()}
-                        className="px-4 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shrink-0"
+                        className="absolute right-1 top-1 bottom-1 px-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold text-xs flex items-center justify-center transition-all cursor-pointer"
                       >
                         {couponLoading ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
