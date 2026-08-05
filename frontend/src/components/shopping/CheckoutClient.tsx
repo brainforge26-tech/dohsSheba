@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   CheckCircle2,
   ChevronLeft,
-  Sparkles,
   AlertCircle,
 } from 'lucide-react';
 import { LoadingButton } from '@/components/ui/LoadingButton';
@@ -446,8 +445,7 @@ export function CheckoutClient() {
                 disabled={isLoading}
                 className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-extrabold text-sm shadow-xl transition-all flex items-center justify-center gap-2"
               >
-                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-                <span>Place Order ({formatCurrency(total)})</span>
+                Place Order ({formatCurrency(total)})
               </LoadingButton>
 
             </div>

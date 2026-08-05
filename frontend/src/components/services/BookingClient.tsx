@@ -368,8 +368,7 @@ export function BookingClient({ service }: BookingClientProps) {
                   type="submit"
                   className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm shadow-xl transition-all flex items-center gap-2"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-                  <span>Confirm Booking ({formatCurrency(totalPrice)})</span>
+                  Confirm Booking ({formatCurrency(totalPrice)})
                 </button>
               </div>
             </form>

@@ -178,7 +178,6 @@ export default function CustomerOrdersPage() {
           href="/services/shopping"
           className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg hover:shadow-emerald-500/25 transition-all flex items-center gap-2 w-fit active:scale-95"
         >
-          <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
           <span>{isBn ? 'নতুন কেনাকাটা করুন' : 'Browse Marketplace'}</span>
         </Link>
       </div>
