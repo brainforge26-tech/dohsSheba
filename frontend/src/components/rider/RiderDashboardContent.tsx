@@ -70,6 +70,16 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
   const [incomingOrder, setIncomingOrder] = useState<any | null>(null);
   const [countdown, setCountdown] = useState(30);
   const [showPopup, setShowPopup] = useState(false);
+  const [dismissedOrderIds, setDismissedOrderIds] = useState<string[]>([]);
+
+  const handleDismissOrder = (orderId?: string) => {
+    const idToDismiss = orderId || incomingOrder?.orderId || incomingOrder?.id;
+    if (idToDismiss) {
+      setDismissedOrderIds((prev) => (prev.includes(idToDismiss) ? prev : [...prev, idToDismiss]));
+    }
+    setShowPopup(false);
+    setIncomingOrder(null);
+  };
 
   // Active Missions, History & Filters
   const [activeMissions, setActiveMissions] = useState<any[]>([]);
@@ -197,8 +207,12 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
       const res = await fetchApi<any>('/rider/orders/open').catch(() => null);
       if (res?.success && Array.isArray(res.data)) {
         setOpenOrdersList(res.data);
-        if (res.data.length > 0 && !showPopup && !incomingOrder) {
-          const order = res.data[0];
+        const availableNewOrders = res.data.filter(
+          (o: any) => !dismissedOrderIds.includes(o.id) && !dismissedOrderIds.includes(o.orderId)
+        );
+
+        if (availableNewOrders.length > 0 && !showPopup && !incomingOrder) {
+          const order = availableNewOrders[0];
           setIncomingOrder({
             orderId: order.id,
             storeName: order.items[0]?.product?.seller?.sellerProfile?.shopName || 'DOHS Merchant Store',
@@ -220,7 +234,7 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
         }
       }
     } catch (_) {}
-  }, [showPopup, incomingOrder]);
+  }, [showPopup, incomingOrder, dismissedOrderIds]);
 
   useEffect(() => {
     loadStats();
@@ -302,8 +316,7 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
     if (showPopup && countdown > 0) {
       timer = setInterval(() => setCountdown((prev) => prev - 1), 1000);
     } else if (countdown === 0 && showPopup) {
-      setShowPopup(false);
-      setIncomingOrder(null);
+      handleDismissOrder();
     }
     return () => clearInterval(timer);
   }, [showPopup, countdown]);
@@ -588,7 +601,7 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
             {/* Action Touch Buttons */}
             <div className="grid grid-cols-2 gap-4 pt-2">
               <button
-                onClick={() => { setShowPopup(false); setIncomingOrder(null); }}
+                onClick={() => handleDismissOrder()}
                 className="py-4 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-all text-sm"
               >
                 {isBn ? 'প্রত্যাখ্যান' : 'Decline'}
