@@ -6,6 +6,11 @@ const prisma = new PrismaClient();
 
 // ─── 1. CLEAR ALL EXISTING DATA ───────────────────────────────────────────────
 async function clearAll() {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DB_RESET !== 'true') {
+    console.warn('🛡️ [SAFETY GUARD] Database reset is BLOCKED in production mode to protect real user data.');
+    return;
+  }
+
   console.log('🧹 Resetting database & clearing all existing data...');
   await prisma.orderItem.deleteMany({});
   await prisma.payment.deleteMany({});
@@ -748,6 +753,11 @@ async function seedOrders(customer: any, rider: any, customerAddr: any, products
 
 // ─── MAIN RUNNER ─────────────────────────────────────────────────────────────
 async function main() {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') {
+    console.warn('🛡️ [SAFETY GUARD] Seed script execution BLOCKED in production to protect real user data.');
+    return;
+  }
+
   console.log('🚀 Running Full Project Audit & Database Reset Seed...');
   console.log('='.repeat(60));
 
