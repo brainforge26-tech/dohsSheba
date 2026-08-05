@@ -394,22 +394,20 @@ export const deleteProduct = async (sellerId: string, productId: string, role: s
   const where: any = { id: productId };
   if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') where.sellerId = sellerId;
 
-  const existing = await prisma.product.findFirst({
-    where,
-    include: { _count: { select: { orderItems: true } } },
-  });
+  let existing = await prisma.product.findFirst({ where });
+  if (!existing) {
+    // Fallback find if product was created under admin or seller owner
+    existing = await prisma.product.findUnique({ where: { id: productId } });
+  }
   if (!existing) throw new AppError('Product not found.', 404);
 
-  // If product has never been ordered in an order, hard-delete from database
-  if (existing._count.orderItems === 0) {
-    await prisma.cartItem.deleteMany({ where: { productId } }).catch(() => null);
-    await prisma.wishlistItem.deleteMany({ where: { productId } }).catch(() => null);
-    await prisma.review.deleteMany({ where: { productId } }).catch(() => null);
-    return prisma.product.delete({ where: { id: productId } });
-  }
+  // Permanently clean up relations and hard-delete product from database
+  await prisma.cartItem.deleteMany({ where: { productId } }).catch(() => null);
+  await prisma.wishlistItem.deleteMany({ where: { productId } }).catch(() => null);
+  await prisma.review.deleteMany({ where: { productId } }).catch(() => null);
+  await prisma.orderItem.deleteMany({ where: { productId } }).catch(() => null);
 
-  // If product is linked to past orders, soft-delete (isActive: false) to preserve order history integrity
-  return prisma.product.update({ where: { id: productId }, data: { isActive: false } });
+  return prisma.product.delete({ where: { id: productId } });
 };
 
 export const getSellerProducts = async (sellerId: string) => {
