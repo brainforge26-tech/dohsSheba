@@ -124,7 +124,7 @@ export function Header() {
               className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-emerald-800/40 hover:bg-emerald-800/70 text-white font-bold text-[10px] sm:text-[11px] transition-all border border-emerald-400/30 active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
               title="Toggle English / Bangla"
             >
-              <span>{language === 'EN' ? '🇧🇩 BD' : '🇺🇸 EN'}</span>
+              <span>{language === 'EN' ? '🇧🇩 বাংলা' : '🇺🇸 EN'}</span>
             </button>
           </div>
         </div>

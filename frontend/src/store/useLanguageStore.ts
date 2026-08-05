@@ -9,15 +9,34 @@ interface LanguageState {
   toggleLanguage: () => void;
 }
 
+const syncLangCookie = (lang: Language) => {
+  if (typeof document !== 'undefined') {
+    document.cookie = `dohssheba-lang=${lang}; path=/; max-age=31536000; SameSite=Lax`;
+  }
+};
+
 export const useLanguageStore = create<LanguageState>()(
   persist(
     (set) => ({
       language: 'EN',
-      setLanguage: (lang) => set({ language: lang }),
-      toggleLanguage: () => set((state) => ({ language: state.language === 'EN' ? 'BN' : 'EN' })),
+      setLanguage: (lang) => {
+        syncLangCookie(lang);
+        set({ language: lang });
+      },
+      toggleLanguage: () =>
+        set((state) => {
+          const nextLang = state.language === 'EN' ? 'BN' : 'EN';
+          syncLangCookie(nextLang);
+          return { language: nextLang };
+        }),
     }),
     {
       name: 'dohssheba-language',
+      onRehydrateStorage: () => (state) => {
+        if (state?.language) {
+          syncLangCookie(state.language);
+        }
+      },
     }
   )
 );
