@@ -40,8 +40,8 @@ export function PopularCategoriesSection() {
   if (!loading && categories.length === 0) return null;
 
   return (
-    <section className="py-6 px-4 bg-white font-sans text-slate-800">
-      <div className="max-w-7xl mx-auto space-y-4">
+    <section className="py-6 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 bg-white font-sans text-slate-800">
+      <div className="w-full max-w-[1720px] mx-auto space-y-4">
         {/* Section Header (Matches Chaldal Screenshot 1) */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">

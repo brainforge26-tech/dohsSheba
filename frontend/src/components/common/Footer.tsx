@@ -23,8 +23,8 @@ export function Footer() {
   return (
     <footer className="bg-white text-slate-700 border-t border-slate-200 font-sans">
       {/* Top Value Proposition Bar */}
-      <div className="border-b border-slate-100 py-8 px-4 bg-slate-50/80">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="border-b border-slate-100 py-8 px-2 sm:px-3 bg-slate-50/80">
+        <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-emerald-50 text-[#7eb343]">
               <ShieldCheck className="w-6 h-6" />
@@ -68,7 +68,7 @@ export function Footer() {
       </div>
 
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-5 gap-8">
+      <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 py-12 grid grid-cols-1 md:grid-cols-5 gap-8">
         {/* Brand & Newsletter */}
         <div className="md:col-span-2 space-y-4">
           <Link href="/" className="flex items-center gap-2.5">
@@ -210,8 +210,8 @@ export function Footer() {
       </div>
 
       {/* Bottom Copyright */}
-      <div className="border-t border-slate-100 py-6 px-4 text-xs text-center text-slate-500 bg-slate-50">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="border-t border-slate-100 py-6 px-2 sm:px-3 text-xs text-center text-slate-500 bg-slate-50">
+        <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>
             © {new Date().getFullYear()} dohsSheba Ltd. All rights reserved. Designed for DOHS Community.
           </div>

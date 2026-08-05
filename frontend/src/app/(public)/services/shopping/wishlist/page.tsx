@@ -30,7 +30,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="py-10 px-4 max-w-7xl mx-auto space-y-8">
+    <div className="py-10 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-8">
       <div className="flex items-center justify-between border-b border-border pb-4">
         <div>
           <h1 className="text-3xl font-extrabold flex items-center gap-2">

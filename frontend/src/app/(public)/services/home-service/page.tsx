@@ -28,7 +28,7 @@ export default function HomeServiceOverviewPage() {
   };
 
   return (
-    <div className="py-10 px-4 max-w-7xl mx-auto space-y-8">
+    <div className="py-10 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-8">
       {/* Category Title Header */}
       <div className="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white space-y-3 shadow-xl">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-blue-300">

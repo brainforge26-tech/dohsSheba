@@ -5,8 +5,8 @@ import { Search, CalendarCheck, CheckCircle2, ShoppingBag, Truck, ThumbsUp } fro
 
 export function HowItWorksSection() {
   return (
-    <section className="py-16 px-4 bg-background border-b border-border">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <section className="py-16 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 bg-background border-b border-border">
+      <div className="w-full max-w-[1720px] mx-auto space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-xs font-extrabold uppercase tracking-wider text-primary">
             Simple & Seamless Process

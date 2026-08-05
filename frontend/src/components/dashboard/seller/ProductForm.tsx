@@ -339,7 +339,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
   const mainCoverImage = form.images[0] || null;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-7xl mx-auto pb-12">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-[1720px] mx-auto pb-12">
       {/* Hidden File Input */}
       <input
         ref={fileInputRef}

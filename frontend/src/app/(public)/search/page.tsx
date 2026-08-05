@@ -47,7 +47,7 @@ function SearchContent() {
   }, [query]);
 
   return (
-    <div className="py-10 px-4 max-w-7xl mx-auto space-y-8 font-sans text-slate-800">
+    <div className="py-10 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-8 font-sans text-slate-800">
       
       {/* Header Banner */}
       <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl border border-slate-800">

@@ -120,7 +120,7 @@ export function HeroBanner() {
     <div className="relative w-full bg-white text-slate-900 overflow-hidden font-sans">
       
       {/* ── Top Toolbar: All Categories & Quick Shortcuts ── */}
-      <div className="max-w-7xl mx-auto px-4 pt-3 pb-2 border-b border-slate-100">
+      <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 pt-3 pb-2 border-b border-slate-100">
         <div className="flex items-center justify-between gap-4">
           
           {/* Left All Categories Button (Green Woodmart Button) */}
@@ -152,7 +152,7 @@ export function HeroBanner() {
       </div>
 
       {/* ── Dynamic Top Circular Shortcuts Row ── */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 py-4">
         <div className="flex items-center justify-start gap-8 overflow-x-auto no-scrollbar">
           {shortcuts.map((item) => (
             <Link
@@ -176,7 +176,7 @@ export function HeroBanner() {
       </div>
 
       {/* ── Main Hero Section (Dynamic Database Hero Slide + App Mobile Promo Grid) ── */}
-      <div className="max-w-7xl mx-auto px-4 pb-6">
+      <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           
           {/* Main Hero Slider (Left 50% Width = 6 cols) */}

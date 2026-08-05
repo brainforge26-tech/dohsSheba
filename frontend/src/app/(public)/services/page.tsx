@@ -7,7 +7,7 @@ import { DailyDealsSection } from '@/components/home/DailyDealsSection';
 export default function ServicesPage() {
   return (
     <div className="py-8 space-y-12">
-      <div className="max-w-7xl mx-auto px-4 text-center space-y-2">
+      <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 text-center space-y-2">
         <h1 className="text-4xl font-extrabold tracking-tight">Marketplace Catalog</h1>
         <p className="text-sm text-muted-foreground max-w-xl mx-auto">
           Explore all home repair services, technician bookings, fresh vegetables, fruits & daily groceries.

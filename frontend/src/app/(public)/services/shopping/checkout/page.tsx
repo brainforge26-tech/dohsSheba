@@ -3,7 +3,7 @@ import { CheckoutClient } from '@/components/shopping/CheckoutClient';
 
 export default function CheckoutPage() {
   return (
-    <div className="py-10 px-4 max-w-7xl mx-auto space-y-8">
+    <div className="py-10 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-8">
       <CheckoutClient />
     </div>
   );

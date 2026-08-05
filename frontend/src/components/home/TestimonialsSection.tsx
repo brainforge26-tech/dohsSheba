@@ -40,8 +40,8 @@ const REVIEWS = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-16 px-4 bg-background">
-      <div className="max-w-7xl mx-auto space-y-14">
+    <section className="py-16 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 bg-background">
+      <div className="w-full max-w-[1720px] mx-auto space-y-14">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-xs font-extrabold uppercase tracking-wider text-amber-500">

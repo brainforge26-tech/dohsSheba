@@ -28,7 +28,7 @@ export default function AdminDashboardLayout({
           onToggleSidebar={() => setIsMobileOpen(!isMobileOpen)}
         />
 
-        <main className="flex-1 p-4 md:p-6 space-y-6 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="flex-1 p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 space-y-6 w-full max-w-[1720px] mx-auto">{children}</main>
       </div>
     </div>
   );

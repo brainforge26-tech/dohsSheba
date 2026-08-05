@@ -20,8 +20,8 @@ export function FeaturedServicesSection() {
   });
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-background via-slate-900/40 to-background border-b border-border/50">
-      <div className="max-w-7xl mx-auto space-y-10">
+    <section className="py-16 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 bg-gradient-to-b from-background via-slate-900/40 to-background border-b border-border/50">
+      <div className="w-full max-w-[1720px] mx-auto space-y-10">
         
         {/* Header & Badges */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">

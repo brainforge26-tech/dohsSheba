@@ -151,7 +151,7 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-10 py-6 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-12">
+    <div className="w-full max-w-[1720px] mx-auto space-y-10 py-6 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 pb-24 lg:pb-12">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
         <Link href="/" className="hover:text-emerald-600">Home</Link>

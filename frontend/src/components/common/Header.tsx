@@ -53,8 +53,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all">
       {/* Top Banner Bar (Woodmart Green Bar) */}
-      <div className="bg-[#7eb343] text-white text-xs py-1.5 px-3 sm:px-4 border-b border-emerald-600 overflow-hidden w-full">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <div className="bg-[#7eb343] text-white text-xs py-1.5 px-2 sm:px-3 border-b border-emerald-600 overflow-hidden w-full">
+        <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <div className="flex items-center gap-1 font-bold text-emerald-100 text-[11px] sm:text-xs">
               <MapPin className="w-3.5 h-3.5 text-white shrink-0" />
@@ -111,7 +111,7 @@ export function Header() {
       </div>
 
       {/* Main Header Bar */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 py-3 flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-10 h-10 rounded-xl bg-[#7eb343] flex items-center justify-center text-white font-black text-xl shadow-sm group-hover:scale-105 transition-transform">

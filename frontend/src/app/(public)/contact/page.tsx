@@ -3,7 +3,7 @@ import { MapPin, PhoneCall, Mail, Clock, Send } from 'lucide-react';
 
 export default function ContactPage() {
   return (
-    <div className="py-12 px-4 max-w-7xl mx-auto space-y-12">
+    <div className="py-12 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-12">
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <span className="text-xs font-extrabold uppercase tracking-wider text-primary">
           Get In Touch

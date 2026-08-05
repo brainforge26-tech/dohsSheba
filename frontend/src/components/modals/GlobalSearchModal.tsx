@@ -140,7 +140,7 @@ export function GlobalSearchModal() {
         <X className="w-6 h-6" />
       </button>
 
-      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 space-y-8">
+      <div className="w-full max-w-[1500px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 py-8 sm:py-12 space-y-8">
         
         {/* Search Bar Header */}
         <form onSubmit={handleSearchSubmit} className="space-y-4">

@@ -7,7 +7,7 @@ export default function ShoppingMarketplacePage() {
   return (
     <PageTransition className="py-8 space-y-12">
       {/* Header Banner */}
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6">
         <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 text-white space-y-4 shadow-xl border border-emerald-500/20">
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
             DOHS Express Grocery Market

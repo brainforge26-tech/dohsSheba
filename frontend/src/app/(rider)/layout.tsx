@@ -33,7 +33,7 @@ export default function RiderShellLayout({
         />
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6 bg-[#141523] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-          <div className="max-w-7xl mx-auto space-y-6">
+          <div className="w-full max-w-[1720px] mx-auto space-y-6">
             {children}
           </div>
         </main>

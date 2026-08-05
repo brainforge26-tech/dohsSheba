@@ -61,7 +61,7 @@ export default function FullCartPage() {
   }
 
   return (
-    <div className="py-10 px-4 max-w-7xl mx-auto space-y-8">
+    <div className="py-10 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-8">
       <h1 className="text-3xl font-extrabold">Shopping Cart ({items.length} Items)</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

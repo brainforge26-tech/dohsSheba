@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function AboutPage() {
   return (
-    <div className="py-12 px-4 max-w-7xl mx-auto space-y-12">
+    <div className="py-12 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-12">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs font-extrabold uppercase tracking-wider text-primary px-3 py-1 rounded-full bg-primary/10">

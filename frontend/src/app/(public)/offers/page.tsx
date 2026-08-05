@@ -41,7 +41,7 @@ export default function OffersPage() {
   };
 
   return (
-    <div className="py-12 px-4 max-w-7xl mx-auto space-y-10 min-h-[70vh]">
+    <div className="py-12 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-10 min-h-[70vh]">
       {/* Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-extrabold uppercase tracking-wider">

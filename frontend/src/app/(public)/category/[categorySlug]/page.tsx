@@ -61,7 +61,7 @@ export default function CategoryPage() {
   const subcategories = category?.children || [];
 
   return (
-    <div className="py-6 px-4 max-w-7xl mx-auto space-y-6 font-sans text-slate-800">
+    <div className="py-6 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-6 font-sans text-slate-800">
       {/* Breadcrumb Navigation */}
       <BreadcrumbNav
         items={[

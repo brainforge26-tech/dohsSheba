@@ -59,8 +59,8 @@ export function FeaturedProductsSection() {
   if (products !== null && products.length === 0) return null;
 
   return (
-    <section className="py-8 px-4 bg-gradient-to-b from-amber-500/5 via-slate-50 to-white font-sans text-slate-800 border-y border-amber-200/40">
-      <div className="max-w-7xl mx-auto space-y-5">
+    <section className="py-8 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 bg-gradient-to-b from-amber-500/5 via-slate-50 to-white font-sans text-slate-800 border-y border-amber-200/40">
+      <div className="w-full max-w-[1720px] mx-auto space-y-5">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-amber-200/60 pb-3">
           <div className="flex items-center gap-2.5">

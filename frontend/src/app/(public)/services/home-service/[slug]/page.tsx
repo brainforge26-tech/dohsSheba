@@ -15,7 +15,7 @@ export default async function CategoryPage({
   const currentCategory = SERVICE_CATEGORIES.find((c) => c.slug === categorySlug);
 
   return (
-    <div className="py-8 px-4 max-w-7xl mx-auto space-y-8">
+    <div className="py-8 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
         <Link href="/" className="hover:text-primary">Home</Link>
