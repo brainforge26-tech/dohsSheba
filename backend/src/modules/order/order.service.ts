@@ -397,6 +397,7 @@ export const createGuestOrder = async (data: {
   guestEmail?: string;
   guestAddress: string;
   items: { productId: string; quantity: number }[];
+  couponCode?: string;
   notes?: string;
   paymentMethod?: string;
 }) => {
@@ -432,7 +433,22 @@ export const createGuestOrder = async (data: {
   const threshold = Number(siteSettings?.freeDeliveryThreshold ?? 500);
   const defaultFee = Number(siteSettings?.defaultDeliveryFee ?? 50);
   const deliveryFee = subtotal >= threshold || subtotal === 0 ? 0 : defaultFee;
-  const totalAmount = subtotal + deliveryFee;
+
+  let discount = 0;
+  if (data.couponCode) {
+    const coupon = await prisma.coupon.findFirst({
+      where: { code: data.couponCode.trim().toUpperCase(), isActive: true },
+    });
+    if (coupon) {
+      discount =
+        coupon.discountType === 'PERCENTAGE'
+          ? Math.round((subtotal * coupon.discountValue) / 100)
+          : Math.min(coupon.discountValue, subtotal);
+      await prisma.coupon.update({ where: { id: coupon.id }, data: { usedCount: { increment: 1 } } });
+    }
+  }
+
+  const totalAmount = Math.max(0, subtotal + deliveryFee - discount);
 
   const trackingCode = generateUniqueTrackingCode();
 
@@ -448,6 +464,7 @@ export const createGuestOrder = async (data: {
         customerPhone: data.guestPhone.trim(),
         subtotal,
         deliveryFee,
+        discount,
         totalAmount,
         notes: data.notes?.trim() || null,
         status: 'PENDING',

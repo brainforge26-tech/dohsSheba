@@ -173,6 +173,7 @@ export function CheckoutClient() {
           })),
           notes: `Payment: ${paymentMethod.toUpperCase()} | Speed: ${deliverySpeed}`,
           paymentMethod: paymentMethod.toUpperCase(),
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
         };
 
         const guestRes = await fetchApi<any>('/orders/guest', {
@@ -228,6 +229,7 @@ export function CheckoutClient() {
           })),
           notes: `Payment: ${paymentMethod.toUpperCase()} | Speed: ${deliverySpeed}`,
           paymentMethod: paymentMethod.toUpperCase(),
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
         };
 
         const guestRes = await fetchApi<any>('/orders/guest', {
@@ -260,6 +262,7 @@ export function CheckoutClient() {
           })),
           notes: `Payment: ${paymentMethod.toUpperCase()} | Speed: ${deliverySpeed}`,
           paymentMethod: paymentMethod.toUpperCase(),
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
         };
 
         const guestRes = await fetchApi<any>('/orders/guest', {

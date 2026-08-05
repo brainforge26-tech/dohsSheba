@@ -233,36 +233,39 @@ export function PrintableReceipt({ order, trackingCode }: PrintableReceiptProps)
         {/* ── FINANCIAL SUMMARY ── */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 24px 20px' }}>
           <div style={{
-            width: '260px', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden'
+            width: '280px', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}>
-            <div style={{ background: '#f3f4f6', padding: '8px 14px', fontSize: '9px', fontWeight: '800', color: '#374151', letterSpacing: '1px', textTransform: 'uppercase' }}>
-              Price Summary
+            <div style={{ background: '#f3f4f6', padding: '8px 14px', fontSize: '9px', fontWeight: '800', color: '#374151', letterSpacing: '1px', textTransform: 'uppercase', borderBottom: '1px solid #e5e7eb' }}>
+              Price Breakdown (মূল্য বিবরণী)
             </div>
             <div style={{ padding: '10px 14px', fontSize: '10.5px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#6b7280' }}>
-                <span>Subtotal</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#4b5563' }}>
+                <span>Subtotal (পণ্য মূল্য)</span>
                 <span style={{ fontWeight: '700', color: '#111827' }}>৳{formatCurrency(subtotal)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#6b7280' }}>
-                <span>Delivery Fee</span>
-                <span style={{ fontWeight: '700', color: '#111827' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#4b5563' }}>
+                <span>Delivery Fee (ডেলিভারি চার্জ)</span>
+                <span style={{ fontWeight: '700', color: deliveryFee === 0 ? '#0E7A45' : '#111827' }}>
                   {deliveryFee === 0 ? (
-                    <span style={{ color: '#0E7A45' }}>FREE</span>
+                    <span style={{ color: '#0E7A45', fontWeight: '800' }}>FREE</span>
                   ) : `৳${formatCurrency(deliveryFee)}`}
                 </span>
               </div>
-              {discount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#0E7A45' }}>
-                  <span>Discount (Coupon)</span>
-                  <span style={{ fontWeight: '700' }}>- ৳{formatCurrency(discount)}</span>
-                </div>
-              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: discount > 0 ? '#0E7A45' : '#6b7280' }}>
+                <span>Coupon Discount (কুপন ছাড়)</span>
+                <span style={{ fontWeight: '800', color: discount > 0 ? '#0E7A45' : '#6b7280' }}>
+                  {discount > 0 ? `- ৳${formatCurrency(discount)}` : '৳0'}
+                </span>
+              </div>
+
               <div style={{
                 display: 'flex', justifyContent: 'space-between',
                 borderTop: '2px solid #111827', marginTop: '8px', paddingTop: '8px',
                 fontWeight: '900', fontSize: '13px', color: '#0E7A45'
               }}>
-                <span style={{ color: '#111827' }}>Total Payable</span>
+                <span style={{ color: '#111827' }}>Total Payable (সর্বমোট দেয়)</span>
                 <span>৳{formatCurrency(total)}</span>
               </div>
             </div>
