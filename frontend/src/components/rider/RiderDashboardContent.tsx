@@ -300,18 +300,28 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
       loadStats();
     };
 
+    const handleWithdrawalUpdate = () => {
+      console.log('⚡ [RIDER DASHBOARD] Received WITHDRAWAL_STATUS_UPDATED / WALLET_UPDATED event');
+      loadStats();
+      loadWithdrawals();
+    };
+
     socket.on('RIDER_ORDER_BROADCAST', handleBroadcast);
     socket.on('RIDER_ORDER_DISMISS', handleDismiss);
     socket.on('RIDER_ORDER_TIMEOUT', handleTimeout);
     socket.on('ORDER_STATUS_UPDATED', handleStatusUpdate);
+    socket.on('WITHDRAWAL_STATUS_UPDATED', handleWithdrawalUpdate);
+    socket.on('WALLET_UPDATED', handleWithdrawalUpdate);
 
     return () => {
       socket.off('RIDER_ORDER_BROADCAST', handleBroadcast);
       socket.off('RIDER_ORDER_DISMISS', handleDismiss);
       socket.off('RIDER_ORDER_TIMEOUT', handleTimeout);
       socket.off('ORDER_STATUS_UPDATED', handleStatusUpdate);
+      socket.off('WITHDRAWAL_STATUS_UPDATED', handleWithdrawalUpdate);
+      socket.off('WALLET_UPDATED', handleWithdrawalUpdate);
     };
-  }, [socket, checkOpenOrders, loadActiveMissions, loadStats]);
+  }, [socket, checkOpenOrders, loadActiveMissions, loadStats, loadWithdrawals]);
 
   // ── 30-Second SVG Countdown Timer ──────────────────────────────────────────
   useEffect(() => {

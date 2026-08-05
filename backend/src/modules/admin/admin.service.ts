@@ -633,22 +633,102 @@ export const updateWithdrawalStatus = async (id: string, payload: {
   const request = await prisma.withdrawalRequest.findUnique({ where: { id } });
   if (!request) throw new Error('Withdrawal request not found');
 
-  const updated = await prisma.withdrawalRequest.update({
-    where: { id },
-    data: {
-      status: payload.status,
-      adminNote: payload.adminNote,
-      transactionId: payload.transactionId,
-      processedAt: new Date(),
-    },
+  const oldStatus = request.status;
+  const newStatus = payload.status;
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const updatedReq = await tx.withdrawalRequest.update({
+      where: { id },
+      data: {
+        status: newStatus,
+        adminNote: payload.adminNote,
+        transactionId: payload.transactionId,
+        processedAt: new Date(),
+      },
+    });
+
+    // ── 1. If transition is to PAID (and was not previously PAID): Deduct from balance & log DEBIT transaction
+    if (newStatus === 'PAID' && oldStatus !== 'PAID') {
+      // Deduct from Rider Profile total earnings if rider
+      await tx.riderProfile.updateMany({
+        where: { userId: request.userId },
+        data: { totalEarnings: { decrement: request.amount } },
+      });
+
+      // Get or create user wallet and deduct balance
+      let wallet = await tx.wallet.findUnique({ where: { userId: request.userId } });
+      if (!wallet) {
+        wallet = await tx.wallet.create({
+          data: { userId: request.userId, balance: 0 },
+        });
+      }
+
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: { decrement: request.amount } },
+      });
+
+      // Log DEBIT Transaction
+      await tx.transaction.create({
+        data: {
+          walletId: wallet.id,
+          type: 'DEBIT',
+          amount: request.amount,
+          description: `Withdrawal payout via ${request.paymentMethod} (${request.accountNumber})${payload.transactionId ? ` - Trx: ${payload.transactionId}` : ''}`,
+        },
+      });
+
+      // Send Rider In-App Notification
+      await tx.notification.create({
+        data: {
+          userId: request.userId,
+          title: 'Withdrawal Payout Processed',
+          message: `Your withdrawal of ৳${request.amount} via ${request.paymentMethod} (${request.accountNumber}) has been approved and paid out. ৳${request.amount} has been deducted from your wallet balance.`,
+          type: 'TRANSACTION',
+        },
+      });
+    }
+
+    // ── 2. If transition was PAID and is now REJECTED: Refund amount back
+    if (oldStatus === 'PAID' && newStatus === 'REJECTED') {
+      await tx.riderProfile.updateMany({
+        where: { userId: request.userId },
+        data: { totalEarnings: { increment: request.amount } },
+      });
+
+      const wallet = await tx.wallet.findUnique({ where: { userId: request.userId } });
+      if (wallet) {
+        await tx.wallet.update({
+          where: { id: wallet.id },
+          data: { balance: { increment: request.amount } },
+        });
+
+        await tx.transaction.create({
+          data: {
+            walletId: wallet.id,
+            type: 'CREDIT',
+            amount: request.amount,
+            description: `Withdrawal request #${request.id.slice(-6)} rejected and refunded`,
+          },
+        });
+      }
+    }
+
+    return updatedReq;
   });
 
   emitToUser(request.userId, 'WITHDRAWAL_STATUS_UPDATED', {
     id: request.id,
-    status: payload.status,
+    status: newStatus,
     amount: request.amount,
     adminNote: payload.adminNote,
     transactionId: payload.transactionId,
+  });
+
+  emitToUser(request.userId, 'WALLET_UPDATED', {
+    userId: request.userId,
+    amount: request.amount,
+    type: newStatus === 'PAID' ? 'DEBIT' : 'REFUND',
   });
 
   return updated;
