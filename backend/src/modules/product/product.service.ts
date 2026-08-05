@@ -339,36 +339,38 @@ export const updateProduct = async (
 
 export const deleteProduct = async (sellerId: string, productId: string, role: string) => {
   const where: any = { id: productId };
-  if (role !== 'ADMIN') where.sellerId = sellerId;
+  if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') where.sellerId = sellerId;
 
-  const existing = await prisma.product.findFirst({ where });
+  const existing = await prisma.product.findFirst({
+    where,
+    include: { _count: { select: { orderItems: true } } },
+  });
   if (!existing) throw new AppError('Product not found.', 404);
 
+  // If product has never been ordered in an order, hard-delete from database
+  if (existing._count.orderItems === 0) {
+    await prisma.cartItem.deleteMany({ where: { productId } }).catch(() => null);
+    await prisma.wishlistItem.deleteMany({ where: { productId } }).catch(() => null);
+    await prisma.review.deleteMany({ where: { productId } }).catch(() => null);
+    return prisma.product.delete({ where: { id: productId } });
+  }
+
+  // If product is linked to past orders, soft-delete (isActive: false) to preserve order history integrity
   return prisma.product.update({ where: { id: productId }, data: { isActive: false } });
 };
 
 export const getSellerProducts = async (sellerId: string) => {
-  let products = await prisma.product.findMany({
-    where: { sellerId },
+  return prisma.product.findMany({
+    where: {
+      sellerId,
+      isActive: true,
+    },
     include: {
       category: { select: { name: true, slug: true } },
       _count: { select: { reviews: true, orderItems: true } },
     },
     orderBy: { createdAt: 'desc' },
   });
-
-  if (products.length === 0) {
-    products = await prisma.product.findMany({
-      include: {
-        category: { select: { name: true, slug: true } },
-        _count: { select: { reviews: true, orderItems: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 25,
-    });
-  }
-
-  return products;
 };
 
 // ─── Stock Adjustment ────────────────────────────────────────────────────────
