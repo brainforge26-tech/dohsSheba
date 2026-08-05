@@ -168,18 +168,11 @@ export default function CategoriesPage() {
   const handleDelete = async () => {
     if (!deletingCat) return;
 
-    // Check if category has products or subcategories locally
+    // Check if category has active products assigned
     const prodCount = deletingCat._count?.products ?? deletingCat.products ?? 0;
-    const subCount  = subCategoriesList.filter((s) => s.parentId === deletingCat.id).length;
 
     if (prodCount > 0) {
-      alert(`⚠️ Cannot Delete Category!\n\n"${deletingCat.name}" is currently in use by ${prodCount} product(s). Please reassign or delete those products before deleting this category.`);
-      setDeletingCat(null);
-      return;
-    }
-
-    if (subCount > 0) {
-      alert(`⚠️ Cannot Delete Parent Category!\n\n"${deletingCat.name}" contains ${subCount} subcategory(ies). Please delete or move the subcategories first.`);
+      alert(`⚠️ Cannot Delete Category!\n\n"${deletingCat.name}" is currently in use by ${prodCount} active product(s). Please reassign or delete those products before deleting this category.`);
       setDeletingCat(null);
       return;
     }
@@ -676,12 +669,12 @@ export default function CategoriesPage() {
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    {parentProductCount > 0 || children.length > 0 ? (
+                    {parentProductCount > 0 ? (
                       <button
                         type="button"
-                        onClick={() => alert(`⚠️ Deletion Blocked!\n\n"${parent.name}" is currently in use (${parentProductCount} product(s), ${children.length} subcategory(ies)). It cannot be deleted until those products or subcategories are reassigned or deleted.`)}
+                        onClick={() => alert(`⚠️ Deletion Blocked!\n\n"${parent.name}" is currently in use by ${parentProductCount} active product(s). Please reassign or delete those products first.`)}
                         className="p-2 rounded-xl bg-slate-800 text-slate-500 border border-white/5 cursor-not-allowed"
-                        title="Cannot delete: Category is in use by products or subcategories"
+                        title="Cannot delete: Category is in use by active products"
                       >
                         <Lock className="w-4 h-4 text-slate-500" />
                       </button>
