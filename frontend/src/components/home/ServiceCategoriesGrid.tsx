@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Star, ChevronLeft, ChevronRight, Wrench } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 const FALLBACK_SERVICES = [
   { id: 'cat_ac',        name: 'AC Service & Repair',    slug: 'ac-service',      rating: '4.95', bookings: '1,420 Bookings', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=300&auto=format&fit=crop&q=80' },
@@ -35,7 +36,7 @@ export function ServiceCategoriesGrid() {
 
   // Fetch data
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/service-categories`)
+    fetch(`${getApiBaseUrl()}/service-categories`)
       .then((r) => r.json())
       .then((res) => {
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -173,16 +174,16 @@ export function ServiceCategoriesGrid() {
             onMouseLeave={handleMouseLeaveOrUp}
             onMouseUp={handleMouseLeaveOrUp}
             onMouseMove={handleMouseMove}
-            className={`flex items-center gap-6 sm:gap-8 overflow-x-auto py-3 px-4 scroll-smooth overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+            className={`flex items-center gap-4 sm:gap-5 overflow-x-auto py-4 px-2 scroll-smooth overscroll-x-contain [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
               isMouseDown ? 'cursor-grabbing' : 'cursor-grab'
             }`}
           >
             {services === null
-              ? Array.from({ length: 7 }).map((_, i) => (
-                  <div key={i} className="flex flex-col items-center shrink-0 w-24 sm:w-28 animate-pulse">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-200" />
-                    <div className="h-2.5 w-16 bg-slate-200 rounded mt-3" />
-                    <div className="h-2 w-12 bg-slate-100 rounded mt-1.5" />
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="shrink-0 w-36 sm:w-44 p-3.5 rounded-2xl bg-white border border-slate-200/80 animate-pulse">
+                    <div className="w-full aspect-4/3 rounded-xl bg-slate-200" />
+                    <div className="h-3 w-3/4 bg-slate-200 rounded mt-3" />
+                    <div className="h-2.5 w-1/2 bg-slate-100 rounded mt-2" />
                   </div>
                 ))
               : services.map((service) => (
@@ -190,25 +191,28 @@ export function ServiceCategoriesGrid() {
                     key={service.id}
                     href={`/services/home-service/${service.slug}`}
                     onClick={(e) => { if (isDragging) e.preventDefault(); }}
-                    className="flex flex-col items-center group shrink-0 w-24 sm:w-28 text-center transition-transform hover:-translate-y-1 duration-200"
+                    className="group shrink-0 w-36 sm:w-44 p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-emerald-400 text-left transition-all duration-300 transform hover:-translate-y-1 block"
                   >
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-slate-100 p-1 shadow-xs group-hover:border-[#7eb343] group-hover:shadow-md transition-all bg-white shrink-0 flex items-center justify-center overflow-hidden">
+                    <div className="relative w-full aspect-4/3 mb-2.5 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center">
                       <img
                         src={service.image}
                         alt={service.name}
-                        className="w-full h-full object-cover rounded-full group-hover:scale-108 transition-transform duration-300 pointer-events-none"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                        loading="lazy"
                       />
                     </div>
-                    <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-amber-500 mt-2">
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      <span>{service.rating}</span>
+                    <div className="mb-1">
+                      <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-1">
+                        {service.name}
+                      </h3>
                     </div>
-                    <h3 className="font-bold text-xs text-slate-800 group-hover:text-[#7eb343] transition-colors leading-tight line-clamp-1 mt-1 max-w-[110px]">
-                      {service.name}
-                    </h3>
-                    <span className="text-[10px] text-slate-400 font-semibold mt-0.5 whitespace-nowrap">
-                      {service.bookings}
-                    </span>
+                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
+                      <div className="flex items-center gap-1 text-amber-500 font-extrabold">
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        <span>{service.rating}</span>
+                      </div>
+                      <span className="truncate max-w-[70px]">{service.bookings}</span>
+                    </div>
                   </Link>
                 ))
             }
