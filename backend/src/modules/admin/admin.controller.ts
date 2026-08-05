@@ -176,3 +176,21 @@ export const updateSiteSettings = async (req: Request, res: Response, next: Next
     return sendResponse(res, 200, 'Site settings updated successfully', data);
   } catch (e) { next(e); }
 };
+
+// ─── Withdrawal Requests Controllers ──────────────────────────────────────────
+
+export const getWithdrawals = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const status = req.query.status as string | undefined;
+    const role   = req.query.role   as string | undefined;
+    const data   = await adminService.getAllWithdrawalRequests(status, role);
+    return sendResponse(res, 200, 'Withdrawal requests fetched', data);
+  } catch (e) { next(e); }
+};
+
+export const updateWithdrawalStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await adminService.updateWithdrawalStatus(req.params.id as string, req.body);
+    return sendResponse(res, 200, `Withdrawal request status updated to ${data.status}`, data);
+  } catch (e) { next(e); }
+};

@@ -81,6 +81,74 @@ export default function RiderDashboardPage() {
   const [actionMsg, setActionMsg] = useState('');
   const [activeTab, setActiveTab] = useState<'mission' | 'history' | 'earnings'>('mission');
 
+  // ── Withdrawal State ──────────────────────────────────────────────────────
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [availableBalance, setAvailableBalance] = useState<number>(0);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [submittingWithdraw, setSubmittingWithdraw] = useState(false);
+  const [withdrawForm, setWithdrawForm] = useState({
+    amount: '',
+    paymentMethod: 'bKash',
+    accountNumber: '',
+    accountName: '',
+    bankName: '',
+    note: '',
+  });
+
+  const loadWithdrawals = useCallback(async () => {
+    try {
+      const res = await fetchApi<any>('/rider/withdraw').catch(() => null);
+      if (res?.success && res.data) {
+        setWithdrawals(res.data.requests || []);
+        if (res.data.availableBalance !== undefined) {
+          setAvailableBalance(res.data.availableBalance);
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  const handleRequestWithdrawalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = parseFloat(withdrawForm.amount);
+    if (!amt || isNaN(amt) || amt < 100) {
+      alert(isBn ? 'সর্বনিম্ন ১০০০ টাকা উত্তোলন করা সম্ভব' : 'Minimum withdrawal amount is ৳100.');
+      return;
+    }
+    if (!withdrawForm.accountNumber) {
+      alert(isBn ? 'অনুগ্রহ করে অ্যাকাউন্ট নম্বর দিন' : 'Please enter your account number.');
+      return;
+    }
+
+    try {
+      setSubmittingWithdraw(true);
+      const res = await fetchApi<any>('/rider/withdraw', {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: amt,
+          paymentMethod: withdrawForm.paymentMethod,
+          accountNumber: withdrawForm.accountNumber,
+          accountName: withdrawForm.accountName || undefined,
+          bankName: withdrawForm.bankName || undefined,
+          note: withdrawForm.note || undefined,
+        }),
+      });
+
+      if (res?.success) {
+        setActionMsg(isBn ? 'উইথড্রয়াল আবেদন সফলভাবে জমা দেওয়া হয়েছে! এডমিন রিভিউর পর পেআউট সম্পন্ন হবে।' : 'Withdrawal request submitted successfully! Admin will process payout shortly.');
+        setShowWithdrawModal(false);
+        setWithdrawForm({ amount: '', paymentMethod: 'bKash', accountNumber: '', accountName: '', bankName: '', note: '' });
+        loadWithdrawals();
+        setTimeout(() => setActionMsg(''), 4000);
+      } else {
+        alert(res?.message || 'Failed to submit withdrawal request');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error requesting withdrawal');
+    } finally {
+      setSubmittingWithdraw(false);
+    }
+  };
+
   // ── Load Rider Profile Stats ───────────────────────────────────────────────
   const loadStats = useCallback(async () => {
     try {
@@ -152,8 +220,9 @@ export default function RiderDashboardPage() {
     loadStats();
     loadActiveMissions();
     loadHistory();
+    loadWithdrawals();
     checkOpenOrders();
-  }, [loadStats, loadActiveMissions, loadHistory, checkOpenOrders]);
+  }, [loadStats, loadActiveMissions, loadHistory, loadWithdrawals, checkOpenOrders]);
 
   // Periodic poll check for open orders when online & no active popup
   useEffect(() => {
@@ -757,41 +826,235 @@ export default function RiderDashboardPage() {
           </div>
         )}
 
-        {/* ── TAB 3: EARNINGS OVERVIEW ── */}
+        {/* ── TAB 3: EARNINGS OVERVIEW & WITHDRAWALS ── */}
         {activeTab === 'earnings' && (
           <div className="space-y-6">
-            <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-emerald-400" /> Financial Earnings Overview
-            </h3>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-emerald-400" /> Financial Earnings & Payouts
+              </h3>
+              <button
+                onClick={() => setShowWithdrawModal(true)}
+                className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-2 shadow-lg shadow-emerald-950/50 transition-all"
+              >
+                <Wallet className="w-4 h-4" />
+                <span>{isBn ? '+ টাকা উত্তোলন রিকোয়েস্ট (Withdraw)' : '+ Request Withdrawal'}</span>
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
                 <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Today's Earnings</span>
-                <p className="text-3xl font-black text-emerald-400">{formatCurrency(stats?.todayEarnings || 0)}</p>
+                <p className="text-3xl font-black text-emerald-400">৳{formatCurrency(stats?.todayEarnings || 0)}</p>
                 <p className="text-[11px] text-slate-400 pt-1">{stats?.todayDeliveries || 0} completed rides</p>
               </div>
 
               <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
-                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">This Week</span>
-                <p className="text-3xl font-black text-white">{formatCurrency((stats?.todayEarnings || 0) * 4)}</p>
-                <p className="text-[11px] text-slate-400 pt-1">Weekly payout cycle</p>
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Earnings</span>
+                <p className="text-3xl font-black text-white">৳{formatCurrency(stats?.totalEarnings || 0)}</p>
+                <p className="text-[11px] text-slate-400 pt-1">All time fleet payouts</p>
               </div>
 
               <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
-                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">This Month</span>
-                <p className="text-3xl font-black text-cyan-400">{formatCurrency(stats?.totalEarnings || 9200)}</p>
-                <p className="text-[11px] text-slate-400 pt-1">Monthly trip total</p>
-              </div>
-
-              <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
-                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Withdrawal Balance</span>
-                <p className="text-3xl font-black text-amber-400">{formatCurrency(stats?.totalEarnings || 9200)}</p>
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Withdrawable Balance</span>
+                <p className="text-3xl font-black text-amber-400">৳{formatCurrency(availableBalance > 0 ? availableBalance : (stats?.totalEarnings || 0))}</p>
                 <p className="text-[11px] text-emerald-400 pt-1 font-semibold">Available for payout</p>
               </div>
+
+              <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-2">
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Withdrawals</span>
+                <p className="text-3xl font-black text-cyan-400">{withdrawals.length} Reqs</p>
+                <p className="text-[11px] text-slate-400 pt-1">Payout history</p>
+              </div>
+            </div>
+
+            {/* Withdrawal History Section */}
+            <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 className="font-extrabold text-white text-sm flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-indigo-400" />
+                  {isBn ? 'আপনার উইথড্রয়াল আবেদনসমূহ' : 'My Withdrawal Requests'}
+                </h4>
+                <span className="text-xs text-slate-400 font-mono">{withdrawals.length} total</span>
+              </div>
+
+              {withdrawals.length === 0 ? (
+                <div className="py-8 text-center text-slate-400 text-xs space-y-2">
+                  <Wallet className="w-8 h-8 text-slate-600 mx-auto" />
+                  <p>{isBn ? 'এখনও কোনো উইথড্রয়াল আবেদন করা হয়নি।' : 'No withdrawal requests submitted yet.'}</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-800">
+                  {withdrawals.map((w: any) => (
+                    <div key={w.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-white text-sm">৳{formatCurrency(w.amount)}</span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                            w.status === 'PAID' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                            w.status === 'APPROVED' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                            w.status === 'REJECTED' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' :
+                            'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                          }`}>
+                            {w.status}
+                          </span>
+                        </div>
+                        <p className="text-slate-400">
+                          {w.paymentMethod} ({w.accountNumber}) • Requested on {new Date(w.requestedAt).toLocaleDateString()}
+                        </p>
+                        {w.transactionId && (
+                          <p className="text-emerald-400 font-mono text-[11px]">Trx ID: {w.transactionId}</p>
+                        )}
+                        {w.adminNote && (
+                          <p className="text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-[11px] inline-block">
+                            Admin Note: {w.adminNote}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right text-[11px] text-slate-500">
+                        REQ #{w.id.slice(-6).toUpperCase()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* ── Request Withdrawal Modal ── */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-extrabold text-white text-base">
+                  {isBn ? 'টাকা উত্তোলন (Withdrawal Request)' : 'Request Earnings Withdrawal'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowWithdrawModal(false)}
+                className="p-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRequestWithdrawalSubmit} className="space-y-4 text-xs font-semibold">
+              <div>
+                <label className="text-slate-300 block mb-1">Select Payment Channel</label>
+                <select
+                  value={withdrawForm.paymentMethod}
+                  onChange={(e) => setWithdrawForm({ ...withdrawForm, paymentMethod: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="bKash">bKash (Mobile Personal / Merchant)</option>
+                  <option value="Nagad">Nagad (Mobile Banking)</option>
+                  <option value="Rocket">Rocket (DBBL Mobile)</option>
+                  <option value="Bank">Bank Transfer (Dutch Bangla / City / Brac)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-slate-300 block mb-1">
+                  {withdrawForm.paymentMethod === 'Bank' ? 'Bank Account Number' : 'Mobile Banking Account Number'}
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder={withdrawForm.paymentMethod === 'Bank' ? 'e.g. 148110009988' : 'e.g. 01700000000'}
+                  value={withdrawForm.accountNumber}
+                  onChange={(e) => setWithdrawForm({ ...withdrawForm, accountNumber: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+
+              {withdrawForm.paymentMethod === 'Bank' && (
+                <>
+                  <div>
+                    <label className="text-slate-300 block mb-1">Account Holder Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Mahfuzur Rahman"
+                      value={withdrawForm.accountName}
+                      onChange={(e) => setWithdrawForm({ ...withdrawForm, accountName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-300 block mb-1">Bank Name & Branch</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Dutch Bangla Bank, Uttara Branch"
+                      value={withdrawForm.bankName}
+                      onChange={(e) => setWithdrawForm({ ...withdrawForm, bankName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="text-slate-300 block mb-1">Withdrawal Amount (৳)</label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-slate-400 font-bold">৳</span>
+                  <input
+                    type="number"
+                    min="100"
+                    required
+                    placeholder="Min ৳100"
+                    value={withdrawForm.amount}
+                    onChange={(e) => setWithdrawForm({ ...withdrawForm, amount: e.target.value })}
+                    className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
+                  <span>Available Balance: <strong className="text-amber-400">৳{formatCurrency(availableBalance > 0 ? availableBalance : (stats?.totalEarnings || 0))}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => setWithdrawForm({ ...withdrawForm, amount: String(availableBalance > 0 ? availableBalance : (stats?.totalEarnings || 500)) })}
+                    className="text-emerald-400 hover:underline font-bold"
+                  >
+                    Set Max
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-slate-300 block mb-1">Note (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Weekly earnings payout"
+                  value={withdrawForm.note}
+                  onChange={(e) => setWithdrawForm({ ...withdrawForm, note: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowWithdrawModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingWithdraw}
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg flex items-center justify-center gap-2"
+                >
+                  {submittingWithdraw ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
+                  <span>{submittingWithdraw ? 'Submitting...' : 'Submit Withdrawal Request'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Accept Order Confirmation Modal */}
       {confirmOrderToAccept && (

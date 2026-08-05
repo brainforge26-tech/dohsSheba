@@ -104,11 +104,13 @@ export const getDashboardStats = async () => {
 export const getAllUsers = async (page: number, limit: number, role?: string, search?: string) => {
   const skip  = (page - 1) * limit;
   const where: any = {};
-  if (role)   where.role = role;
-  if (search) {
+  if (role && role !== 'ALL') where.role = role as any;
+  if (search && search.trim()) {
+    const term = search.trim();
     where.OR = [
-      { name:  { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
+      { name:  { contains: term, mode: 'insensitive' } },
+      { email: { contains: term, mode: 'insensitive' } },
+      { phone: { contains: term, mode: 'insensitive' } },
     ];
   }
 
@@ -580,4 +582,74 @@ export const updateSiteSettings = async (data: any) => {
     create: { id: 'default', ...data },
     update: data,
   });
+};
+
+// ─── Withdrawal Requests Management ──────────────────────────────────────────
+
+export const getAllWithdrawalRequests = async (status?: string, role?: string) => {
+  const where: any = {};
+  if (status && status !== 'ALL') where.status = status as any;
+  if (role && role !== 'ALL')     where.userRole = role as any;
+
+  const [requests, stats] = await Promise.all([
+    prisma.withdrawalRequest.findMany({
+      where,
+      orderBy: { requestedAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            riderProfile: { select: { vehicleType: true, rating: true, totalEarnings: true } },
+          },
+        },
+      },
+    }),
+    Promise.all([
+      prisma.withdrawalRequest.count({ where: { status: 'PENDING' } }),
+      prisma.withdrawalRequest.aggregate({ where: { status: 'PENDING' }, _sum: { amount: true } }),
+      prisma.withdrawalRequest.aggregate({ where: { status: 'PAID' }, _sum: { amount: true } }),
+    ]),
+  ]);
+
+  return {
+    requests,
+    summary: {
+      pendingCount: stats[0],
+      pendingAmount: stats[1]._sum.amount ?? 0,
+      totalPaidAmount: stats[2]._sum.amount ?? 0,
+    },
+  };
+};
+
+export const updateWithdrawalStatus = async (id: string, payload: {
+  status: 'APPROVED' | 'REJECTED' | 'PAID';
+  adminNote?: string;
+  transactionId?: string;
+}) => {
+  const request = await prisma.withdrawalRequest.findUnique({ where: { id } });
+  if (!request) throw new Error('Withdrawal request not found');
+
+  const updated = await prisma.withdrawalRequest.update({
+    where: { id },
+    data: {
+      status: payload.status,
+      adminNote: payload.adminNote,
+      transactionId: payload.transactionId,
+      processedAt: new Date(),
+    },
+  });
+
+  emitToUser(request.userId, 'WITHDRAWAL_STATUS_UPDATED', {
+    id: request.id,
+    status: payload.status,
+    amount: request.amount,
+    adminNote: payload.adminNote,
+    transactionId: payload.transactionId,
+  });
+
+  return updated;
 };

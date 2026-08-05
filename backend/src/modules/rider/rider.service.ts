@@ -465,3 +465,79 @@ export const getLocationHistory = async (orderId: string) => {
     orderBy: { createdAt: 'asc' },
   });
 };
+
+// ─── Withdrawal Requests ──────────────────────────────────────────────────────
+
+export const requestWithdrawal = async (riderId: string, payload: {
+  amount: number;
+  paymentMethod: string;
+  accountNumber: string;
+  accountName?: string;
+  bankName?: string;
+  branchName?: string;
+  note?: string;
+}) => {
+  if (!payload.amount || payload.amount < 100) {
+    throw new AppError('Minimum withdrawal amount is ৳100.', 400);
+  }
+  if (!payload.accountNumber || !payload.paymentMethod) {
+    throw new AppError('Payment method and account number are required.', 400);
+  }
+
+  const profile = await prisma.riderProfile.findUnique({ where: { userId: riderId } });
+  const totalEarnings = profile?.totalEarnings ?? 0;
+
+  const existingWithdrawals = await prisma.withdrawalRequest.aggregate({
+    where: { userId: riderId, status: { in: ['PENDING', 'APPROVED', 'PAID'] } },
+    _sum: { amount: true },
+  });
+  const totalWithdrawnOrPending = existingWithdrawals._sum.amount ?? 0;
+  const availableBalance = Math.max(0, totalEarnings - totalWithdrawnOrPending);
+
+  if (availableBalance < payload.amount && totalEarnings > 0) {
+    throw new AppError(`Insufficient balance. Your withdrawable balance is ৳${availableBalance}`, 400);
+  }
+
+  const withdrawal = await prisma.withdrawalRequest.create({
+    data: {
+      userId: riderId,
+      userRole: 'RIDER',
+      amount: payload.amount,
+      paymentMethod: payload.paymentMethod,
+      accountNumber: payload.accountNumber,
+      accountName: payload.accountName,
+      bankName: payload.bankName,
+      branchName: payload.branchName,
+      note: payload.note,
+      status: 'PENDING',
+    },
+  });
+
+  emitToAdminRoom('NEW_WITHDRAWAL_REQUEST', {
+    id: withdrawal.id,
+    userId: riderId,
+    amount: payload.amount,
+    paymentMethod: payload.paymentMethod,
+    requestedAt: withdrawal.requestedAt,
+  });
+
+  return withdrawal;
+};
+
+export const getWithdrawalHistory = async (riderId: string) => {
+  const requests = await prisma.withdrawalRequest.findMany({
+    where: { userId: riderId },
+    orderBy: { requestedAt: 'desc' },
+  });
+  const profile = await prisma.riderProfile.findUnique({ where: { userId: riderId } });
+  const totalEarnings = profile?.totalEarnings ?? 0;
+
+  const existingWithdrawals = await prisma.withdrawalRequest.aggregate({
+    where: { userId: riderId, status: { in: ['PENDING', 'APPROVED', 'PAID'] } },
+    _sum: { amount: true },
+  });
+  const totalWithdrawnOrPending = existingWithdrawals._sum.amount ?? 0;
+  const availableBalance = Math.max(0, totalEarnings - totalWithdrawnOrPending);
+
+  return { requests, totalEarnings, availableBalance };
+};

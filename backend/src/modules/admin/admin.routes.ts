@@ -47,7 +47,8 @@ router.post('/chat/send',         adminController.sendChatMessage);
 router.post('/email/broadcast',   adminController.sendEmailBroadcast);
 
 // ─── Website Settings ─────────────────────────────────────────────────────────
-router.get('/settings', adminController.getSiteSettings);
-router.put('/settings', adminController.updateSiteSettings);
+// ─── Withdrawal & Payout Management ──────────────────────────────────────────
+router.get('/withdrawals',     adminController.getWithdrawals);
+router.patch('/withdrawals/:id', adminController.updateWithdrawalStatus);
 
 export default router;

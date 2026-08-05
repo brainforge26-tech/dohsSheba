@@ -5,7 +5,7 @@ import { fetchApi } from '@/lib/api-client';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import {
   Users, ShieldCheck, Store, Wrench, Search, Filter,
-  UserCheck, UserX, CheckCircle2, ShieldAlert, Key, Edit2, Loader2, Check, UserPlus, Bike, X
+  UserCheck, UserX, CheckCircle2, ShieldAlert, Key, Edit2, Loader2, Check, UserPlus, Bike, X, RefreshCw, AlertCircle
 } from 'lucide-react';
 
 export default function AdminUsersPage() {
@@ -16,6 +16,7 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
   const [actionMsg, setActionMsg] = useState('');
 
   // Create User Modal state
@@ -32,22 +33,39 @@ export default function AdminUsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetchApi<any>('/admin/users').catch(() => null);
-      if (res && res.success && Array.isArray(res.data)) {
-        const mapped = res.data.map((u: any) => ({
+      setErrorMsg('');
+      const res = await fetchApi<any>('/admin/users?limit=500').catch((err) => {
+        console.error('Fetch users error:', err);
+        return null;
+      });
+
+      let rawData: any[] = [];
+      if (res && res.success) {
+        if (Array.isArray(res.data)) {
+          rawData = res.data;
+        } else if (res.data && Array.isArray(res.data.users)) {
+          rawData = res.data.users;
+        }
+      }
+
+      if (rawData.length > 0 || (res && res.success)) {
+        const mapped = rawData.map((u: any) => ({
           id: u.id,
-          name: u.name,
-          email: u.email,
+          name: u.name || u.email?.split('@')[0] || 'User',
+          email: u.email || 'N/A',
           phone: u.phone || 'N/A',
-          role: u.role,
+          role: u.role || 'CUSTOMER',
           verified: u.emailVerified ?? true,
           isActive: u.isActive ?? true,
-          createdAt: new Date(u.createdAt).toLocaleDateString(),
+          createdAt: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A',
         }));
         setUsers(mapped);
+      } else if (!res || !res.success) {
+        setErrorMsg(isBn ? 'ইউজার ডাটা পাওয়া যায়নি অথবা সার্ভারে কানেক্ট করা সম্ভব হয়নি।' : 'Failed to retrieve users. Please check your admin privileges or network connection.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading users:', err);
+      setErrorMsg(err?.message || 'Error loading system users');
     } finally {
       setLoading(false);
     }
@@ -115,11 +133,17 @@ export default function AdminUsersPage() {
 
   const filteredUsers = users.filter((u) => {
     const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
+    const nameStr = String(u.name || '').toLowerCase();
+    const emailStr = String(u.email || '').toLowerCase();
+    const phoneStr = String(u.phone || '').toLowerCase();
+    const query = search.toLowerCase().trim();
+
     const matchesSearch =
-      !search ||
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      u.phone.includes(search);
+      !query ||
+      nameStr.includes(query) ||
+      emailStr.includes(query) ||
+      phoneStr.includes(query);
+
     return matchesRole && matchesSearch;
   });
 
@@ -150,18 +174,45 @@ export default function AdminUsersPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs flex items-center gap-2 shadow-lg transition-all"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>{isBn ? '+ নতুন ইউজার / রাইডার যুক্ত করুন' : '+ Add User / Rider'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={loadUsers}
+            disabled={loading}
+            className="p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+            title="Reload user list"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">{isBn ? 'রিফ্রেশ' : 'Reload'}</span>
+          </button>
+
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs flex items-center gap-2 shadow-lg transition-all"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>{isBn ? '+ নতুন ইউজার / রাইডার যুক্ত করুন' : '+ Add User / Rider'}</span>
+          </button>
+        </div>
       </div>
 
       {actionMsg && (
         <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" /> {actionMsg}
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <span>{errorMsg}</span>
+          </div>
+          <button
+            onClick={loadUsers}
+            className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition-all"
+          >
+            {isBn ? 'আবার চেষ্টা করুন' : 'Retry'}
+          </button>
         </div>
       )}
 
@@ -252,64 +303,91 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-medium">
-              {filteredUsers.map((u) => (
-                <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-300 font-black flex items-center justify-center text-xs shrink-0">
-                        {u.name.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-bold text-white text-sm">{u.name}</div>
-                        <div className="text-[11px] text-slate-400">{u.email}</div>
-                      </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="p-12 text-center text-slate-400 font-semibold">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+                      <span>{isBn ? 'ইউজার ডাটা লোড হচ্ছে...' : 'Loading system users...'}</span>
                     </div>
                   </td>
-                  <td className="p-4 font-mono text-slate-300">{u.phone}</td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getRoleBadgeStyle(u.role)}`}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                        u.isActive
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                          : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                      }`}
-                    >
-                      {u.isActive ? (isBn ? 'সক্রিয়' : 'Active') : (isBn ? 'স্থগিত' : 'Suspended')}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <select
-                      value={u.role}
-                      onChange={(e) => handleChangeRole(u.id, e.target.value, u.name)}
-                      className="px-3 py-1.5 rounded-xl bg-[#181928] border border-white/10 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
-                    >
-                      <option value="CUSTOMER">CUSTOMER</option>
-                      <option value="RIDER">RIDER (Express Delivery)</option>
-                      <option value="SELLER">SELLER</option>
-                      <option value="PROVIDER">PROVIDER</option>
-                      <option value="ADMIN">ADMIN</option>
-                      <option value="SUPER_ADMIN">SUPER_ADMIN</option>
-                    </select>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => handleToggleStatus(u.id, u.isActive, u.name)}
-                      className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all border ${
-                        u.isActive
-                          ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border-rose-500/20'
-                          : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
-                      }`}
-                    >
-                      {u.isActive ? (isBn ? 'স্থগিত করুন' : 'Suspend') : (isBn ? 'সক্রিয় করুন' : 'Activate')}
-                    </button>
+                </tr>
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-12 text-center text-slate-400">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Users className="w-8 h-8 text-slate-600" />
+                      <span className="font-bold text-slate-300">
+                        {isBn ? 'কোন ইউজার পাওয়া যায়নি' : 'No Users Found'}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        {search || roleFilter !== 'ALL'
+                          ? (isBn ? 'অনুগ্রহ করে সার্চ ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।' : 'Try adjusting your search query or role filter.')
+                          : (isBn ? 'সিস্টেমে কোনো ইউজার একাউন্ট তৈরি করা নেই।' : 'There are no registered users in the database yet.')}
+                      </span>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredUsers.map((u) => (
+                  <tr key={u.id} className="hover:bg-white/5 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-300 font-black flex items-center justify-center text-xs shrink-0">
+                          {(u.name || 'U').slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-bold text-white text-sm">{u.name}</div>
+                          <div className="text-[11px] text-slate-400">{u.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4 font-mono text-slate-300">{u.phone}</td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getRoleBadgeStyle(u.role)}`}>
+                        {u.role}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                          u.isActive
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                            : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                        }`}
+                      >
+                        {u.isActive ? (isBn ? 'সক্রিয়' : 'Active') : (isBn ? 'স্থগিত' : 'Suspended')}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <select
+                        value={u.role}
+                        onChange={(e) => handleChangeRole(u.id, e.target.value, u.name)}
+                        className="px-3 py-1.5 rounded-xl bg-[#181928] border border-white/10 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
+                      >
+                        <option value="CUSTOMER">CUSTOMER</option>
+                        <option value="RIDER">RIDER (Express Delivery)</option>
+                        <option value="SELLER">SELLER</option>
+                        <option value="PROVIDER">PROVIDER</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+                      </select>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => handleToggleStatus(u.id, u.isActive, u.name)}
+                        className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all border ${
+                          u.isActive
+                            ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border-rose-500/20'
+                            : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                        }`}
+                      >
+                        {u.isActive ? (isBn ? 'স্থগিত করুন' : 'Suspend') : (isBn ? 'সক্রিয় করুন' : 'Activate')}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

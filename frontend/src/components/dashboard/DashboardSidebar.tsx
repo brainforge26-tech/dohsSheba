@@ -206,6 +206,11 @@ export function DashboardSidebar({
               icon: <Tag className="w-4 h-4" />,
             },
             {
+              label: 'Withdrawal Requests',
+              href: '/admin/dashboard/withdrawals',
+              icon: <Wallet className="w-4 h-4 text-emerald-400" />,
+            },
+            {
               label: 'Website Settings',
               href: '/admin/dashboard/settings',
               icon: <Globe className="w-4 h-4 text-indigo-400" />,

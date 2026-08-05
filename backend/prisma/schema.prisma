@@ -101,6 +101,7 @@ model User {
   riderAssignments RiderAssignment[]
   riderLocationHistory RiderLocation[] @relation("RiderLocationHistory")
   refreshTokens    RefreshToken[]
+  withdrawalRequests WithdrawalRequest[]
 
   @@map("users")
 }
@@ -752,3 +753,38 @@ model HomepageSection {
 
   @@map("homepage_sections")
 }
+
+// ─── Withdrawal & Payout Requests ──────────────────────────────────────────
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+model WithdrawalRequest {
+  id            String           @id @default(cuid())
+  userId        String
+  userRole      Role             @default(RIDER)
+  amount        Float
+  paymentMethod String           // e.g. "bKash", "Nagad", "Rocket", "Bank"
+  accountNumber String           // Mobile number or Bank AC
+  accountName   String?          // Accountholder name
+  bankName      String?          // Bank name if applicable
+  branchName    String?
+  note          String?
+  status        WithdrawalStatus @default(PENDING)
+  adminNote     String?
+  transactionId String?
+  requestedAt   DateTime         @default(now())
+  processedAt   DateTime?
+  updatedAt     DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("withdrawal_requests")
+}
+

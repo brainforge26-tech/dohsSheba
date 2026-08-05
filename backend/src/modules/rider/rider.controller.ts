@@ -86,3 +86,19 @@ export const getLocationHistory = async (req: AuthRequest, res: Response, next: 
     return sendResponse(res, 200, 'Rider location history fetched', data);
   } catch (e) { next(e); }
 };
+
+// ─── POST /rider/withdraw ─────────────────────────────────────────────────────
+export const requestWithdrawal = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const data = await riderService.requestWithdrawal(req.user!.id, req.body);
+    return sendResponse(res, 201, 'Withdrawal request submitted successfully', data);
+  } catch (e) { next(e); }
+};
+
+// ─── GET /rider/withdraw ──────────────────────────────────────────────────────
+export const getWithdrawalHistory = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const data = await riderService.getWithdrawalHistory(req.user!.id);
+    return sendResponse(res, 200, 'Withdrawal history fetched', data);
+  } catch (e) { next(e); }
+};
