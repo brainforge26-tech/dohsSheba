@@ -8,7 +8,7 @@ interface AuthState {
   isAuthenticated: boolean;
   setRole: (role: UserRole) => void;
   setUser: (user: UserProfile) => void;
-  setAuth: (user: UserProfile, token?: string) => void;
+  setAuth: (user: UserProfile, token?: string, refreshToken?: string) => void;
   logout: () => void;
 }
 
@@ -84,11 +84,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
   },
 
-  setAuth: (user, token) => {
+  setAuth: (user, token, refreshToken) => {
     if (typeof window !== 'undefined') {
       if (token) {
         localStorage.setItem('token', token);
         document.cookie = `token=${token}; path=/; max-age=604800; SameSite=Lax`;
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+        document.cookie = `refreshToken=${refreshToken}; path=/; max-age=2592000; SameSite=Lax`;
       }
       if (user) {
         localStorage.setItem('user', JSON.stringify(user));
@@ -110,6 +114,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
 
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
       localStorage.removeItem('dohssheba-auth');
 

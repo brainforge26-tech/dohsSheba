@@ -18,8 +18,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (res.success && res.data) {
             setAuth(res.data, token || undefined);
           }
-        } catch {
-          // If backend isn't reachable, Zustand store has already restored state from localStorage/JWT payload
+        } catch (err: any) {
+          if (err?.status === 401) {
+            useAuthStore.getState().logout();
+          }
         }
       }
       restoreSession();

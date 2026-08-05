@@ -34,12 +34,12 @@ export default function LoginPage() {
       });
 
       if (res.success && res.data) {
-        const { user, token, accessToken } = res.data;
+        const { user, token, accessToken, refreshToken } = res.data;
         const validToken = token || accessToken;
         if (typeof window !== 'undefined' && validToken) {
           document.cookie = `token=${validToken}; path=/; max-age=604800; SameSite=Lax`;
         }
-        setAuth(user, validToken);
+        setAuth(user, validToken, refreshToken);
         toastSuccess('Welcome back!', `Signed in as ${user.name || user.email}`);
         const userRole = user.role;
         if (userRole === 'SUPER_ADMIN') router.push('/dashboard/super-admin');

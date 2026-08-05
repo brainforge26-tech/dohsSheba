@@ -121,14 +121,14 @@ export function GoogleLoginButton({
       });
 
       if (res.success && res.data) {
-        const { user, token, accessToken } = res.data;
+        const { user, token, accessToken, refreshToken } = res.data;
         const validToken = token || accessToken;
 
         if (typeof window !== 'undefined' && validToken) {
           document.cookie = `token=${validToken}; path=/; max-age=604800; SameSite=Lax`;
         }
 
-        setAuth(user, validToken);
+        setAuth(user, validToken, refreshToken);
         if (onSuccess) onSuccess();
 
         const userRole = user.role;

@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/store/useAuthStore';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 export class ApiError extends Error {
@@ -33,37 +35,63 @@ export async function fetchApi<T>(
 
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      // Automatic Token Refresh on 401 Unauthorized
-      if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/register' && endpoint !== '/auth/refresh' && !isRefreshing) {
-        isRefreshing = true;
-        try {
-          const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-          });
-          const refreshData = await refreshRes.json();
+      // Automatic Token Refresh & Session Cleanup on 401 Unauthorized
+      if (response.status === 401) {
+        const isAuthEndpoint = endpoint === '/auth/login' || endpoint === '/auth/register' || endpoint === '/auth/refresh';
+        
+        if (!isAuthEndpoint && !isRefreshing) {
+          isRefreshing = true;
+          try {
+            const storedRefreshToken = typeof window !== 'undefined'
+              ? (localStorage.getItem('refreshToken') || document.cookie.match(/(?:^|; )refreshToken=([^;]+)/)?.[1])
+              : null;
 
-          if (refreshRes.ok && refreshData.data?.accessToken) {
-            const newToken = refreshData.data.accessToken;
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('token', newToken);
+            const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refreshToken: storedRefreshToken }),
+            }).catch(() => null);
+
+            if (refreshRes && refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              const newAccessToken = refreshData.data?.accessToken;
+              const newRefreshToken = refreshData.data?.refreshToken;
+
+              if (newAccessToken) {
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('token', newAccessToken);
+                  document.cookie = `token=${newAccessToken}; path=/; max-age=604800; SameSite=Lax`;
+                  if (newRefreshToken) {
+                    localStorage.setItem('refreshToken', newRefreshToken);
+                    document.cookie = `refreshToken=${newRefreshToken}; path=/; max-age=2592000; SameSite=Lax`;
+                  }
+                }
+                isRefreshing = false;
+                // Retry original request with new access token
+                return fetchApi<T>(endpoint, {
+                  ...options,
+                  headers: {
+                    ...options.headers,
+                    Authorization: `Bearer ${newAccessToken}`,
+                  },
+                });
+              }
             }
-            isRefreshing = false;
-            // Retry original request with new access token
-            return fetchApi<T>(endpoint, {
-              ...options,
-              headers: {
-                ...options.headers,
-                Authorization: `Bearer ${newToken}`,
-              },
-            });
+          } catch (_) {}
+          isRefreshing = false;
+        }
+
+        // If refresh fails or user's session is completely invalid/expired: Logout & redirect
+        if (!isAuthEndpoint && typeof window !== 'undefined') {
+          useAuthStore.getState().logout();
+          if (!window.location.pathname.startsWith('/login')) {
+            window.location.href = '/login?session_expired=true';
           }
-        } catch (_) {}
-        isRefreshing = false;
+        }
       }
 
       throw new ApiError(data.message || 'An error occurred', response.status, data);
