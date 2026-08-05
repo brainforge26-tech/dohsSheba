@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { getApiBaseUrl } from '@/lib/api-client';
-import { SidebarCategoryMenu } from '@/components/shopping/SidebarCategoryMenu';
+import { SidebarCategoryMenu, MobileCategoryBar } from '@/components/shopping/SidebarCategoryMenu';
 import { BreadcrumbNav } from '@/components/common/BreadcrumbNav';
 import { ProductCard } from '@/components/common/ProductCard';
 import { ShoppingBag, Package, ArrowUpDown } from 'lucide-react';
