@@ -219,28 +219,27 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
     checkOpenOrders();
   }, [loadStats, loadActiveMissions, loadHistory, loadWithdrawals, checkOpenOrders]);
 
-  // Periodic poll check for open orders when online & no active popup
+  // Periodic poll check for open orders when no active popup
   useEffect(() => {
-    if (!isOnline || showPopup || activeMissions.length > 0) return;
+    if (showPopup || activeMissions.length > 0) return;
     const interval = setInterval(() => {
       checkOpenOrders();
-    }, 4000);
+    }, 3000);
     return () => clearInterval(interval);
-  }, [isOnline, showPopup, activeMissions.length, checkOpenOrders]);
+  }, [showPopup, activeMissions.length, checkOpenOrders]);
 
   // ── Real-Time Socket.IO Synchronization ─────────────────────────────────────
   useEffect(() => {
     if (!socket) return;
 
-    if (isOnline) {
-      socket.emit('register_rider');
-    }
+    socket.emit('register_rider');
 
     const handleBroadcast = (data: any) => {
       console.log('⚡ [RIDER DASHBOARD] Received RIDER_ORDER_BROADCAST payload:', data);
       setIncomingOrder(data);
       setCountdown(30);
       setShowPopup(true);
+      checkOpenOrders();
       triggerOrderAlert();
     };
 
@@ -253,6 +252,7 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
         }
         return prev;
       });
+      checkOpenOrders();
     };
 
     const handleTimeout = (data: { orderId: string }) => {
@@ -264,11 +264,13 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
         }
         return prev;
       });
+      checkOpenOrders();
     };
 
     const handleStatusUpdate = () => {
       console.log('⚡ [RIDER DASHBOARD] Received ORDER_STATUS_UPDATED event');
       loadActiveMissions();
+      checkOpenOrders();
       loadStats();
     };
 
@@ -283,7 +285,7 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
       socket.off('RIDER_ORDER_TIMEOUT', handleTimeout);
       socket.off('ORDER_STATUS_UPDATED', handleStatusUpdate);
     };
-  }, [socket, isOnline, loadActiveMissions, loadStats]);
+  }, [socket, checkOpenOrders, loadActiveMissions, loadStats]);
 
   // ── 30-Second SVG Countdown Timer ──────────────────────────────────────────
   useEffect(() => {

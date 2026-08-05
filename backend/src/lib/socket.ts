@@ -183,6 +183,8 @@ export const emitToOnlineRiders = (event: string, payload: any) => {
     const riderCount = room ? room.size : 0;
     console.log(`📡 [SOCKET BROADCAST] Event: ${event} | Room: online_riders | Connected Sockets in Room: ${riderCount} | Order ID: ${payload?.orderId || 'N/A'}`);
     io.to('online_riders').emit(event, payload);
+    io.to('role_RIDER').emit(event, payload);
+    io.emit(event, payload);
   }
 };
 
