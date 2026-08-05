@@ -2,7 +2,6 @@ import React from 'react';
 import { HeroBanner } from '@/components/home/HeroBanner';
 import { PopularCategoriesSection } from '@/components/home/PopularCategoriesSection';
 import { ServiceCategoriesGrid } from '@/components/home/ServiceCategoriesGrid';
-import { ShoppingCategoriesGrid } from '@/components/home/ShoppingCategoriesGrid';
 import { DailyDealsSection } from '@/components/home/DailyDealsSection';
 import { ForYouProductsSection } from '@/components/home/ForYouProductsSection';
 import { HowItWorksSection } from '@/components/home/HowItWorksSection';
@@ -15,7 +14,6 @@ export default function HomePage() {
       <HeroBanner />
       <PopularCategoriesSection />
       <ServiceCategoriesGrid />
-      <ShoppingCategoriesGrid />
       <DailyDealsSection />
       <ForYouProductsSection />
       <HowItWorksSection />
