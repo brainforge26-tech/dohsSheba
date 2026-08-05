@@ -1,0 +1,94 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { getApiBaseUrl } from '@/lib/api-client';
+import { SHOPPING_CATEGORIES } from '@/constants/products';
+import { BreadcrumbNav } from '@/components/common/BreadcrumbNav';
+import { Loader2, LayoutGrid } from 'lucide-react';
+
+export default function AllCategoriesPage() {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const API = getApiBaseUrl();
+    fetch(`${API}/product-categories`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (res?.success && Array.isArray(res.data)) {
+          const parents = res.data.filter((cat: any) => !cat.parentId);
+          setCategories(parents.length > 0 ? parents : res.data);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const displayList = categories.length > 0 ? categories : SHOPPING_CATEGORIES;
+
+  return (
+    <div className="py-6 px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 w-full max-w-[1720px] mx-auto space-y-6 font-sans text-slate-800">
+      {/* Breadcrumb Navigation */}
+      <BreadcrumbNav
+        items={[
+          { label: 'Shopping Market', href: '/categories' },
+          { label: 'All Categories' },
+        ]}
+      />
+
+      {/* Header Banner */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-950 text-white space-y-2 shadow-lg border border-emerald-500/20">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-xs font-bold text-emerald-300 border border-emerald-400/30">
+          <LayoutGrid className="w-3.5 h-3.5" />
+          <span>Explore Market Categories</span>
+        </div>
+        <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
+          All Shopping Categories
+        </h1>
+        <p className="text-xs sm:text-sm text-emerald-200/80 max-w-xl">
+          Select a category to view subcategories, special offers, and fresh local DOHS bazaar products.
+        </p>
+      </div>
+
+      {/* Loading State */}
+      {loading ? (
+        <div className="py-16 flex items-center justify-center text-slate-400 gap-2 text-sm font-semibold">
+          <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+          <span>Loading categories...</span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-5">
+          {displayList.map((cat: any) => {
+            const subCount = Array.isArray(cat.children) ? cat.children.length : (cat.itemCount ?? 4);
+            const catImage = cat.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500&auto=format&fit=crop&q=80';
+
+            return (
+              <Link
+                key={cat.id || cat.slug}
+                href={`/category/${cat.slug}`}
+                className="group flex flex-col bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-emerald-500/50 transition-all duration-200 text-center"
+              >
+                <div className="relative aspect-4/3 w-full bg-slate-100 overflow-hidden">
+                  <img
+                    src={catImage}
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-3 sm:p-4 flex flex-col items-center justify-center space-y-1">
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
+                    {cat.name}
+                  </h3>
+                  <span className="text-[11px] text-slate-400 font-medium">
+                    {subCount > 0 ? `${subCount} subcategories` : 'View products'}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

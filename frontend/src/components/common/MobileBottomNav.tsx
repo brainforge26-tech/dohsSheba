@@ -44,8 +44,8 @@ export function MobileBottomNav() {
       id: 'categories',
       label: isBn ? 'ক্যাটাগরি' : 'Categories',
       icon: LayoutGrid,
-      href: '/category/fresh-fruits-vegetables',
-      isActive: Boolean(pathname?.startsWith('/category')),
+      href: '/categories',
+      isActive: Boolean(pathname?.startsWith('/categories') || pathname?.startsWith('/category')),
     },
     {
       id: 'search',
