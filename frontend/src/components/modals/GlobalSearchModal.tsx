@@ -253,7 +253,7 @@ export function GlobalSearchModal() {
                         {prod.name || prod.title}
                       </h4>
                       <div className="font-extrabold text-xs text-[#7eb343] mt-0.5">
-                        ৳{prod.price} <span className="text-[10px] text-slate-400 font-normal">/ {prod.unit || 'unit'}</span>
+                        ৳{prod.price} <span className="text-[10px] text-slate-400 font-normal">/ {(prod.unitAmount ?? prod.amount) ? `${prod.unitAmount ?? prod.amount} ${prod.unit || 'unit'}` : (prod.unit || 'unit')}</span>
                       </div>
                     </div>
                   </Link>
@@ -340,7 +340,7 @@ export function GlobalSearchModal() {
                         <div className="font-black text-xs text-[#7eb343]">
                           ৳{prod.price}
                         </div>
-                        <span className="text-[10px] text-slate-400 font-medium">{prod.unit || 'unit'}</span>
+                        <span className="text-[10px] text-slate-400 font-medium">{(prod.unitAmount ?? prod.amount) ? `${prod.unitAmount ?? prod.amount} ${prod.unit || 'unit'}` : (prod.unit || 'unit')}</span>
                       </div>
                     </Link>
                   ))}

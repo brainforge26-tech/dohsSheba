@@ -20,6 +20,12 @@ export class ProductService {
     const originalPrice = disc > 0 ? Math.round(price / (1 - disc / 100)) : undefined;
     const discPct = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
+    const rawAmt = p.unitAmount ?? p.amount;
+    const rawUnit = (p.unit || 'unit').trim();
+    const formattedUnit = (rawAmt !== undefined && rawAmt !== null && rawAmt !== '' && !isNaN(Number(rawAmt)))
+      ? `${rawAmt} ${rawUnit}`
+      : rawUnit;
+
     return {
       id: p.id,
       title: p.name || p.title || 'Product',
@@ -29,7 +35,8 @@ export class ProductService {
       shopName: p.seller?.sellerProfile?.shopName || p.sellerProfile?.shopName || 'Green Market DOHS',
       price,
       originalPrice,
-      unit: p.unit || 'unit',
+      unit: formattedUnit,
+      unitAmount: rawAmt !== undefined && rawAmt !== null && rawAmt !== '' ? Number(rawAmt) : undefined,
       rating: Number(p.rating || 4.5),
       reviewCount: p._count?.reviews || 0,
       image: Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : (p.image || undefined),

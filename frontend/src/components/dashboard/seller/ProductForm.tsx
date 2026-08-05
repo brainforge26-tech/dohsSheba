@@ -43,6 +43,7 @@ interface ProductFormData {
   stock: string;
   lowStockAlert: string;
   unit: string;
+  unitAmount: string;
   weight: string;
   length: string;
   width: string;
@@ -81,7 +82,8 @@ const DEFAULT: ProductFormData = {
   discount: '',
   stock: '',
   lowStockAlert: '10',
-  unit: 'piece',
+  unit: 'kg',
+  unitAmount: '',
   weight: '',
   length: '',
   width: '',
@@ -200,7 +202,8 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
         costPrice:       String(initialData.costPrice || ''),
         discount:        String(initialData.discount  || ''),
         stock:           String(initialData.stock    || ''),
-        unit:            initialData.unit           || 'piece',
+        unit:            initialData.unit           || 'kg',
+        unitAmount:      initialData.unitAmount !== undefined && initialData.unitAmount !== null ? String(initialData.unitAmount) : (initialData.amount !== undefined && initialData.amount !== null ? String(initialData.amount) : ''),
         images:          Array.isArray(initialData.images) && initialData.images.length > 0
                            ? initialData.images
                            : initialData.image ? [initialData.image] : [],
@@ -304,6 +307,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
       discount: form.discount ? Number(form.discount) : 0,
       stock: form.stock ? Number(form.stock) : 0,
       unit: form.unit,
+      unitAmount: form.unitAmount !== '' && form.unitAmount !== undefined && form.unitAmount !== null ? Number(form.unitAmount) : undefined,
       images: form.images.length > 0 ? form.images : ['https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600'],
       slug: form.slug.trim() || undefined,
       isActive: form.status !== 'DRAFT' && form.isVisible !== false,
@@ -790,8 +794,8 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                   </div>
                 </div>
 
-                {/* 5. Stock & Unit Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* 5. Stock & Measurement Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                       Stock Quantity
@@ -808,6 +812,21 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
 
                   <div>
                     <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                      Amount
+                    </label>
+                    <input
+                      type="number"
+                      step="any"
+                      min="0"
+                      value={form.unitAmount}
+                      onChange={(e) => set('unitAmount', e.target.value)}
+                      placeholder="e.g. 1, 5, 500, 2, 750"
+                      className="w-full px-4 py-3 rounded-xl bg-[#12131f] border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
                       Unit Type
                     </label>
                     <select
@@ -815,7 +834,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
                       onChange={(e) => set('unit', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl bg-[#12131f] border border-white/10 text-white text-xs font-semibold focus:outline-none focus:border-indigo-500"
                     >
-                      {['piece', 'kg', 'gram', 'liter', 'ml', 'dozen', 'pack', 'box'].map((u) => (
+                      {['kg', 'gram', 'liter', 'ml', 'piece', 'dozen', 'pack', 'box'].map((u) => (
                         <option key={u} value={u}>{u}</option>
                       ))}
                     </select>

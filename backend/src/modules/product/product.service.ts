@@ -262,7 +262,7 @@ export const createProduct = async (
 ) => {
   const {
     name, description, price, salePrice, costPrice, discount,
-    categoryId, brand, brandId, images, stock, unit,
+    categoryId, brand, brandId, images, stock, unit, unitAmount, amount,
     isFeatured, isFlashSale, isActive,
     sku, barcode, weight, length, width, height,
     videoUrl, metaTitle, metaDescription, relatedProductIds, relatedProducts
@@ -304,6 +304,9 @@ export const createProduct = async (
     relIds = relatedProducts.map((r: any) => typeof r === 'string' ? r : r.id).filter(Boolean);
   }
 
+  const parseAmt = (val: any) => (val !== undefined && val !== null && val !== '') ? Number(val) : null;
+  const resolvedUnitAmount = parseAmt(unitAmount) ?? parseAmt(amount);
+
   return prisma.product.create({
     data: {
       sellerId,
@@ -319,6 +322,7 @@ export const createProduct = async (
       discount:    Number(discount || 0),
       stock:       Number(stock || 0),
       unit:        unit || 'unit',
+      unitAmount:  resolvedUnitAmount,
       isFeatured:  Boolean(isFeatured),
       isFlashSale: Boolean(isFlashSale),
       isActive:    isActive !== undefined ? Boolean(isActive) : true,
@@ -348,7 +352,7 @@ export const updateProduct = async (
 
   const {
     name, description, price, salePrice, costPrice, discount,
-    categoryId, brand, brandId, images, stock, unit,
+    categoryId, brand, brandId, images, stock, unit, unitAmount, amount,
     isFeatured, isFlashSale, isActive,
     sku, barcode, weight, length, width, height,
     videoUrl, metaTitle, metaDescription, relatedProductIds, relatedProducts
@@ -370,6 +374,11 @@ export const updateProduct = async (
   if (videoUrl !== undefined)    updateData.videoUrl = videoUrl || null;
   if (metaTitle !== undefined)   updateData.metaTitle = metaTitle || null;
   if (metaDescription !== undefined) updateData.metaDescription = metaDescription || null;
+
+  const rawAmt = unitAmount !== undefined ? unitAmount : amount;
+  if (rawAmt !== undefined) {
+    updateData.unitAmount = (rawAmt !== null && rawAmt !== '') ? Number(rawAmt) : null;
+  }
 
   if (Array.isArray(relatedProductIds)) {
     updateData.relatedProductIds = relatedProductIds;

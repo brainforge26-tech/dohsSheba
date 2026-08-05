@@ -269,6 +269,7 @@ model Product {
   images       String[]
   stock        Int             @default(0)
   unit         String          @default("kg")
+  unitAmount   Float?
   isActive     Boolean         @default(true)
   isFeatured   Boolean         @default(false)
   isFlashSale  Boolean         @default(false)

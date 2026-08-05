@@ -46,7 +46,7 @@ export function ForYouProductsSection() {
             slug:         p.slug || p.id,
             price,
             originalPrice,
-            unit:         p.unit || 'unit',
+            unit:         (p.unitAmount ?? p.amount) ? `${p.unitAmount ?? p.amount} ${p.unit || 'unit'}` : (p.unit || 'unit'),
             image:        Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : undefined,
             rating:       Number(p.rating || 4.5),
             soldCount:    p._count?.orderItems || 0,

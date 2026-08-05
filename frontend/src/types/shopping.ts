@@ -43,6 +43,7 @@ export interface ProductItem {
   price: number;
   originalPrice?: number;
   unit: string;
+  unitAmount?: number;
   rating: number;
   reviewCount: number;
   image: string;

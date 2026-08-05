@@ -65,7 +65,7 @@ export function ShoppingCategoryClient({
               shopName: p.seller?.sellerProfile?.shopName || p.sellerProfile?.shopName || 'Green Market DOHS',
               price: Number(p.price || 0),
               originalPrice: p.originalPrice ? Number(p.originalPrice) : p.discount > 0 ? Math.round(Number(p.price) / (1 - Number(p.discount) / 100)) : undefined,
-              unit: p.unit || 'unit',
+              unit: (p.unitAmount ?? p.amount) ? `${p.unitAmount ?? p.amount} ${p.unit || 'unit'}` : (p.unit || 'unit'),
               rating: p.rating || 4.8,
               reviewCount: p._count?.reviews || 24,
               image: Array.isArray(p.images) && p.images[0] ? p.images[0] : p.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80',

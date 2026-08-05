@@ -69,7 +69,7 @@ export function DailyDealsSection() {
             slug:         p.slug || p.id,
             price:        Number(p.price || 0),
             originalPrice: p.originalPrice ? Number(p.originalPrice) : (p.discount && p.discount > 0 ? Math.round(Number(p.price) / (1 - Number(p.discount) / 100)) : undefined),
-            unit:         p.unit || 'unit',
+            unit:         (p.unitAmount ?? p.amount) ? `${p.unitAmount ?? p.amount} ${p.unit || 'unit'}` : (p.unit || 'unit'),
             image:        Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : (p.image || undefined),
             rating:       p.rating ? Number(p.rating) : 4.5,
             categorySlug: p.category?.slug || '',
