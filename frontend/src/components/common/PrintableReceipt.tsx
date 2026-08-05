@@ -50,30 +50,33 @@ export function PrintableReceipt({ order, trackingCode }: PrintableReceiptProps)
       <style>{`
         @page {
           size: A4 portrait;
-          margin: 12mm 10mm;
+          margin: 10mm 10mm;
         }
-        /* Hide on screen, only show during print */
+        /* Hide on screen */
         #printable-receipt {
           display: none;
         }
         @media print {
-          /* Hide EVERYTHING using visibility (not display) so parent visibility doesn't block child */
+          /* Make body invisible but keep layout intact */
           body * {
             visibility: hidden !important;
           }
-          /* Show only the receipt */
+          /* Show the receipt — use absolute (NOT fixed) to avoid page repeat */
           #printable-receipt {
             display: block !important;
             visibility: visible !important;
-            position: fixed !important;
+            position: absolute !important;
             top: 0 !important;
             left: 0 !important;
             width: 100% !important;
             background: #ffffff !important;
-            z-index: 99999 !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            overflow: hidden !important;
           }
           #printable-receipt * {
             visibility: visible !important;
+            page-break-inside: avoid;
           }
         }
       `}</style>
