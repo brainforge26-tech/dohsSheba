@@ -177,15 +177,62 @@ export default function ProductsPage() {
     }
   };
 
-  const handleDuplicate = (p: any) => {
-    const dupObj = {
-      ...p,
-      id: `dup_${Date.now()}`,
-      name: `${p.name} (Copy)`,
-      sku: `${p.sku}-COPY`,
-      createdAt: new Date().toISOString(),
-    };
-    setProducts((prev) => [dupObj, ...prev]);
+  const [duplicating, setDuplicating] = useState<string | null>(null);
+
+  const handleDuplicate = async (p: any) => {
+    try {
+      setDuplicating(p.id);
+      const categoryId = p.categoryId || p.category?.id;
+      const brandId = p.brandId || p.brand?.id;
+
+      const payload = {
+        name: `${p.name} (Copy)`,
+        description: p.description || '',
+        price: Number(p.price || 0),
+        salePrice: p.salePrice ? Number(p.salePrice) : undefined,
+        discount: Number(p.discount || 0),
+        stock: Number(p.stock || 0),
+        unit: p.unit || 'unit',
+        categoryId: categoryId || undefined,
+        brandId: brandId || undefined,
+        images: Array.isArray(p.images) && p.images.length > 0 ? p.images : undefined,
+        sku: `${p.sku || 'SKU'}-COPY-${Math.floor(Math.random() * 1000)}`,
+        isFeatured: Boolean(p.isFeatured),
+        isFlashSale: Boolean(p.isFlashSale),
+        isActive: true,
+      };
+
+      const res = await fetchApi<any>('/products', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      if (res && res.success && res.data) {
+        const newProduct = {
+          id: res.data.id,
+          name: res.data.name,
+          sku: res.data.sku || `SKU-${(res.data.id || '').slice(-6).toUpperCase()}`,
+          category: res.data.category || p.category || { name: 'General' },
+          price: Number(res.data.price || 0),
+          discount: Number(res.data.discount || 0),
+          stock: Number(res.data.stock || 0),
+          unit: res.data.unit || 'unit',
+          isActive: true,
+          isFeatured: Boolean(res.data.isFeatured),
+          images: Array.isArray(res.data.images) ? res.data.images : p.images || [],
+          rating: res.data.rating || 5.0,
+          _count: { reviews: 0, orderItems: 0 },
+          createdAt: res.data.createdAt || new Date().toISOString(),
+        };
+        setProducts((prev) => [newProduct, ...prev]);
+      } else {
+        alert(res?.message || 'Failed to duplicate product.');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error duplicating product.');
+    } finally {
+      setDuplicating(null);
+    }
   };
 
   const handleBulkDelete = async () => {
@@ -431,10 +478,11 @@ export default function ProductsPage() {
                         </Link>
                         <button
                           onClick={() => handleDuplicate(p)}
-                          className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-all"
+                          disabled={duplicating === p.id}
+                          className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-all disabled:opacity-50"
                           title="Duplicate Product"
                         >
-                          <Copy className="w-3.5 h-3.5" />
+                          {duplicating === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                         <button
                           onClick={() => handleDelete(p.id)}
