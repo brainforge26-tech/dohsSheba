@@ -629,12 +629,11 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
               )
             ) : (
               /* Active Mission View Component */
-              activeMission && (
+              currentMission && (
                 <CurrentMissionView
-                  mission={activeMission}
-                  currentLocation={currentPos ? { lat: currentPos.lat, lng: currentPos.lng } : null}
+                  mission={currentMission}
                   onMissionUpdate={() => {
-                    checkActiveMissions();
+                    loadActiveMissions();
                     loadStats();
                   }}
                 />
@@ -656,13 +655,13 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-400" />
                 Loading history...
               </div>
-            ) : historyOrders.length === 0 ? (
+            ) : filteredHistory.length === 0 ? (
               <div className="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 text-center text-slate-400 text-sm">
                 No delivery history found.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {historyOrders.map((h) => (
+                {filteredHistory.map((h: any) => (
                   <div key={h.id} className="bg-slate-900/80 border border-slate-800 p-5 rounded-3xl space-y-3 text-xs">
                     <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                       <span className="font-mono text-slate-400 font-bold">#{h.id.slice(-8).toUpperCase()}</span>
