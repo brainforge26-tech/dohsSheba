@@ -45,18 +45,36 @@ export function PrintableReceipt({ order, trackingCode }: PrintableReceiptProps)
   return (
     <div
       id="printable-receipt"
-      className="hidden print:block"
       style={{ fontFamily: "'Segoe UI', Arial, sans-serif", background: '#fff', color: '#111' }}
     >
       <style>{`
         @page {
           size: A4 portrait;
-          margin: 14mm 12mm 14mm 12mm;
+          margin: 12mm 10mm;
+        }
+        /* Hide on screen, only show during print */
+        #printable-receipt {
+          display: none;
         }
         @media print {
-          body * { visibility: hidden !important; }
-          #printable-receipt, #printable-receipt * { visibility: visible !important; }
-          #printable-receipt { position: fixed; top: 0; left: 0; width: 100%; }
+          /* Hide EVERYTHING using visibility (not display) so parent visibility doesn't block child */
+          body * {
+            visibility: hidden !important;
+          }
+          /* Show only the receipt */
+          #printable-receipt {
+            display: block !important;
+            visibility: visible !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            background: #ffffff !important;
+            z-index: 99999 !important;
+          }
+          #printable-receipt * {
+            visibility: visible !important;
+          }
         }
       `}</style>
 
