@@ -614,36 +614,42 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
       )}
 
       {/* ── 4. MAIN WORKFLOW: RADAR WAITING SCREEN OR MISSION MODE ── */}
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-8">
         {/* Navigation Tab Bar */}
-        <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+        <div className="flex items-center gap-3.5 border-b border-slate-800/80 pb-4 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('mission')}
-            className={`px-5 py-2.5 rounded-2xl font-black text-xs transition-all flex items-center gap-2 ${
-              activeTab === 'mission' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
+              activeTab === 'mission'
+                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
             }`}
           >
-            <Navigation className="w-4 h-4" />
-            {isBn ? 'চলতি মিশন' : 'Active Mission'}
+            <Navigation className="w-4 h-4 text-emerald-300" />
+            <span>{isBn ? 'চলতি মিশন' : 'Active Mission'}</span>
             {hasActiveMission && <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />}
           </button>
           <button
             onClick={() => { setActiveTab('history'); loadHistory(); }}
-            className={`px-5 py-2.5 rounded-2xl font-black text-xs transition-all flex items-center gap-2 ${
-              activeTab === 'history' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
+              activeTab === 'history'
+                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
             }`}
           >
-            <Clock className="w-4 h-4" />
-            {isBn ? 'ডেলিভারি হিস্ট্রি' : 'Delivery History'}
+            <Clock className="w-4 h-4 text-cyan-300" />
+            <span>{isBn ? 'ডেলিভারি হিস্ট্রি' : 'Delivery History'}</span>
           </button>
           <button
             onClick={() => setActiveTab('earnings')}
-            className={`px-5 py-2.5 rounded-2xl font-black text-xs transition-all flex items-center gap-2 ${
-              activeTab === 'earnings' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/50' : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+            className={`px-6 py-3 rounded-2xl font-extrabold text-sm transition-all duration-200 flex items-center gap-2.5 shrink-0 ${
+              activeTab === 'earnings'
+                ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-950/60 scale-[1.02]'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
             }`}
           >
-            <DollarSign className="w-4 h-4" />
-            {isBn ? 'উপার্জন সামারি' : 'Earnings Overview'}
+            <DollarSign className="w-4 h-4 text-amber-300" />
+            <span>{isBn ? 'উপার্জন সামারি' : 'Earnings Overview'}</span>
           </button>
         </div>
 

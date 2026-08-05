@@ -312,51 +312,77 @@ export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionV
       </div>
 
       {/* Native App Bottom Sheet UI */}
-      <div className="bg-slate-900 border-2 border-slate-800 rounded-3xl p-5 space-y-4 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div className="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
           <div>
-            <span className="font-mono font-black text-white text-sm">Mission #{mission.id.slice(-8).toUpperCase()}</span>
-            <span className="text-xs text-emerald-400 font-bold block">Status: {mission.status}</span>
+            <span className="font-mono font-black text-white text-base tracking-wide">Mission #{mission.id.slice(-8).toUpperCase()}</span>
+            <span className="text-xs text-emerald-400 font-bold block mt-0.5">Status: {mission.status}</span>
           </div>
           <div className="text-right">
-            <span className="text-xs text-slate-400 block font-semibold">Remaining</span>
-            <span className="text-base font-black text-emerald-400">{distanceKm} km · ~{durationMins} mins</span>
+            <span className="text-xs text-slate-400 block font-medium">Distance & Time</span>
+            <span className="text-lg font-black text-emerald-400 font-mono">{distanceKm} km · ~{durationMins} mins</span>
           </div>
         </div>
 
-        {/* Customer Call & Address */}
-        <div className="space-y-3 text-xs">
-          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800 shadow-inner">
+        {/* Store Info Card */}
+        <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+              <Store className="w-5 h-5" />
+            </div>
             <div>
-              <strong className="text-white block text-sm font-bold">{mission.customer?.name || 'Resident Customer'}</strong>
-              <span className="text-slate-400 block mt-0.5">{mission.address?.line1}, {mission.address?.area}</span>
+              <strong className="text-white text-sm font-bold block">
+                {mission.items?.[0]?.product?.seller?.sellerProfile?.shopName || mission.items?.[0]?.product?.seller?.name || 'Green Market DOHS'}
+              </strong>
+              <span className="text-xs text-slate-400 block mt-0.5">
+                {mission.items?.[0]?.product?.seller?.sellerProfile?.shopAddress || 'DOHS Central Market, Gate 2'}
+              </span>
+            </div>
+          </div>
+          {mission.items?.[0]?.product?.seller?.phone && (
+            <a
+              href={`tel:${mission.items[0].product.seller.phone}`}
+              className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 shrink-0"
+            >
+              <Phone className="w-3.5 h-3.5" /> Call Store
+            </a>
+          )}
+        </div>
+
+        {/* Customer Call & Cash Collection Card */}
+        <div className="p-5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between gap-4 border-b border-slate-800/80 pb-3">
+            <div className="space-y-0.5">
+              <span className="text-[11px] text-slate-400 font-extrabold uppercase tracking-wider block">Customer Destination</span>
+              <strong className="text-white text-base font-bold block">{mission.customer?.name || 'Resident Customer'}</strong>
+              <span className="text-xs text-slate-400 block">{mission.address?.line1}, {mission.address?.area}</span>
             </div>
             <a
               href={`tel:${customerPhone}`}
-              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-emerald-950/50 flex items-center gap-2 transition-all active:scale-95"
+              className="py-3 px-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-xl shadow-emerald-950/50 flex items-center gap-2 transition-all active:scale-95 shrink-0"
             >
               <Phone className="w-4 h-4" /> Call Customer
             </a>
           </div>
 
-          <div className="flex items-center justify-between text-xs px-1 pt-1">
-            <span className="text-slate-400 font-bold uppercase tracking-wider text-[11px]">Collect Cash on Delivery:</span>
-            <span className="font-black text-emerald-400 text-lg font-mono">{formatCurrency(mission.totalAmount)}</span>
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-slate-300 font-bold text-xs uppercase tracking-wider">Collect Cash on Delivery:</span>
+            <span className="font-black text-emerald-400 text-xl font-mono">{formatCurrency(mission.totalAmount)}</span>
           </div>
         </div>
 
         {/* Visual 5-Step Delivery Milestone Stepper */}
-        <div className="pt-2 pb-1 border-t border-slate-800 space-y-2">
-          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block text-center">
+        <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-4">
+          <span className="text-xs text-slate-400 font-extrabold uppercase tracking-widest block text-center">
             Mission Progress Tracker
           </span>
-          <div className="flex items-center justify-between relative px-2">
+          <div className="flex items-center justify-between relative px-3 py-2">
             {/* Background Connector Line */}
-            <div className="absolute left-6 right-6 top-3.5 h-1 bg-slate-800 -z-0 rounded-full" />
+            <div className="absolute left-8 right-8 top-6 h-1 bg-slate-800 -z-0 rounded-full" />
             
             {/* Active Progress Connector Fill */}
             <div
-              className="absolute left-6 top-3.5 h-1 bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 -z-0 rounded-full transition-all duration-500"
+              className="absolute left-8 top-6 h-1 bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 -z-0 rounded-full transition-all duration-500"
               style={{
                 width: `${
                   mission.status === 'RIDER_ASSIGNED' ? '0%' :
@@ -385,19 +411,19 @@ export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionV
               const StepIcon = step.icon;
 
               return (
-                <div key={step.id} className="relative z-10 flex flex-col items-center gap-1.5">
+                <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-300 ${
+                    className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black transition-all duration-300 ${
                       isCurrent
-                        ? 'bg-emerald-500 text-slate-950 ring-4 ring-emerald-500/30 scale-125 shadow-lg shadow-emerald-500/50'
+                        ? 'bg-emerald-500 text-slate-950 ring-4 ring-emerald-500/30 scale-110 shadow-lg shadow-emerald-500/50'
                         : isCompleted
                         ? 'bg-emerald-600 text-white'
                         : 'bg-slate-800 text-slate-500 border border-slate-700'
                     }`}
                   >
-                    <StepIcon className="w-3.5 h-3.5" />
+                    <StepIcon className="w-4 h-4" />
                   </div>
-                  <span className={`text-[9px] font-extrabold tracking-tight ${isCurrent ? 'text-emerald-400 font-black' : isCompleted ? 'text-slate-300' : 'text-slate-500'}`}>
+                  <span className={`text-[10px] font-extrabold tracking-tight ${isCurrent ? 'text-emerald-400 font-black' : isCompleted ? 'text-slate-300' : 'text-slate-500'}`}>
                     {step.label}
                   </span>
                 </div>
