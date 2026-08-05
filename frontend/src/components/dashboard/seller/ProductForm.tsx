@@ -91,7 +91,7 @@ const DEFAULT: ProductFormData = {
   metaTitle: '',
   metaDescription: '',
   slug: '',
-  status: 'DRAFT',
+  status: 'ACTIVE',
   isVisible: true,
   isFeatured: false,
   isFlashSale: false,
@@ -306,7 +306,7 @@ export function ProductForm({ mode, productId, initialData }: ProductFormProps) 
       unit: form.unit,
       images: form.images.length > 0 ? form.images : ['https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600'],
       slug: form.slug.trim() || undefined,
-      isActive: form.status === 'ACTIVE' && form.isVisible,
+      isActive: form.status !== 'DRAFT' && form.isVisible !== false,
       isFeatured: form.isFeatured,
       isFlashSale: form.isFlashSale,
     };

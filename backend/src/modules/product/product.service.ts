@@ -393,11 +393,13 @@ export const deleteProduct = async (sellerId: string, productId: string, role: s
 };
 
 export const getSellerProducts = async (sellerId: string) => {
+  const user = await prisma.user.findUnique({ where: { id: sellerId }, select: { role: true } });
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+
+  const where: any = isAdmin ? {} : { sellerId };
+
   return prisma.product.findMany({
-    where: {
-      sellerId,
-      isActive: true,
-    },
+    where,
     include: {
       category: { select: { name: true, slug: true } },
       _count: { select: { reviews: true, orderItems: true } },
