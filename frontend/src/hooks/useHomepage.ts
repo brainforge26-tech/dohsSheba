@@ -56,6 +56,48 @@ export function useHomepage() {
     },
   });
 
+  const createShortcutMutation = useMutation({
+    mutationFn: (data: any) => homepageService.createShortcut(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HOMEPAGE_QUERY_KEY });
+    },
+  });
+
+  const updateShortcutMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => homepageService.updateShortcut(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HOMEPAGE_QUERY_KEY });
+    },
+  });
+
+  const deleteShortcutMutation = useMutation({
+    mutationFn: (id: string) => homepageService.deleteShortcut(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HOMEPAGE_QUERY_KEY });
+    },
+  });
+
+  const createLocationMutation = useMutation({
+    mutationFn: (data: any) => homepageService.createLocation(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HOMEPAGE_QUERY_KEY });
+    },
+  });
+
+  const updateLocationMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => homepageService.updateLocation(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HOMEPAGE_QUERY_KEY });
+    },
+  });
+
+  const deleteLocationMutation = useMutation({
+    mutationFn: (id: string) => homepageService.deleteLocation(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: HOMEPAGE_QUERY_KEY });
+    },
+  });
+
   return {
     ...homepageQuery,
     heroSlides: homepageQuery.data?.heroSlides || [],
@@ -68,5 +110,11 @@ export function useHomepage() {
     createPromo: createPromoMutation.mutateAsync,
     updatePromo: updatePromoMutation.mutateAsync,
     deletePromo: deletePromoMutation.mutateAsync,
+    createShortcut: createShortcutMutation.mutateAsync,
+    updateShortcut: updateShortcutMutation.mutateAsync,
+    deleteShortcut: deleteShortcutMutation.mutateAsync,
+    createLocation: createLocationMutation.mutateAsync,
+    updateLocation: updateLocationMutation.mutateAsync,
+    deleteLocation: deleteLocationMutation.mutateAsync,
   };
 }

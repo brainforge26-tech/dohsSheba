@@ -207,4 +207,46 @@ export const homepageService = {
       method: 'DELETE',
     });
   },
+
+  // Shortcuts CRUD
+  createShortcut: async (data: Partial<FeaturedShortcutData>) => {
+    return await fetchApi('/admin/homepage/shortcuts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateShortcut: async (id: string, data: Partial<FeaturedShortcutData>) => {
+    return await fetchApi(`/admin/homepage/shortcuts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteShortcut: async (id: string) => {
+    return await fetchApi(`/admin/homepage/shortcuts/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Locations CRUD
+  createLocation: async (data: Partial<LocationData>) => {
+    return await fetchApi('/admin/homepage/locations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateLocation: async (id: string, data: Partial<LocationData>) => {
+    return await fetchApi(`/admin/homepage/locations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteLocation: async (id: string) => {
+    return await fetchApi(`/admin/homepage/locations/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };
