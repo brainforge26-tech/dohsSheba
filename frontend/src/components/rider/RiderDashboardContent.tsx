@@ -477,27 +477,46 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
         </div>
       )}
 
-      {/* ── 2. TODAY'S SUMMARY CARDS (NO COMPLEX CHARTS) ── */}
+      {/* ── 2. TODAY'S SUMMARY CARDS (HIGH-VISIBILITY KPI METRICS) ── */}
       <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-3.5 mb-8">
-        <div className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 space-y-1">
-          <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider block">{isBn ? 'আজকের উপার্জন' : "Today's Earnings"}</span>
-          <p className="text-2xl font-black text-emerald-400">{statsLoading ? '...' : formatCurrency(stats?.todayEarnings || 0)}</p>
+        <div className="bg-gradient-to-br from-emerald-500/10 via-slate-900 to-slate-900 p-4.5 rounded-3xl border border-emerald-500/20 shadow-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider block">{isBn ? 'আজকের উপার্জন' : "Today's Earnings"}</span>
+            <DollarSign className="w-4 h-4 text-emerald-400" />
+          </div>
+          <p className="text-2xl md:text-3xl font-black text-emerald-400 mt-2 font-mono">{statsLoading ? '...' : formatCurrency(stats?.todayEarnings || 0)}</p>
         </div>
-        <div className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 space-y-1">
-          <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider block">{isBn ? 'আজকের রাইড' : "Today's Deliveries"}</span>
-          <p className="text-2xl font-black text-white">{statsLoading ? '...' : stats?.todayDeliveries || 0}</p>
+
+        <div className="bg-gradient-to-br from-blue-500/10 via-slate-900 to-slate-900 p-4.5 rounded-3xl border border-blue-500/20 shadow-xl relative overflow-hidden group hover:border-blue-500/40 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider block">{isBn ? 'আজকের রাইড' : "Today's Deliveries"}</span>
+            <Bike className="w-4 h-4 text-blue-400" />
+          </div>
+          <p className="text-2xl md:text-3xl font-black text-white mt-2 font-mono">{statsLoading ? '...' : stats?.todayDeliveries || 0}</p>
         </div>
-        <div className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 space-y-1">
-          <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider block">{isBn ? 'সম্পন্ন হার' : 'Completion Rate'}</span>
-          <p className="text-2xl font-black text-cyan-400">100%</p>
+
+        <div className="bg-gradient-to-br from-cyan-500/10 via-slate-900 to-slate-900 p-4.5 rounded-3xl border border-cyan-500/20 shadow-xl relative overflow-hidden group hover:border-cyan-500/40 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider block">{isBn ? 'সম্পন্ন হার' : 'Completion Rate'}</span>
+            <TrendingUp className="w-4 h-4 text-cyan-400" />
+          </div>
+          <p className="text-2xl md:text-3xl font-black text-cyan-400 mt-2 font-mono">100%</p>
         </div>
-        <div className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 space-y-1">
-          <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider block">{isBn ? 'গড় রেটিং' : 'Fleet Rating'}</span>
-          <p className="text-2xl font-black text-amber-400">⭐ {statsLoading ? '...' : stats?.rating || '5.0'}</p>
+
+        <div className="bg-gradient-to-br from-amber-500/10 via-slate-900 to-slate-900 p-4.5 rounded-3xl border border-amber-500/20 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider block">{isBn ? 'গড় রেটিং' : 'Fleet Rating'}</span>
+            <Award className="w-4 h-4 text-amber-400" />
+          </div>
+          <p className="text-2xl md:text-3xl font-black text-amber-400 mt-2 font-mono">⭐ {statsLoading ? '...' : stats?.rating || '5.0'}</p>
         </div>
-        <div className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 space-y-1 col-span-2 md:col-span-1">
-          <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider block">{isBn ? 'অনলাইন সময়' : 'Online Time'}</span>
-          <p className="text-2xl font-black text-indigo-400">4.5 hrs</p>
+
+        <div className="bg-gradient-to-br from-indigo-500/10 via-slate-900 to-slate-900 p-4.5 rounded-3xl border border-indigo-500/20 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition-all col-span-2 md:col-span-1">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider block">{isBn ? 'অনলাইন সময়' : 'Online Time'}</span>
+            <Clock className="w-4 h-4 text-indigo-400" />
+          </div>
+          <p className="text-2xl md:text-3xl font-black text-indigo-400 mt-2 font-mono">4.5 hrs</p>
         </div>
       </div>
 

@@ -326,22 +326,83 @@ export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionV
 
         {/* Customer Call & Address */}
         <div className="space-y-3 text-xs">
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800">
+          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950 border border-slate-800 shadow-inner">
             <div>
-              <strong className="text-white block text-sm">{mission.customer?.name || 'Resident Customer'}</strong>
-              <span className="text-slate-400">{mission.address?.line1}, {mission.address?.area}</span>
+              <strong className="text-white block text-sm font-bold">{mission.customer?.name || 'Resident Customer'}</strong>
+              <span className="text-slate-400 block mt-0.5">{mission.address?.line1}, {mission.address?.area}</span>
             </div>
             <a
               href={`tel:${customerPhone}`}
-              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg flex items-center gap-1.5 transition-all"
+              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg shadow-emerald-950/50 flex items-center gap-2 transition-all active:scale-95"
             >
-              <Phone className="w-4 h-4" /> Call
+              <Phone className="w-4 h-4" /> Call Customer
             </a>
           </div>
 
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-slate-400 font-bold">Collect Cash on Delivery:</span>
-            <span className="font-black text-white text-base">{formatCurrency(mission.totalAmount)}</span>
+          <div className="flex items-center justify-between text-xs px-1 pt-1">
+            <span className="text-slate-400 font-bold uppercase tracking-wider text-[11px]">Collect Cash on Delivery:</span>
+            <span className="font-black text-emerald-400 text-lg font-mono">{formatCurrency(mission.totalAmount)}</span>
+          </div>
+        </div>
+
+        {/* Visual 5-Step Delivery Milestone Stepper */}
+        <div className="pt-2 pb-1 border-t border-slate-800 space-y-2">
+          <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block text-center">
+            Mission Progress Tracker
+          </span>
+          <div className="flex items-center justify-between relative px-2">
+            {/* Background Connector Line */}
+            <div className="absolute left-6 right-6 top-3.5 h-1 bg-slate-800 -z-0 rounded-full" />
+            
+            {/* Active Progress Connector Fill */}
+            <div
+              className="absolute left-6 top-3.5 h-1 bg-gradient-to-r from-indigo-500 via-cyan-500 to-emerald-500 -z-0 rounded-full transition-all duration-500"
+              style={{
+                width: `${
+                  mission.status === 'RIDER_ASSIGNED' ? '0%' :
+                  mission.status === 'ARRIVED_AT_STORE' || mission.status === 'PICKUP_STARTED' ? '25%' :
+                  mission.status === 'PICKED_UP' ? '50%' :
+                  mission.status === 'ON_THE_WAY' || mission.status === 'ARRIVED' || mission.status === 'ARRIVED_DESTINATION' ? '75%' : '100%'
+                }`,
+              }}
+            />
+
+            {[
+              { id: 'RIDER_ASSIGNED', label: 'Accepted', icon: ShieldCheck },
+              { id: 'ARRIVED_AT_STORE', label: 'At Store', icon: Store },
+              { id: 'PICKED_UP', label: 'Picked Up', icon: Package },
+              { id: 'ON_THE_WAY', label: 'On Way', icon: Navigation },
+              { id: 'DELIVERED', label: 'Delivered', icon: CheckCircle2 },
+            ].map((step, idx) => {
+              const currentStepIdx = (
+                mission.status === 'RIDER_ASSIGNED' ? 0 :
+                mission.status === 'ARRIVED_AT_STORE' || mission.status === 'PICKUP_STARTED' ? 1 :
+                mission.status === 'PICKED_UP' ? 2 :
+                mission.status === 'ON_THE_WAY' || mission.status === 'ARRIVED' || mission.status === 'ARRIVED_DESTINATION' ? 3 : 4
+              );
+              const isCompleted = idx <= currentStepIdx;
+              const isCurrent = idx === currentStepIdx;
+              const StepIcon = step.icon;
+
+              return (
+                <div key={step.id} className="relative z-10 flex flex-col items-center gap-1.5">
+                  <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all duration-300 ${
+                      isCurrent
+                        ? 'bg-emerald-500 text-slate-950 ring-4 ring-emerald-500/30 scale-125 shadow-lg shadow-emerald-500/50'
+                        : isCompleted
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-slate-800 text-slate-500 border border-slate-700'
+                    }`}
+                  >
+                    <StepIcon className="w-3.5 h-3.5" />
+                  </div>
+                  <span className={`text-[9px] font-extrabold tracking-tight ${isCurrent ? 'text-emerald-400 font-black' : isCompleted ? 'text-slate-300' : 'text-slate-500'}`}>
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -350,7 +411,15 @@ export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionV
           type="button"
           onClick={handleNextMilestone}
           disabled={actionLoading}
-          className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all disabled:opacity-50 tracking-wide"
+          className={`w-full py-4 px-6 font-black text-sm rounded-2xl shadow-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] disabled:opacity-50 tracking-wide uppercase ${
+            mission.status === 'RIDER_ASSIGNED'
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-950/80'
+              : mission.status === 'ARRIVED_AT_STORE' || mission.status === 'PICKUP_STARTED'
+              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-cyan-950/80'
+              : mission.status === 'PICKED_UP'
+              ? 'bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white shadow-blue-950/80'
+              : 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-emerald-950/90 animate-pulse'
+          }`}
         >
           {actionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
           <span>{getMilestoneButtonLabel(mission.status)}</span>
