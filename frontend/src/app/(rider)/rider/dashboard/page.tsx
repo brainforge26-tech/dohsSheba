@@ -47,7 +47,7 @@ const triggerOrderAlert = () => {
   } catch (_) {}
 };
 
-export default function RiderDashboardPage() {
+export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?: 'mission' | 'history' | 'earnings' }) {
   const router = useRouter();
   const { language } = useLanguageStore();
   const { user } = useAuthStore();
@@ -79,7 +79,13 @@ export default function RiderDashboardPage() {
   const [historySearch, setHistorySearch] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionMsg, setActionMsg] = useState('');
-  const [activeTab, setActiveTab] = useState<'mission' | 'history' | 'earnings'>('mission');
+  const [activeTab, setActiveTab] = useState<'mission' | 'history' | 'earnings'>(initialTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // ── Withdrawal State ──────────────────────────────────────────────────────
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
@@ -1130,4 +1136,8 @@ export default function RiderDashboardPage() {
       )}
     </div>
   );
+}
+
+export default function RiderDashboardPage() {
+  return <RiderDashboardContent initialTab="mission" />;
 }
