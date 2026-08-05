@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ALL_PRODUCTS } from '@/constants/products';
 import { ProductCategory, ProductCategorySlug, ProductItem } from '@/types/shopping';
 import { ProductCard } from '@/components/cards/ProductCard';
 import { ProductFilterSidebar } from '@/components/shopping/ProductFilterSidebar';
@@ -88,33 +87,17 @@ export function ShoppingCategoryClient({
 
   // Filter & Sort
   const filteredProducts = useMemo(() => {
-    if (dbProducts.length > 0) {
-      let list = [...dbProducts];
-      if (maxPrice) list = list.filter((p) => p.price <= maxPrice);
-      if (organicOnly) list = list.filter((p) => p.isOrganic);
-      if (inStockOnly) list = list.filter((p) => p.stock > 0);
-
-      if (sortBy === 'price-asc') list.sort((a, b) => a.price - b.price);
-      else if (sortBy === 'price-desc') list.sort((a, b) => b.price - a.price);
-      else list.sort((a, b) => b.rating - a.rating);
-
-      return list;
-    }
-
-    let list = ALL_PRODUCTS.filter((p) => {
-      if (!isCategoryMatch(p.categorySlug, p.categoryName, categorySlug)) return false;
-      if (p.price > maxPrice) return false;
-      if (organicOnly && !p.isOrganic) return false;
-      if (inStockOnly && p.stock <= 0) return false;
-      return true;
-    });
+    let list = [...dbProducts];
+    if (maxPrice) list = list.filter((p) => p.price <= maxPrice);
+    if (organicOnly) list = list.filter((p) => p.isOrganic);
+    if (inStockOnly) list = list.filter((p) => p.stock > 0);
 
     if (sortBy === 'price-asc') list.sort((a, b) => a.price - b.price);
     else if (sortBy === 'price-desc') list.sort((a, b) => b.price - a.price);
     else list.sort((a, b) => b.rating - a.rating);
 
     return list;
-  }, [dbProducts, categorySlug, maxPrice, organicOnly, inStockOnly, sortBy]);
+  }, [dbProducts, maxPrice, organicOnly, inStockOnly, sortBy]);
 
   const handleReset = () => {
     setMaxPrice(3000);

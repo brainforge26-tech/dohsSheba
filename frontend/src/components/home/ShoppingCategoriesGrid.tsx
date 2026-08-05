@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Grid } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 const FALLBACK_CATEGORIES = [
   { id: 'pcat_veg',    name: 'Vegetables & Fruits',    slug: 'vegetables',   image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&auto=format&fit=crop&q=80' },
@@ -34,7 +35,7 @@ export function ShoppingCategoriesGrid() {
 
   // Fetch from database
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/product-categories`)
+    fetch(`${getApiBaseUrl()}/product-categories`)
       .then((r) => r.json())
       .then((res) => {
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {

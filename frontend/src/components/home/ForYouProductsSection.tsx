@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProductCard } from '@/components/common/ProductCard';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 const PAGE_SIZE = 10;
 
@@ -28,10 +29,9 @@ export function ForYouProductsSection() {
   const [page, setPage]           = useState(1);
   const [hasMore, setHasMore]     = useState(true);
 
-  const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-
   const fetchProducts = async (pageNum: number, append = false) => {
     try {
+      const API = getApiBaseUrl();
       const res = await fetch(`${API}/products?page=${pageNum}&limit=${PAGE_SIZE}&sort=newest`);
       const data = await res.json();
       if (data?.success && Array.isArray(data.data)) {

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProductCard } from '@/components/common/ProductCard';
 import { Flame, Clock } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 interface DealProduct {
   id: string;
@@ -56,7 +57,7 @@ export function DailyDealsSection() {
 
   // Fetch discounted / hot deal products from DB
   useEffect(() => {
-    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+    const API = getApiBaseUrl();
     // Fetch only Flash Sale marked products from DB
     fetch(`${API}/products?flashSale=true&limit=12`)
       .then((r) => r.json())
