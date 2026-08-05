@@ -207,34 +207,9 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
       const res = await fetchApi<any>('/rider/orders/open').catch(() => null);
       if (res?.success && Array.isArray(res.data)) {
         setOpenOrdersList(res.data);
-        const availableNewOrders = res.data.filter(
-          (o: any) => !dismissedOrderIds.includes(o.id) && !dismissedOrderIds.includes(o.orderId)
-        );
-
-        if (availableNewOrders.length > 0 && !showPopup && !incomingOrder) {
-          const order = availableNewOrders[0];
-          setIncomingOrder({
-            orderId: order.id,
-            storeName: order.items[0]?.product?.seller?.sellerProfile?.shopName || 'DOHS Merchant Store',
-            storeAddress: 'DOHS Central Supermarket, Gate 2',
-            customerName: order.customer?.name || 'Resident',
-            customerPhone: order.customerPhone || order.customer?.phone || order.address?.phone || '01306031982',
-            address: `${order.address?.line1 || 'Block C'}, ${order.address?.area || 'Mohakhali DOHS'}`,
-            totalItems: order.items?.length || 1,
-            totalAmount: order.totalAmount,
-            deliveryFee: order.deliveryFee || 50,
-            earnings: order.netEarning || order.earnings || Math.round((order.deliveryFee || 50) * 0.8),
-            distance: '1.2 km',
-            estimatedTime: '20 mins',
-            paymentType: 'Cash on Delivery (COD)',
-          });
-          setCountdown(30);
-          setShowPopup(true);
-          triggerOrderAlert();
-        }
       }
     } catch (_) {}
-  }, [showPopup, incomingOrder, dismissedOrderIds]);
+  }, []);
 
   useEffect(() => {
     loadStats();
