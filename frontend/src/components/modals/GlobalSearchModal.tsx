@@ -6,6 +6,7 @@ import { Search, X, Wrench, Loader2, Zap, Sparkles, TrendingUp, ArrowRight, Star
 import { useSearchStore } from '@/store/useSearchStore';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import { useRouter } from 'next/navigation';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 export function GlobalSearchModal() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export function GlobalSearchModal() {
   // Fetch initial featured/flash sale products & popular services when search opens
   useEffect(() => {
     if (!isOpen) return;
-    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+    const API = getApiBaseUrl();
     setLoadingInitial(true);
 
     Promise.all([
@@ -82,7 +83,7 @@ export function GlobalSearchModal() {
     }
 
     setSearching(true);
-    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+    const API = getApiBaseUrl();
 
     const timer = setTimeout(() => {
       Promise.all([

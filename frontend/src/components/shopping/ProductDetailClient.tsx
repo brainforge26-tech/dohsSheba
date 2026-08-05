@@ -9,6 +9,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { formatCurrency } from '@/utils/cn';
 import { ProductCard } from '@/components/common/ProductCard';
+import { getApiBaseUrl } from '@/lib/api-client';
 import {
   Star,
   ShoppingBag,
@@ -45,7 +46,7 @@ export function ProductDetailClient({ product: initialProduct, slug }: ProductDe
     const targetSlug = slug || initialProduct?.slug || initialProduct?.id;
     if (!targetSlug) return;
 
-    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+    const API = getApiBaseUrl();
 
     fetch(`${API}/products/${encodeURIComponent(targetSlug)}`)
       .then((res) => res.json())

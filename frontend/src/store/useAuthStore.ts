@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { UserRole, UserProfile } from '@/types/user';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 interface AuthState {
   user: UserProfile | null;
@@ -104,7 +105,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     if (typeof window !== 'undefined') {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+        const backendUrl = getApiBaseUrl();
         await fetch(`${backendUrl}/auth/logout`, {
           method: 'POST',
           credentials: 'include',

@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { ProductCard } from '@/components/common/ProductCard';
 import { Search, Wrench, Loader2, Package } from 'lucide-react';
 import Link from 'next/link';
+import { getApiBaseUrl } from '@/lib/api-client';
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ function SearchContent() {
     }
 
     setLoading(true);
-    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+    const API = getApiBaseUrl();
 
     Promise.all([
       fetch(`${API}/products?search=${encodeURIComponent(query)}&limit=24`).then((r) => r.json()).catch(() => null),
