@@ -115,6 +115,8 @@ model Address {
   area      String
   city      String   @default("Dhaka")
   postCode  String?
+  latitude  Float?
+  longitude Float?
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -388,6 +390,9 @@ model Order {
   guestEmail           String?
   guestPhone           String?
   guestAddress         String?
+  deliveryAddress      String?
+  latitude             Float?
+  longitude            Float?
   customerPhone        String?
   status               OrderStatus      @default(PENDING)
   subtotal             Float

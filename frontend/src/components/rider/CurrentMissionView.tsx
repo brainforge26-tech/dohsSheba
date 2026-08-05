@@ -29,8 +29,15 @@ interface CurrentMissionViewProps {
   onMissionUpdate: () => void;
 }
 
-export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionViewProps) {
+export function CurrentMissionView({ mission: initialMission, onMissionUpdate }: CurrentMissionViewProps) {
   const { socket } = useSocket();
+
+  const [currentMission, setCurrentMission] = useState(initialMission);
+  const mission = currentMission;
+
+  useEffect(() => {
+    setCurrentMission(initialMission);
+  }, [initialMission]);
 
   // ── States ──────────────────────────────────────────────────────────────────
   const [currentPos, setCurrentPos] = useState<{
@@ -50,32 +57,85 @@ export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionV
   const [wakeLockActive, setWakeLockActive] = useState(false);
 
   // Offline GPS Queue Storage Key
-  const QUEUE_KEY = `gps_queue_${mission.id}`;
+  const QUEUE_KEY = `gps_queue_${currentMission.id}`;
 
   // Store & Customer Locations
   const storeLocation = {
-    lat: mission.items?.[0]?.product?.seller?.latitude || 23.8762,
-    lng: mission.items?.[0]?.product?.seller?.longitude || 90.2741,
+    lat: currentMission.items?.[0]?.product?.seller?.latitude || 23.8762,
+    lng: currentMission.items?.[0]?.product?.seller?.longitude || 90.2741,
   };
 
-  const customerAddressText = [
-    mission.address?.line1,
-    mission.address?.line2,
-    mission.address?.area,
-    mission.address?.city,
-  ].filter(Boolean).join(', ');
+  const customerAddressText =
+    currentMission.deliveryAddress ||
+    currentMission.guestAddress ||
+    [
+      currentMission.address?.line1,
+      currentMission.address?.line2,
+      currentMission.address?.area,
+      currentMission.address?.city,
+    ]
+      .filter(Boolean)
+      .join(', ') ||
+    'Savar, Nabinagar';
 
   const customerLocation = {
-    lat: mission.address?.latitude || 23.879,
-    lng: mission.address?.longitude || 90.278,
+    lat: currentMission.latitude || currentMission.address?.latitude || 23.879,
+    lng: currentMission.longitude || currentMission.address?.longitude || 90.278,
   };
 
-  const customerPhone = mission.customerPhone || mission.customer?.phone || '01306031982';
+  const customerPhone = currentMission.customerPhone || currentMission.customer?.phone || '01306031982';
   const navUrls = getNavigationAppUrls(
-    mission.address?.latitude,
-    mission.address?.longitude,
+    customerLocation.lat,
+    customerLocation.lng,
     customerAddressText
   );
+
+  // ── Real-Time Location Update Listener ──────────────────────────────────────
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLocationUpdate = (payload: any) => {
+      if (!payload) return;
+      const targetId = payload.orderId || payload.order?.id;
+      if (targetId && (targetId === currentMission.id || targetId === initialMission.id)) {
+        setCurrentMission((prev: any) => {
+          const newDeliveryAddress = payload.deliveryAddress || payload.order?.deliveryAddress || prev.deliveryAddress;
+          const newLat = payload.latitude ?? payload.order?.latitude ?? prev.latitude;
+          const newLng = payload.longitude ?? payload.order?.longitude ?? prev.longitude;
+
+          return {
+            ...prev,
+            ...payload.order,
+            deliveryAddress: newDeliveryAddress,
+            guestAddress: newDeliveryAddress || prev.guestAddress,
+            latitude: newLat,
+            longitude: newLng,
+            address: {
+              ...prev.address,
+              line1: payload.line1 || prev.address?.line1,
+              line2: payload.line2 || prev.address?.line2,
+              area: payload.area || prev.address?.area,
+              city: payload.city || prev.address?.city,
+              latitude: newLat,
+              longitude: newLng,
+            },
+          };
+        });
+
+        if (onMissionUpdate) {
+          onMissionUpdate();
+        }
+      }
+    };
+
+    socket.on('ORDER_LOCATION_UPDATED', handleLocationUpdate);
+    socket.on('ORDER_UPDATED', handleLocationUpdate);
+
+    return () => {
+      socket.off('ORDER_LOCATION_UPDATED', handleLocationUpdate);
+      socket.off('ORDER_UPDATED', handleLocationUpdate);
+    };
+  }, [socket, currentMission.id, initialMission.id, onMissionUpdate]);
 
   // ── 1. Screen Wake Lock API (Keep Display Awake During Mission) ─────────────
   useEffect(() => {
@@ -354,8 +414,8 @@ export function CurrentMissionView({ mission, onMissionUpdate }: CurrentMissionV
           <div className="flex items-center justify-between gap-4 border-b border-slate-800/80 pb-3">
             <div className="space-y-0.5">
               <span className="text-[11px] text-slate-400 font-extrabold uppercase tracking-wider block">Customer Destination</span>
-              <strong className="text-white text-base font-bold block">{mission.customer?.name || 'Resident Customer'}</strong>
-              <span className="text-xs text-slate-400 block">{mission.address?.line1}, {mission.address?.area}</span>
+              <strong className="text-white text-base font-bold block">{currentMission.customer?.name || currentMission.guestName || 'Resident Customer'}</strong>
+              <span className="text-xs text-slate-400 block font-medium">{customerAddressText}</span>
             </div>
             <a
               href={`tel:${customerPhone}`}

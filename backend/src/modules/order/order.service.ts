@@ -233,6 +233,112 @@ export const createOrderFromCart = async (
   return order;
 };
 
+// ─── Update Order Location (Real-Time Sync) ──────────────────────────────────
+
+export const updateOrderLocation = async (
+  orderId: string,
+  userId: string,
+  userRole: string,
+  data: {
+    line1?: string;
+    line2?: string;
+    area?: string;
+    city?: string;
+    deliveryAddress?: string;
+    latitude?: number;
+    longitude?: number;
+  }
+) => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { address: true, rider: true },
+  });
+
+  if (!order) throw new AppError('Order not found.', 404);
+
+  // Security Check: Customer who owns order, Seller, or Admin
+  if (userRole === 'CUSTOMER' && order.customerId !== userId) {
+    throw new AppError('Access denied. You can only modify your own orders.', 403);
+  }
+  if (userRole === 'RIDER') {
+    throw new AppError('Riders cannot modify customer delivery locations.', 403);
+  }
+  if (order.status === 'DELIVERED' || order.status === 'CANCELLED') {
+    throw new AppError(`Cannot update location for ${order.status} orders.`, 400);
+  }
+
+  const line1 = data.line1?.trim() || data.deliveryAddress?.trim() || order.address?.line1 || 'DOHS Mohakhali';
+  const line2 = data.line2?.trim() || order.address?.line2 || undefined;
+  const area = data.area?.trim() || order.address?.area || 'Dhaka';
+  const city = data.city?.trim() || order.address?.city || 'Dhaka';
+
+  const lat = data.latitude !== undefined && data.latitude !== null
+    ? Number(data.latitude)
+    : (order.latitude || order.address?.latitude || 23.879);
+  const lng = data.longitude !== undefined && data.longitude !== null
+    ? Number(data.longitude)
+    : (order.longitude || order.address?.longitude || 90.278);
+
+  const fullAddressStr = data.deliveryAddress?.trim() || [line1, line2, area, city].filter(Boolean).join(', ');
+
+  const updatedOrder = await prisma.$transaction(async (tx) => {
+    if (order.addressId) {
+      await tx.address.update({
+        where: { id: order.addressId },
+        data: {
+          line1,
+          line2: line2 || null,
+          area,
+          city,
+          latitude: lat,
+          longitude: lng,
+        },
+      });
+    }
+
+    return tx.order.update({
+      where: { id: orderId },
+      data: {
+        deliveryAddress: fullAddressStr,
+        guestAddress: order.isGuest ? fullAddressStr : order.guestAddress,
+        latitude: lat,
+        longitude: lng,
+        updatedAt: new Date(),
+      },
+      include: orderInclude,
+    });
+  });
+
+  const payload = {
+    orderId: updatedOrder.id,
+    deliveryAddress: fullAddressStr,
+    line1,
+    line2,
+    area,
+    city,
+    latitude: lat,
+    longitude: lng,
+    updatedAt: updatedOrder.updatedAt,
+    order: updatedOrder,
+  };
+
+  // Broadcast real-time location update to assigned rider, order room, customer room, and admin room
+  emitToOrderRoom(orderId, 'ORDER_LOCATION_UPDATED', payload);
+  if (updatedOrder.assignedRiderId) {
+    emitToUser(updatedOrder.assignedRiderId, 'ORDER_LOCATION_UPDATED', payload);
+  }
+  if (updatedOrder.riderId) {
+    emitToUser(updatedOrder.riderId, 'ORDER_LOCATION_UPDATED', payload);
+  }
+  if (updatedOrder.customerId) {
+    emitToUser(updatedOrder.customerId, 'ORDER_LOCATION_UPDATED', payload);
+  }
+  emitToRole('RIDER', 'ORDER_LOCATION_UPDATED', payload);
+  emitToAdminRoom('ORDER_LOCATION_UPDATED', payload);
+
+  return updatedOrder;
+};
+
 // ─── Update Order Status ──────────────────────────────────────────────────────
 
 export const updateOrderStatus = async (orderId: string, status: OrderStatus) => {

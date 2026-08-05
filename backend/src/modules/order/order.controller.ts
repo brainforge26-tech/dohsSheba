@@ -50,6 +50,18 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response, next: N
   } catch (error) { next(error); }
 };
 
+export const updateOrderLocation = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const order = await orderService.updateOrderLocation(
+      req.params.id as string,
+      req.user!.id,
+      req.user!.role,
+      req.body
+    );
+    return sendResponse(res, 200, 'Order delivery location updated successfully', order);
+  } catch (error) { next(error); }
+};
+
 export const cancelOrder = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     await orderService.cancelOrder(req.params.id as string, req.user!.id);

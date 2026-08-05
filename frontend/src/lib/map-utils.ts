@@ -84,17 +84,19 @@ export const interpolatePosition = (
 // ─── External Navigation App Launcher URLs ───────────────────────────────────
 
 export const getNavigationAppUrls = (lat?: number | null, lng?: number | null, addressText?: string) => {
-  const destinationQuery = addressText?.trim()
-    ? encodeURIComponent(addressText.trim())
-    : lat && lng
-    ? `${lat},${lng}`
-    : encodeURIComponent('Mohakhali DOHS, Dhaka');
+  const destCoords = lat && lng ? `${lat},${lng}` : null;
+  const encodedAddress = addressText?.trim() ? encodeURIComponent(addressText.trim()) : null;
+  const destinationQuery = destCoords || encodedAddress || encodeURIComponent('Savar DOHS, Dhaka');
 
   return {
-    googleMaps: `https://www.google.com/maps/dir/?api=1&destination=${destinationQuery}`,
-    appleMaps: `https://maps.apple.com/?daddr=${destinationQuery}`,
-    waze: lat && lng
-      ? `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`
+    googleMaps: destCoords
+      ? `https://www.google.com/maps/dir/?api=1&destination=${destCoords}`
+      : `https://www.google.com/maps/dir/?api=1&destination=${destinationQuery}`,
+    appleMaps: destCoords
+      ? `https://maps.apple.com/?daddr=${destCoords}`
+      : `https://maps.apple.com/?daddr=${destinationQuery}`,
+    waze: destCoords
+      ? `https://waze.com/ul?ll=${destCoords}&navigate=yes`
       : `https://waze.com/ul?q=${destinationQuery}&navigate=yes`,
   };
 };

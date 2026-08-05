@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middlewares/error.middleware';
+import { emitToOrderRoom, emitToUser, emitToRole, emitToAdminRoom } from '../../lib/socket';
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
@@ -18,7 +19,7 @@ export const getUserProfile = async (userId: string) => {
       },
     },
   });
-  if (!user) throw new AppError('User not found.', 404);
+  if (!user) throw new AppError('User profile not found.', 404);
   return user;
 };
 
@@ -26,15 +27,15 @@ export const updateUserProfile = async (
   userId: string,
   data: { name?: string; phone?: string; avatar?: string }
 ) => {
-  const user = await prisma.user.update({
+  return prisma.user.update({
     where: { id: userId },
     data,
     select: {
-      id: true, name: true, email: true,
-      phone: true, role: true, avatar: true, updatedAt: true,
+      id: true, name: true, email: true, phone: true,
+      role: true, avatar: true, emailVerified: true,
+      isActive: true, createdAt: true, updatedAt: true,
     },
   });
-  return user;
 };
 
 // ─── Addresses ────────────────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ export const getUserAddresses = async (userId: string) => {
   try {
     let addresses = await prisma.address.findMany({
       where: { userId },
-      orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
+      orderBy: { isDefault: 'desc' },
     });
 
     if (!addresses || addresses.length === 0) {
@@ -53,52 +54,37 @@ export const getUserAddresses = async (userId: string) => {
             {
               userId,
               label: 'Home',
-              line1: 'House 42, Road 7, Block B',
-              area: 'DOHS Mirpur',
+              line1: 'House 42, Road 7, DOHS Mohakhali',
+              area: 'DOHS Mohakhali',
               city: 'Dhaka',
               isDefault: true,
+              latitude: 23.879,
+              longitude: 90.278,
             },
             {
               userId,
               label: 'Office',
-              line1: 'Building 18, Avenue 4',
+              line1: 'Tower B, Level 4, DOHS Commercial Zone',
               area: 'DOHS Mohakhali',
               city: 'Dhaka',
               isDefault: false,
+              latitude: 23.876,
+              longitude: 90.274,
             },
           ],
         });
-
         addresses = await prisma.address.findMany({
           where: { userId },
-          orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
+          orderBy: { isDefault: 'desc' },
         });
       } catch (seedErr) {
         console.warn('Address seed warning:', seedErr);
       }
     }
-
     return addresses || [];
   } catch (err) {
     console.error('Error fetching addresses:', err);
-    return [
-      {
-        id: 'addr_demo_1',
-        label: 'Home',
-        line1: 'House 42, Road 7, Block B',
-        area: 'DOHS Mirpur',
-        city: 'Dhaka',
-        isDefault: true,
-      },
-      {
-        id: 'addr_demo_2',
-        label: 'Office',
-        line1: 'Building 18, Avenue 4',
-        area: 'DOHS Mohakhali',
-        city: 'Dhaka',
-        isDefault: false,
-      },
-    ];
+    return [];
   }
 };
 
@@ -106,7 +92,7 @@ export const addUserAddress = async (
   userId: string,
   data: any
 ) => {
-  const { label, line1, line2, area, city, postCode, isDefault } = data;
+  const { label, line1, line2, area, city, postCode, latitude, longitude, isDefault } = data;
   if (isDefault) {
     await prisma.address.updateMany({
       where: { userId },
@@ -122,6 +108,8 @@ export const addUserAddress = async (
       area: area || 'DOHS Mohakhali',
       city: city || 'Dhaka',
       postCode: postCode || null,
+      latitude: latitude ? Number(latitude) : 23.879,
+      longitude: longitude ? Number(longitude) : 90.278,
       isDefault: Boolean(isDefault),
     },
   });
@@ -137,6 +125,8 @@ export const updateUserAddress = async (
     area: string;
     city: string;
     postCode: string;
+    latitude: number;
+    longitude: number;
     isDefault: boolean;
   }>
 ) => {
@@ -151,7 +141,64 @@ export const updateUserAddress = async (
       data: { isDefault: false },
     });
   }
-  return prisma.address.update({ where: { id: addressId }, data });
+  const updatedAddress = await prisma.address.update({ where: { id: addressId }, data });
+
+  // Sync active orders using this addressId
+  const activeOrders = await prisma.order.findMany({
+    where: {
+      addressId,
+      status: { notIn: ['DELIVERED', 'CANCELLED', 'REJECTED', 'REFUNDED'] },
+    },
+  });
+
+  const fullAddrText = [updatedAddress.line1, updatedAddress.line2, updatedAddress.area, updatedAddress.city].filter(Boolean).join(', ');
+  const lat = updatedAddress.latitude || 23.879;
+  const lng = updatedAddress.longitude || 90.278;
+
+  for (const o of activeOrders) {
+    const updatedOrder = await prisma.order.update({
+      where: { id: o.id },
+      data: {
+        deliveryAddress: fullAddrText,
+        latitude: lat,
+        longitude: lng,
+        updatedAt: new Date(),
+      },
+      include: {
+        address: true,
+        items: { include: { product: { select: { name: true, images: true } } } },
+        rider: { select: { id: true, name: true, phone: true } },
+      },
+    });
+
+    const payload = {
+      orderId: updatedOrder.id,
+      deliveryAddress: fullAddrText,
+      line1: updatedAddress.line1,
+      line2: updatedAddress.line2,
+      area: updatedAddress.area,
+      city: updatedAddress.city,
+      latitude: lat,
+      longitude: lng,
+      updatedAt: updatedOrder.updatedAt,
+      order: updatedOrder,
+    };
+
+    emitToOrderRoom(o.id, 'ORDER_LOCATION_UPDATED', payload);
+    if (updatedOrder.assignedRiderId) {
+      emitToUser(updatedOrder.assignedRiderId, 'ORDER_LOCATION_UPDATED', payload);
+    }
+    if (updatedOrder.riderId) {
+      emitToUser(updatedOrder.riderId, 'ORDER_LOCATION_UPDATED', payload);
+    }
+    if (updatedOrder.customerId) {
+      emitToUser(updatedOrder.customerId, 'ORDER_LOCATION_UPDATED', payload);
+    }
+    emitToRole('RIDER', 'ORDER_LOCATION_UPDATED', payload);
+    emitToAdminRoom('ORDER_LOCATION_UPDATED', payload);
+  }
+
+  return updatedAddress;
 };
 
 export const deleteUserAddress = async (userId: string, addressId: string) => {
