@@ -133,15 +133,15 @@ export function Header() {
       {/* Main Header Bar */}
       <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 py-3 flex items-center justify-between gap-4">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-[#7eb343] flex items-center justify-center text-white font-black text-xl shadow-sm group-hover:scale-105 transition-transform">
+        <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0 select-none">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#7eb343] flex items-center justify-center text-white font-black text-base sm:text-xl shadow-sm group-hover:scale-105 transition-transform shrink-0">
             dS
           </div>
-          <div>
-            <span className="font-extrabold text-xl tracking-tight text-[#7eb343]">
+          <div className="flex flex-col shrink-0">
+            <span className="font-black text-base sm:text-xl tracking-tight text-[#7eb343] leading-none whitespace-nowrap">
               {siteName}
             </span>
-            <span className="block text-[10px] font-bold text-slate-400 -mt-1 tracking-wider uppercase">
+            <span className="text-[9px] sm:text-[10px] font-extrabold text-slate-400 tracking-wider uppercase leading-tight whitespace-nowrap mt-0.5">
               Grocery & Services
             </span>
           </div>
