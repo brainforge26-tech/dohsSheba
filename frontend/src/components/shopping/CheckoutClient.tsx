@@ -59,9 +59,10 @@ export function CheckoutClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [orderError, setOrderError] = useState('');
 
-  // Prefill phone & address from saved user addresses if available
+  // Prefill phone & address from saved user addresses if available (authenticated users only)
   React.useEffect(() => {
     if (user?.phone) setPhone(user.phone);
+    if (!user) return; // Guest users do not call protected address API
 
     fetchApi<any[]>('/users/addresses')
       .then((res) => {
@@ -79,9 +80,8 @@ export function CheckoutClient() {
   const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
     if (!code) return;
-
-    setCouponError('');
     setCouponLoading(true);
+    setCouponError('');
 
     try {
       const res = await fetchApi<any>('/coupons/validate', {
@@ -126,6 +126,41 @@ export function CheckoutClient() {
     setOrderError('');
 
     try {
+      // ── Guest Checkout direct submission to /orders/guest ──
+      if (!user) {
+        const guestPayload = {
+          guestName: 'DOHS Resident',
+          guestPhone: phone || '01700000000',
+          guestEmail: undefined,
+          guestAddress: address || 'DOHS Mohakhali, Dhaka',
+          items: items.map((i: any) => ({
+            productId: i.product?.id || i.id,
+            quantity: i.quantity || 1,
+          })),
+          notes: `Payment: ${paymentMethod.toUpperCase()} | Speed: ${deliverySpeed}`,
+          paymentMethod: paymentMethod.toUpperCase(),
+          ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+        };
+
+        const guestRes = await fetchApi<any>('/orders/guest', {
+          method: 'POST',
+          body: JSON.stringify(guestPayload),
+        });
+
+        if (guestRes?.success && guestRes.data?.id) {
+          setIsPlaced(true);
+          clearCart();
+          const orderId = guestRes.data.id;
+          const trackingCode = guestRes.data.trackingCode || '';
+          window.location.href = `/checkout/success?orderId=${orderId}&trackingCode=${trackingCode}`;
+          return;
+        } else {
+          setOrderError(guestRes?.message || 'Failed to place order. Please try again.');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       // ── Step 1: Always create/use the address typed by user on checkout form ──
       let addressId: string | null = null;
 

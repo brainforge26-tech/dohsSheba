@@ -97,8 +97,8 @@ export async function fetchApi<T>(
           isRefreshing = false;
         }
 
-        // If refresh fails or user's session is completely invalid/expired: Logout & redirect
-        if (!isAuthEndpoint && typeof window !== 'undefined') {
+        // If refresh fails or user's session is completely invalid/expired: Logout & redirect (only if user had a token)
+        if (!isAuthEndpoint && typeof window !== 'undefined' && token) {
           useAuthStore.getState().logout();
           if (!window.location.pathname.startsWith('/login')) {
             window.location.href = '/login?session_expired=true';
