@@ -9,6 +9,7 @@ const router = Router();
 // ─── Categories ───────────────────────────────────────────────────────────────
 const categoryRouter = Router();
 categoryRouter.get('/',     productController.getCategories);
+categoryRouter.get('/slug/:slug', productController.getCategoryBySlug);
 categoryRouter.post('/',    protect, authorize('SELLER', 'ADMIN'), productCategoryValidator, validate, productController.createCategory);
 categoryRouter.put('/:id',  protect, authorize('SELLER', 'ADMIN'), productController.updateCategory);
 categoryRouter.delete('/:id', protect, authorize('SELLER', 'ADMIN'), productController.deleteCategory);

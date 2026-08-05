@@ -1,5 +1,6 @@
 import React from 'react';
 import { HeroBanner } from '@/components/home/HeroBanner';
+import { PopularCategoriesSection } from '@/components/home/PopularCategoriesSection';
 import { ServiceCategoriesGrid } from '@/components/home/ServiceCategoriesGrid';
 import { ShoppingCategoriesGrid } from '@/components/home/ShoppingCategoriesGrid';
 import { DailyDealsSection } from '@/components/home/DailyDealsSection';
@@ -12,6 +13,7 @@ export default function HomePage() {
   return (
     <PageTransition className="w-full">
       <HeroBanner />
+      <PopularCategoriesSection />
       <ServiceCategoriesGrid />
       <ShoppingCategoriesGrid />
       <DailyDealsSection />

@@ -11,6 +11,13 @@ export const getCategories = async (_req: Request, res: Response, next: NextFunc
   } catch (error) { next(error); }
 };
 
+export const getCategoryBySlug = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const cat = await productService.getCategoryBySlug(req.params.slug as string);
+    return sendResponse(res, 200, 'Category fetched', cat);
+  } catch (error) { next(error); }
+};
+
 export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cat = await productService.createProductCategory(req.body);

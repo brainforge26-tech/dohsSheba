@@ -32,6 +32,26 @@ export const getAllProductCategories = async () => {
   }
 };
 
+export const getCategoryBySlug = async (slug: string) => {
+  const category = await prisma.productCategory.findFirst({
+    where: {
+      slug: { equals: slug, mode: 'insensitive' },
+      isActive: true,
+    },
+    include: {
+      parent: true,
+      children: {
+        where: { isActive: true },
+        include: { _count: { select: { products: { where: { isActive: true } } } } },
+        orderBy: { name: 'asc' },
+      },
+      _count: { select: { products: { where: { isActive: true } } } },
+    },
+  });
+  if (!category) throw new AppError('Category not found.', 404);
+  return category;
+};
+
 export const createProductCategory = async (data: {
   name: string; description?: string; icon?: string;
   image?: string; parentId?: string;
