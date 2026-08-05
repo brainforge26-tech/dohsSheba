@@ -73,18 +73,50 @@ export const deleteProductCategory = async (id: string) => {
     );
   }
 
-  // 2. Clean up any remaining soft-deleted / inactive products linked to subcategories & delete subcategories
+  // 2. Fallback category for past ordered products
+  let fallbackCat = await prisma.productCategory.findFirst({
+    where: { slug: 'uncategorized' },
+  });
+  if (!fallbackCat && !allCatIds.includes('uncategorized')) {
+    fallbackCat = await prisma.productCategory.create({
+      data: {
+        name: 'Uncategorized',
+        slug: 'uncategorized',
+        description: 'Default category for unassigned products',
+      },
+    }).catch(() => null);
+  }
+
+  // 3. Process products linked to target category or subcategories
+  const linkedProducts = await prisma.product.findMany({
+    where: { categoryId: { in: allCatIds } },
+    select: { id: true, categoryId: true, _count: { select: { orderItems: true } } },
+  });
+
+  for (const p of linkedProducts) {
+    if (p._count.orderItems === 0) {
+      // Un-ordered product: hard delete to clean database
+      await prisma.cartItem.deleteMany({ where: { productId: p.id } }).catch(() => null);
+      await prisma.wishlistItem.deleteMany({ where: { productId: p.id } }).catch(() => null);
+      await prisma.review.deleteMany({ where: { productId: p.id } }).catch(() => null);
+      await prisma.product.delete({ where: { id: p.id } }).catch(() => null);
+    } else if (fallbackCat && fallbackCat.id !== p.categoryId) {
+      // Past ordered product: reassign to fallback category & set inactive
+      await prisma.product.update({
+        where: { id: p.id },
+        data: { categoryId: fallbackCat.id, isActive: false },
+      }).catch(() => null);
+    }
+  }
+
+  // 4. Delete subcategories if any
   if (existing.children.length > 0) {
     for (const child of existing.children) {
-      await prisma.product.deleteMany({ where: { categoryId: child.id, isActive: false } }).catch(() => null);
       await prisma.productCategory.delete({ where: { id: child.id } }).catch(() => null);
     }
   }
 
-  // Clean up any remaining soft-deleted / inactive products linked to parent category
-  await prisma.product.deleteMany({ where: { categoryId: id, isActive: false } }).catch(() => null);
-
-  // 3. Delete parent category safely
+  // 5. Delete target parent category safely
   return prisma.productCategory.delete({ where: { id } });
 };
 
