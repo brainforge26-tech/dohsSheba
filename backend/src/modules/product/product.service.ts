@@ -18,9 +18,9 @@ export const getAllProductCategories = async () => {
       include: {
         children: {
           where: { isActive: true },
-          include: { _count: { select: { products: true } } },
+          include: { _count: { select: { products: { where: { isActive: true } } } } },
         },
-        _count: { select: { products: true } },
+        _count: { select: { products: { where: { isActive: true } } } },
       },
       orderBy: { name: 'asc' },
     });
@@ -51,39 +51,40 @@ export const deleteProductCategory = async (id: string) => {
     where: { id },
     include: {
       children: true,
-      _count: { select: { products: true, children: true } },
     },
   });
   if (!existing) throw new AppError('Category not found.', 404);
 
   const childIds = existing.children.map((c) => c.id);
+  const allCatIds = [id, ...childIds];
 
-  // 1. Check if category or any of its subcategories has linked products
-  const totalProductCount = await prisma.product.count({
+  // 1. Check if category or any of its subcategories has linked ACTIVE products
+  const activeProductCount = await prisma.product.count({
     where: {
-      OR: [
-        { categoryId: id },
-        ...(childIds.length > 0 ? [{ categoryId: { in: childIds } }] : []),
-      ],
+      categoryId: { in: allCatIds },
+      isActive: true,
     },
   });
 
-  if (totalProductCount > 0) {
+  if (activeProductCount > 0) {
     throw new AppError(
-      `Cannot delete category "${existing.name}". It is currently in use by ${totalProductCount} product(s). Please reassign or delete those products first.`,
+      `Cannot delete category "${existing.name}". It is currently in use by ${activeProductCount} active product(s). Please reassign or delete those active products first.`,
       400
     );
   }
 
-  // 2. Check if parent category has subcategories
+  // 2. Clean up any remaining soft-deleted / inactive products linked to subcategories & delete subcategories
   if (existing.children.length > 0) {
-    throw new AppError(
-      `Cannot delete category "${existing.name}". It contains ${existing.children.length} subcategory(ies). Please delete or move the subcategories first.`,
-      400
-    );
+    for (const child of existing.children) {
+      await prisma.product.deleteMany({ where: { categoryId: child.id, isActive: false } }).catch(() => null);
+      await prisma.productCategory.delete({ where: { id: child.id } }).catch(() => null);
+    }
   }
 
-  // 3. Delete category safely
+  // Clean up any remaining soft-deleted / inactive products linked to parent category
+  await prisma.product.deleteMany({ where: { categoryId: id, isActive: false } }).catch(() => null);
+
+  // 3. Delete parent category safely
   return prisma.productCategory.delete({ where: { id } });
 };
 
