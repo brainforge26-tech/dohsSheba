@@ -117,12 +117,12 @@ export function CategorySideDrawer() {
   const subCategories = currentCategory?.children || [];
 
   return (
-    <div className="fixed inset-0 z-50 flex animate-in fade-in duration-200 font-sans text-slate-800">
+    <div className="fixed inset-0 z-50 flex animate-in fade-in duration-500 font-sans text-slate-800">
       {/* Backdrop Overlay */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-xs" onClick={closeDrawer} />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500" onClick={closeDrawer} />
 
       {/* Main Drawer + Mega Submenu Flyout Container */}
-      <div className="relative flex h-full max-w-[95vw] z-10 animate-in slide-in-from-left duration-300">
+      <div className="relative flex h-full max-w-[95vw] z-10 animate-in slide-in-from-left duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
         
         {/* ── Left Column: Category List Menu (Dynamic Main Categories) ── */}
         <div className="w-64 sm:w-72 bg-white h-full shadow-2xl flex flex-col shrink-0 border-r border-slate-200">
@@ -190,7 +190,7 @@ export function CategorySideDrawer() {
 
         {/* ── Right Column: Mega Subcategory & Products Flyout Panel ── */}
         {currentCategory && (
-          <div className="hidden md:flex flex-col w-[440px] sm:w-[480px] bg-white h-full shadow-2xl overflow-y-auto p-6 space-y-6 animate-in fade-in slide-in-from-left-2 duration-200 border-r border-slate-200">
+          <div className="hidden md:flex flex-col w-[440px] sm:w-[480px] bg-white h-full shadow-2xl overflow-y-auto p-6 space-y-6 animate-in fade-in slide-in-from-left-4 duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] border-r border-slate-200">
             {/* 1. Category Title */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
