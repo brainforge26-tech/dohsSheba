@@ -8,6 +8,7 @@ export { PageTransition, SectionTransition } from './PageTransition';
 export { EmptyState } from './EmptyState';
 export { ErrorPage } from './ErrorPage';
 export { OfflineBanner } from './OfflineBanner';
+export { ImageUploader } from './ImageUploader';
 export { ToastProvider, useToast } from './Toast';
 export type { ToastType, Toast } from './Toast';
 export {

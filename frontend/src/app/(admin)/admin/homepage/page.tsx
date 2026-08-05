@@ -25,6 +25,7 @@ import {
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useToast } from '@/components/ui/Toast';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 
 export default function AdminHomepageManagementPage() {
   const {
@@ -720,17 +721,13 @@ export default function AdminHomepageManagementPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Background Image URL *</label>
-                <input
-                  type="url"
-                  required
-                  value={heroForm.backgroundImage || ''}
-                  onChange={(e) => setHeroForm({ ...heroForm, backgroundImage: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-sm focus:outline-none focus:border-[#0E7A45]"
-                />
-              </div>
+              <ImageUploader
+                label="Background Image File *"
+                value={heroForm.backgroundImage || ''}
+                onChange={(url) => setHeroForm({ ...heroForm, backgroundImage: url })}
+                placeholder="Click or drag & drop to upload slide background image"
+                aspectRatio="banner"
+              />
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -837,17 +834,13 @@ export default function AdminHomepageManagementPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Image URL *</label>
-                <input
-                  type="url"
-                  required
-                  value={promoForm.image || ''}
-                  onChange={(e) => setPromoForm({ ...promoForm, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-sm focus:outline-none focus:border-[#0E7A45]"
-                />
-              </div>
+              <ImageUploader
+                label="Promo Card Image *"
+                value={promoForm.image || ''}
+                onChange={(url) => setPromoForm({ ...promoForm, image: url })}
+                placeholder="Click or drag & drop to upload promo card image"
+                aspectRatio="square"
+              />
 
               <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
                 <button
@@ -920,17 +913,13 @@ export default function AdminHomepageManagementPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Icon / Thumbnail Image URL *</label>
-                <input
-                  type="url"
-                  required
-                  value={shortcutForm.icon || ''}
-                  onChange={(e) => setShortcutForm({ ...shortcutForm, icon: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-sm focus:outline-none focus:border-[#0E7A45]"
-                />
-              </div>
+              <ImageUploader
+                label="Icon / Thumbnail Image *"
+                value={shortcutForm.icon || ''}
+                onChange={(url) => setShortcutForm({ ...shortcutForm, icon: url })}
+                placeholder="Click or drag & drop to upload shortcut icon image"
+                aspectRatio="square"
+              />
 
               <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
                 <button
