@@ -1,6 +1,6 @@
 'use client';
 
-import { RiderDashboardContent } from '../page';
+import { RiderDashboardContent } from '@/components/rider/RiderDashboardContent';
 
 export default function RiderDispatchRoute() {
   return <RiderDashboardContent initialTab="mission" />;

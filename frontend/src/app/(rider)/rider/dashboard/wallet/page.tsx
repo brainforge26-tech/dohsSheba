@@ -1,6 +1,6 @@
 'use client';
 
-import { RiderDashboardContent } from '../page';
+import { RiderDashboardContent } from '@/components/rider/RiderDashboardContent';
 
 export default function RiderWalletRoute() {
   return <RiderDashboardContent initialTab="earnings" />;
