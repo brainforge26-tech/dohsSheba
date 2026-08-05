@@ -19,16 +19,18 @@ import { CurrentMissionView } from '@/components/rider/CurrentMissionView';
 // Web Audio API chime synthesis & Haptic Vibration for incoming dispatch request
 const triggerOrderAlert = () => {
   try {
-    // 1. Web Audio Chime
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    const AudioCtx = typeof window !== 'undefined' ? (window.AudioContext || (window as any).webkitAudioContext) : null;
     if (AudioCtx) {
       const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
       const playBeep = (freq: number, startTime: number, duration: number) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine';
+        osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, startTime);
-        gain.gain.setValueAtTime(0.35, startTime);
+        gain.gain.setValueAtTime(0.7, startTime);
         gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -36,16 +38,39 @@ const triggerOrderAlert = () => {
         osc.stop(startTime + duration);
       };
       const now = ctx.currentTime;
-      playBeep(880, now, 0.15);
-      playBeep(1174.66, now + 0.2, 0.35);
+      playBeep(880, now, 0.2);
+      playBeep(1174.66, now + 0.22, 0.2);
+      playBeep(1480, now + 0.44, 0.35);
     }
 
-    // 2. Mobile Haptic Vibration
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate([300, 150, 300, 150, 400]);
+      navigator.vibrate([400, 150, 400, 150, 500]);
     }
   } catch (_) {}
 };
+
+function OrderRequestCountdown({ createdAt }: { createdAt?: string }) {
+  const [secondsLeft, setSecondsLeft] = useState(60);
+
+  useEffect(() => {
+    const elapsed = createdAt ? Math.floor((Date.now() - new Date(createdAt).getTime()) / 1000) : 0;
+    const initialRemaining = Math.max(5, 60 - elapsed);
+    setSecondsLeft(initialRemaining);
+
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => (prev > 1 ? prev - 1 : 60));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [createdAt]);
+
+  return (
+    <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-mono font-bold text-xs border border-amber-500/30 flex items-center gap-1.5 shrink-0">
+      <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+      <span>{secondsLeft}s</span>
+    </span>
+  );
+}
 
 export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?: 'mission' | 'history' | 'earnings' }) {
   const router = useRouter();
@@ -83,6 +108,7 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
 
   // Active Missions, History & Filters
   const [activeMissions, setActiveMissions] = useState<any[]>([]);
+  const [selectedMissionIndex, setSelectedMissionIndex] = useState(0);
   const [openOrdersList, setOpenOrdersList] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
@@ -519,92 +545,140 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
           </button>
         </div>
 
-        {/* ── TAB 1: RADAR WAITING SCREEN OR ACTIVE MISSION ── */}
+        {/* ── TAB 1: RADAR WAITING SCREEN OR ACTIVE MISSIONS ── */}
         {activeTab === 'mission' && (
-          <div>
-            {!hasActiveMission ? (
-              openOrdersList.length > 0 ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-extrabold text-slate-300 flex items-center gap-2 uppercase tracking-wider">
-                      <Compass className="w-4 h-4 text-amber-400" />
-                      {isBn ? 'উপলব্ধ সার্ভিস রিকোয়েস্ট' : 'Open Available Dispatch Orders'}
-                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs">{openOrdersList.length}</span>
-                    </h3>
+          <div className="space-y-6">
+            {/* Active Missions View (Supports Multi-Order Batching) */}
+            {activeMissions.length > 0 && (
+              <div className="space-y-4">
+                {activeMissions.length > 1 && (
+                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+                      {isBn ? 'সক্রিয় রাইডসমূহ:' : 'Active Missions:'}
+                    </span>
+                    {activeMissions.map((m, idx) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setSelectedMissionIndex(idx)}
+                        className={`px-3.5 py-2 rounded-2xl text-xs font-black transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
+                          (selectedMissionIndex || 0) === idx
+                            ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/60 border border-emerald-400 scale-[1.02]'
+                            : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                        }`}
+                      >
+                        <Bike className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Mission #{idx + 1} ({m.id.slice(-6).toUpperCase()})</span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      </button>
+                    ))}
                   </div>
+                )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {openOrdersList.map((order) => {
-                      const customerName = order.customer?.name || order.customerName || 'DOHS Resident';
-                      const customerPhone = order.customer?.phone || order.customerPhone || '01306031982';
-                      const customerAddress = order.address ? `${order.address.line1}, ${order.address.area}` : order.deliveryAddress || 'Mohakhali DOHS';
-                      const storeName = order.items?.[0]?.product?.seller?.sellerProfile?.shopName || order.items?.[0]?.product?.seller?.name || order.storeName || 'DOHS Merchant';
-                      const orderSummary = order.items?.map((it: any) => `${it.product?.name || 'Item'} x${it.quantity}`).join(', ') || 'Grocery & Food Delivery';
+                {activeMissions[selectedMissionIndex || 0] && (
+                  <CurrentMissionView
+                    key={(activeMissions[selectedMissionIndex || 0] || activeMissions[0]).id}
+                    mission={activeMissions[selectedMissionIndex || 0] || activeMissions[0]}
+                    onMissionUpdate={() => {
+                      loadActiveMissions();
+                      loadStats();
+                    }}
+                  />
+                )}
+              </div>
+            )}
 
-                      return (
-                        <div key={order.id} className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl hover:border-emerald-500/50 transition-all space-y-4">
-                          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <span className="font-mono text-xs text-amber-400 font-extrabold">ORDER #{order.id.slice(-8).toUpperCase()}</span>
+            {/* Available Dispatch Orders List (Shows Timers on Every Request) */}
+            {openOrdersList.length > 0 ? (
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-extrabold text-slate-300 flex items-center gap-2 uppercase tracking-wider">
+                    <Compass className="w-4 h-4 text-amber-400" />
+                    {isBn ? 'উপলব্ধ সার্ভিস রিকোয়েস্ট' : 'Open Available Dispatch Orders'}
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs">{openOrdersList.length}</span>
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {openOrdersList.map((order) => {
+                    const customerName = order.customer?.name || order.customerName || 'DOHS Resident';
+                    const customerPhone = order.customer?.phone || order.customerPhone || '01306031982';
+                    const customerAddress = order.address ? `${order.address.line1}, ${order.address.area}` : order.deliveryAddress || 'Mohakhali DOHS';
+                    const storeName = order.items?.[0]?.product?.seller?.sellerProfile?.shopName || order.items?.[0]?.product?.seller?.name || order.storeName || 'DOHS Merchant';
+                    const orderSummary = order.items?.map((it: any) => `${it.product?.name || 'Item'} x${it.quantity}`).join(', ') || 'Grocery & Food Delivery';
+
+                    return (
+                      <div key={order.id} className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl hover:border-emerald-500/50 transition-all space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                          <span className="font-mono text-xs text-amber-400 font-extrabold flex items-center gap-1.5">
+                            ORDER #{order.id.slice(-8).toUpperCase()}
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            <OrderRequestCountdown createdAt={order.createdAt} />
                             <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/30">
                               {formatCurrency(order.deliveryFee || 50)} {isBn ? 'উপার্জন' : 'Earnings'}
                             </span>
                           </div>
+                        </div>
 
-                          <div className="space-y-3 text-xs">
-                            <div className="flex items-start gap-2.5">
-                              <Store className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                              <div>
-                                <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Pickup Store:</span>
-                                <strong className="text-white block">{storeName}</strong>
-                              </div>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                              <MapPin className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                              <div>
-                                <strong className="text-white block">{customerName}</strong>
-                                <span className="text-slate-400 block">{customerAddress}</span>
-                              </div>
-                            </div>
-
-                            <div className="pt-2 border-t border-slate-800/60 space-y-1">
-                              <span className="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">Order Summary:</span>
-                              <p className="text-slate-200 font-medium truncate">{orderSummary}</p>
+                        <div className="space-y-3 text-xs">
+                          <div className="flex items-start gap-2.5">
+                            <Store className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">Pickup Store:</span>
+                              <strong className="text-white block">{storeName}</strong>
                             </div>
                           </div>
 
-                          <div className="pt-3 border-t border-slate-800 space-y-3">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-slate-400 font-bold">Total Amount:</span>
-                              <span className="text-white font-black text-sm">{formatCurrency(order.totalAmount)}</span>
+                          <div className="flex items-start gap-2.5">
+                            <MapPin className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                            <div>
+                              <strong className="text-white block">{customerName}</strong>
+                              <span className="text-slate-400 block">{customerAddress}</span>
                             </div>
+                          </div>
 
-                            <div className="grid grid-cols-2 gap-2">
-                              <a
-                                href={`tel:${customerPhone}`}
-                                className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-2xl border border-slate-700 flex items-center justify-center gap-1.5 transition-all"
-                              >
-                                <Phone className="w-3.5 h-3.5" />
-                                <span>Call Customer</span>
-                              </a>
-
-                              <button
-                                type="button"
-                                onClick={() => setConfirmOrderToAccept(order)}
-                                className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg flex items-center justify-center gap-1.5 transition-all"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                                <span>Accept Mission</span>
-                              </button>
-                            </div>
+                          <div className="pt-2 border-t border-slate-800/60 space-y-1">
+                            <span className="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">Order Summary:</span>
+                            <p className="text-slate-200 font-medium truncate">{orderSummary}</p>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
+
+                        <div className="pt-3 border-t border-slate-800 space-y-3">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-400 font-bold">Total Amount:</span>
+                            <span className="text-white font-black text-sm">{formatCurrency(order.totalAmount)}</span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <a
+                              href={`tel:${customerPhone}`}
+                              className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-2xl border border-slate-700 flex items-center justify-center gap-1.5 transition-all"
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                              <span>Call Customer</span>
+                            </a>
+
+                            <button
+                              type="button"
+                              onClick={() => handleAcceptOrder(order.id)}
+                              disabled={actionLoading === order.id}
+                              className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg flex items-center justify-center gap-1.5 transition-all"
+                            >
+                              {actionLoading === order.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                              <span>{isBn ? 'একসেপ্ট করুন' : 'Accept Mission'}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ) : (
-                /* Radar Pulse Radar View when Idle */
+              </div>
+            ) : (
+              activeMissions.length === 0 && (
+                /* Radar Pulse View when Idle */
                 <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-10 text-center space-y-6 shadow-2xl relative overflow-hidden">
                   <div className="relative w-32 h-32 mx-auto flex items-center justify-center">
                     <div className="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping" />
@@ -628,17 +702,6 @@ export function RiderDashboardContent({ initialTab = 'mission' }: { initialTab?:
                     ONLINE • AVAILABLE • Listening for new dispatch requests...
                   </div>
                 </div>
-              )
-            ) : (
-              /* Active Mission View Component */
-              currentMission && (
-                <CurrentMissionView
-                  mission={currentMission}
-                  onMissionUpdate={() => {
-                    loadActiveMissions();
-                    loadStats();
-                  }}
-                />
               )
             )}
           </div>

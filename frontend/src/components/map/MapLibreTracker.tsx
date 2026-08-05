@@ -175,6 +175,15 @@ export function MapLibreTracker({
       }
     }
 
+    // Auto-recenter map bounds when location changes
+    const bounds = new maplibregl.LngLatBounds();
+    if (riderLocation?.lng) bounds.extend([riderLocation.lng, riderLocation.lat]);
+    if (storeLocation?.lng) bounds.extend([storeLocation.lng, storeLocation.lat]);
+    if (customerLocation?.lng) bounds.extend([customerLocation.lng, customerLocation.lat]);
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, { padding: 60, maxZoom: 16, duration: 800 });
+    }
+
     // 3. Rider Motorcycle Animated Marker
     if (riderLocation?.lat && riderLocation?.lng) {
       const heading = riderLocation.heading || 0;
@@ -202,24 +211,41 @@ export function MapLibreTracker({
 
     if (!origin || !destination) return;
 
+    let isMounted = true;
     fetchOSRMRoute(origin, destination).then((result) => {
+      if (!isMounted) return;
       if (onRouteUpdate) {
         onRouteUpdate(result.distanceKm, result.durationMins);
       }
 
+      const updateSource = () => {
+        const map = mapRef.current;
+        if (map && map.getSource('osrm-route')) {
+          const source = map.getSource('osrm-route') as maplibregl.GeoJSONSource;
+          source.setData({
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: result.coordinates,
+            },
+          });
+        }
+      };
+
       const map = mapRef.current;
-      if (map && map.isStyleLoaded() && map.getSource('osrm-route')) {
-        const source = map.getSource('osrm-route') as maplibregl.GeoJSONSource;
-        source.setData({
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: result.coordinates,
-          },
-        });
+      if (map) {
+        if (map.isStyleLoaded()) {
+          updateSource();
+        } else {
+          map.once('styledata', updateSource);
+        }
       }
     });
+
+    return () => {
+      isMounted = false;
+    };
   }, [riderLocation?.lat, riderLocation?.lng, storeLocation?.lat, storeLocation?.lng, customerLocation?.lat, customerLocation?.lng]);
 
   // ── Fit Map Bounds ───────────────────────────────────────────────────────────

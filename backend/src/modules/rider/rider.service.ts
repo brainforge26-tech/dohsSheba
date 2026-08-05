@@ -129,10 +129,18 @@ export const acceptOpenOrder = async (orderId: string, riderId: string) => {
     }
 
     if (riderUser.riderProfile) {
+      const activeCount = await tx.order.count({
+        where: {
+          riderId,
+          status: { in: ['RIDER_ASSIGNED', 'ARRIVED_AT_STORE', 'PICKUP_STARTED', 'PICKED_UP', 'ON_THE_WAY', 'ARRIVED', 'ARRIVED_DESTINATION'] },
+        },
+      });
+
+      // Rider remains available for multi-order batching up to 5 concurrent missions
       await tx.riderProfile.update({
         where: { userId: riderId },
         data: {
-          isAvailable: false,
+          isAvailable: riderUser.riderProfile.isOnline && activeCount + 1 < 5,
           currentOrderId: orderId,
         },
       });
