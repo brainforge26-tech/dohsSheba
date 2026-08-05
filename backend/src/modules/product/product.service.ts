@@ -391,14 +391,7 @@ export const updateProduct = async (
 };
 
 export const deleteProduct = async (sellerId: string, productId: string, role: string) => {
-  const where: any = { id: productId };
-  if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') where.sellerId = sellerId;
-
-  let existing = await prisma.product.findFirst({ where });
-  if (!existing) {
-    // Fallback find if product was created under admin or seller owner
-    existing = await prisma.product.findUnique({ where: { id: productId } });
-  }
+  const existing = await prisma.product.findUnique({ where: { id: productId } });
   if (!existing) throw new AppError('Product not found.', 404);
 
   // Permanently clean up relations and hard-delete product from database
@@ -414,7 +407,13 @@ export const getSellerProducts = async (sellerId: string) => {
   const user = await prisma.user.findUnique({ where: { id: sellerId }, select: { role: true } });
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
-  const where: any = isAdmin ? {} : { sellerId };
+  // If admin show all, if seller show seller's products OR uncategorized/seed items so they can be deleted
+  const where: any = isAdmin ? {} : {
+    OR: [
+      { sellerId },
+      { category: { slug: 'uncategorized' } },
+    ],
+  };
 
   return prisma.product.findMany({
     where,
