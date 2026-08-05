@@ -67,3 +67,49 @@ export const createCoupon = async (data: any) => {
     },
   });
 };
+
+export const validateCoupon = async (code: string, subtotal: number) => {
+  if (!code) throw new Error('Coupon code is required');
+
+  const coupon = await prisma.coupon.findFirst({
+    where: {
+      code: code.trim().toUpperCase(),
+      isActive: true,
+    },
+  });
+
+  if (!coupon) throw new Error('Invalid or expired coupon code');
+
+  // Check expiry
+  if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+    throw new Error('This coupon has expired');
+  }
+
+  // Check usage limit
+  if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
+    throw new Error('This coupon has reached its usage limit');
+  }
+
+  // Check minimum order
+  if (coupon.minOrderAmount !== null && subtotal < coupon.minOrderAmount) {
+    throw new Error(
+      `Minimum order amount of ৳${coupon.minOrderAmount} required for this coupon`
+    );
+  }
+
+  // Calculate discount
+  const discount =
+    coupon.discountType === 'PERCENTAGE'
+      ? Math.round((subtotal * coupon.discountValue) / 100)
+      : Math.min(coupon.discountValue, subtotal); // flat discount, can't exceed subtotal
+
+  return {
+    id: coupon.id,
+    code: coupon.code,
+    description: coupon.description,
+    discountType: coupon.discountType,
+    discountValue: coupon.discountValue,
+    discount,
+    finalTotal: Math.max(0, subtotal - discount),
+  };
+};

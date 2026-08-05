@@ -19,3 +19,16 @@ export const createCoupon = async (req: Request, res: Response, next: NextFuncti
     next(error);
   }
 };
+
+export const validateCoupon = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { code, subtotal } = req.body;
+    if (!code) {
+      return sendResponse(res, 400, 'Coupon code is required', null);
+    }
+    const result = await couponService.validateCoupon(code, Number(subtotal) || 0);
+    return sendResponse(res, 200, 'Coupon applied successfully', result);
+  } catch (error: any) {
+    return sendResponse(res, 400, error.message || 'Invalid coupon', null);
+  }
+};
