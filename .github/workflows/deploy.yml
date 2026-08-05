@@ -20,28 +20,29 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
+          port: ${{ secrets.VPS_PORT || 22 }}
           timeout: 60s
           command_timeout: 10m
           script: |
             echo "🚀 Auto-deploying dohsheba to VPS..."
 
             # 1. Pull Latest Code
-            cd /var/www/dohsheba
+            cd /var/www/dohsheba || cd /var/www/html/dohsheba || exit 1
+            git fetch --all
+            git reset --hard origin/main
             git pull origin main
 
             # 2. Update Backend & Restart PM2
             echo "📦 Building Backend..."
-            cd /var/www/dohsheba/backend
+            cd backend
             npm install
-            npx prisma db push
-            npx prisma db seed
+            npx prisma db push --accept-data-loss
             npm run build
             pm2 restart project3-api || pm2 start dist/server.js --name "project3-api"
 
             # 3. Update Frontend & Restart PM2
             echo "📦 Building Frontend..."
-            cd /var/www/dohsheba/frontend
+            cd ../frontend
             npm install
             npm run build
             pm2 restart project3-web || pm2 start npm --name "project3-web" -- start -- -p 3002
