@@ -61,7 +61,7 @@ export async function fetchApi<T>(
               ? (localStorage.getItem('refreshToken') || document.cookie.match(/(?:^|; )refreshToken=([^;]+)/)?.[1])
               : null;
 
-            const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            const refreshRes = await fetch(`${baseUrl}/auth/refresh`, {
               method: 'POST',
               credentials: 'include',
               headers: { 'Content-Type': 'application/json' },
