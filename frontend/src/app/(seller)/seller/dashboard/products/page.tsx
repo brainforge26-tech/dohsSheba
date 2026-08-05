@@ -144,7 +144,8 @@ export default function ProductsPage() {
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
 
-  const totalActive   = products.filter((p) => p.isActive && p.stock > 0).length;
+  const totalActive     = products.filter((p) => p.isActive && p.stock > 0).length;
+  const totalDrafts     = products.filter((p) => !p.isActive).length;
   const totalOutOfStock = products.filter((p) => p.stock === 0).length;
   const totalLowStock   = products.filter((p) => p.stock > 0 && p.stock <= 10).length;
 
@@ -159,6 +160,24 @@ export default function ProductsPage() {
   const allChecked = pageItems.length > 0 && pageItems.every((p) => selected.has(p.id));
 
   // ─── Actions ────────────────────────────────────────────────────────────────
+
+  const handleToggleActive = async (p: any) => {
+    const nextState = !p.isActive;
+    setProducts((prev) =>
+      prev.map((prod) => (prod.id === p.id ? { ...prod, isActive: nextState } : prod))
+    );
+    try {
+      await fetchApi(`/products/${p.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ isActive: nextState }),
+      });
+    } catch (err: any) {
+      alert(err?.message || 'Failed to update status');
+      setProducts((prev) =>
+        prev.map((prod) => (prod.id === p.id ? { ...prod, isActive: !nextState } : prod))
+      );
+    }
+  };
 
   const handleDelete = async (id: string) => {
     const ok = await confirm({
@@ -459,9 +478,15 @@ export default function ProductsPage() {
                       <div className="text-[10px] text-slate-500">{p.unit}</div>
                     </td>
                     <td className="p-4 text-center">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border ${status.cls}`}>
-                        {status.label}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(p)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer hover:scale-105 active:scale-95 ${status.cls}`}
+                        title={p.isActive ? 'Click to set as Draft (Unpublish)' : 'Click to Publish on Website'}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${p.isActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
+                        <span>{status.label}</span>
+                      </button>
                     </td>
                     <td className="p-4 text-center hidden lg:table-cell">
                       <Stars r={p.rating} />
