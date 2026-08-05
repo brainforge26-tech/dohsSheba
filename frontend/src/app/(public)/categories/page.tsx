@@ -58,7 +58,7 @@ export default function AllCategoriesPage() {
           <span>Loading categories...</span>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-5">
+        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 sm:gap-3.5">
           {displayList.map((cat: any) => {
             const subCount = Array.isArray(cat.children) ? cat.children.length : (cat.itemCount ?? 4);
             const catImage = cat.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500&auto=format&fit=crop&q=80';
@@ -67,21 +67,21 @@ export default function AllCategoriesPage() {
               <Link
                 key={cat.id || cat.slug}
                 href={`/category/${cat.slug}`}
-                className="group flex flex-col bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-emerald-500/50 transition-all duration-200 text-center"
+                className="group flex flex-col bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-2xs hover:shadow-md hover:border-emerald-500/50 transition-all duration-200 text-center"
               >
-                <div className="relative aspect-4/3 w-full bg-slate-100 overflow-hidden">
+                <div className="relative aspect-square w-full bg-slate-50 overflow-hidden">
                   <img
                     src={catImage}
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="p-3 sm:p-4 flex flex-col items-center justify-center space-y-1">
-                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
+                <div className="p-2 sm:p-2.5 flex flex-col items-center justify-center space-y-0.5">
+                  <h3 className="font-bold text-[11px] sm:text-xs text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1 leading-snug">
                     {cat.name}
                   </h3>
-                  <span className="text-[11px] text-slate-400 font-medium">
-                    {subCount > 0 ? `${subCount} subcategories` : 'View products'}
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    {subCount > 0 ? `${subCount} subcategories` : 'View items'}
                   </span>
                 </div>
               </Link>
