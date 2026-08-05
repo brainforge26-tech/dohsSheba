@@ -11,7 +11,7 @@ import {
   Bike, Navigation, CheckCircle2, Clock, MapPin, Phone, Store,
   BellRing, DollarSign, Package, Check, X, Loader2, Wifi, WifiOff,
   ExternalLink, Sparkles, TrendingUp, Calendar, Award, AlertTriangle, User,
-  Radio, Search, Filter, ShieldCheck, Wallet, ChevronRight, Activity
+  Radio, Search, Filter, ShieldCheck, Wallet, ChevronRight, Activity, Compass
 } from 'lucide-react';
 
 import { CurrentMissionView } from '@/components/rider/CurrentMissionView';
