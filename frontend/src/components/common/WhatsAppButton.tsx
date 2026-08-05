@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { MessageSquare, X, Send, ShieldCheck, Sparkles } from 'lucide-react';
 import { useLanguageStore } from '@/store/useLanguageStore';
 
@@ -8,11 +9,19 @@ const WHATSAPP_NUMBER = '8801306031982';
 const DISPLAY_NUMBER = '01306031982';
 
 export function WhatsAppButton() {
+  const pathname = usePathname();
   const { language } = useLanguageStore();
   const isBn = language === 'BN';
 
   const [isOpen, setIsOpen] = useState(false);
   const [userMsg, setUserMsg] = useState('');
+
+  const isDashboardRoute =
+    pathname?.startsWith('/dashboard') ||
+    pathname?.startsWith('/seller') ||
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/rider') ||
+    pathname?.includes('dashboard');
 
   const defaultMsg = isBn
     ? 'আসসালামু আলাইকুম, আমি DOHS শেবা সার্ভিস সম্পর্কিত কিছু জানতে চাই।'
@@ -25,7 +34,11 @@ export function WhatsAppButton() {
   };
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 flex flex-col items-end">
+    <div
+      className={`fixed ${
+        isDashboardRoute ? 'bottom-24 md:bottom-24' : 'bottom-20 md:bottom-6'
+      } right-4 md:right-6 z-40 flex flex-col items-end transition-all duration-300`}
+    >
       
       {/* Interactive Floating Chat Box */}
       {isOpen && (
