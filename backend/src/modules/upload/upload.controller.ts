@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import { sendResponse } from '../../utils/response.util';
 import { AppError } from '../../middlewares/error.middleware';
+import fs from 'fs';
+import path from 'path';
 
 // Configure Cloudinary if credentials are standard
-if (process.env.CLOUDINARY_CLOUD_NAME) {
+if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== 'your-cloud-name') {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key:    process.env.CLOUDINARY_API_KEY,
@@ -12,13 +14,42 @@ if (process.env.CLOUDINARY_CLOUD_NAME) {
   });
 }
 
-import fs from 'fs';
-import path from 'path';
-
 const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn('⚠️ Uploads dir creation notice:', e);
 }
+
+// ─── Helper function to resolve absolute HTTPS image URL ───────────────────────
+const getPublicFileUrl = (req: Request, filename: string): string => {
+  const envUrl = process.env.APP_URL || process.env.BACKEND_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    const cleanBase = envUrl.replace(/\/$/, '').replace(/\/api\/v1\/?$/, '').replace(/\/api\/?$/, '');
+    return `${cleanBase}/uploads/${filename}`;
+  }
+
+  const forwardedProto = req.headers['x-forwarded-proto'] as string;
+  const isHttps = forwardedProto === 'https' || req.secure || process.env.NODE_ENV === 'production';
+  const protocol = isHttps ? 'https' : (req.protocol || 'http');
+
+  const forwardedHost = req.headers['x-forwarded-host'] as string;
+  let host = forwardedHost || req.get('host') || 'localhost:5000';
+
+  if ((host.includes('localhost') || host.includes('127.0.0.1')) && process.env.NODE_ENV === 'production') {
+    const origin = req.headers.origin || req.headers.referer || process.env.CLIENT_URL;
+    if (origin) {
+      try {
+        const parsedUrl = new URL(origin);
+        return `${parsedUrl.protocol}//${parsedUrl.host}/uploads/${filename}`;
+      } catch (_) {}
+    }
+  }
+
+  return `${protocol}://${host}/uploads/${filename}`;
+};
 
 export const uploadSingleImage = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -26,32 +57,42 @@ export const uploadSingleImage = async (req: Request, res: Response, next: NextF
       return next(new AppError('No image file provided.', 400));
     }
 
-    // If Cloudinary is configured, upload to Cloudinary; otherwise return base64 / mock URL
+    // 1. If Cloudinary is configured, upload to Cloudinary
     if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== 'your-cloud-name') {
-      const b64 = Buffer.from(req.file.buffer).toString('base64');
-      const dataURI = `data:${req.file.mimetype};base64,${b64}`;
-      const result = await cloudinary.uploader.upload(dataURI, {
-        folder: 'dohssheba',
-      });
-      return sendResponse(res, 200, 'Image uploaded successfully', {
-        url: result.secure_url,
-        publicId: result.public_id,
-      });
+      try {
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+        const result = await cloudinary.uploader.upload(dataURI, {
+          folder: 'dohssheba',
+        });
+        return sendResponse(res, 200, 'Image uploaded successfully', {
+          url: result.secure_url,
+          publicId: result.public_id,
+        });
+      } catch (cloudErr) {
+        console.warn('⚠️ Cloudinary upload failed, falling back to disk/dataURI:', cloudErr);
+      }
     }
 
-    // Local Disk Storage Fallback
-    const ext = req.file.mimetype.split('/')[1] || 'jpg';
-    const filename = `img_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-    const filepath = path.join(uploadsDir, filename);
-    fs.writeFileSync(filepath, req.file.buffer);
+    // 2. Try Disk Storage
+    try {
+      const ext = req.file.mimetype.split('/')[1] || 'jpg';
+      const filename = `img_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+      const filepath = path.join(uploadsDir, filename);
+      fs.writeFileSync(filepath, req.file.buffer);
 
-    const protocol = req.protocol || 'http';
-    const host = req.get('host') || 'localhost:5000';
-    const fileUrl = `${protocol}://${host}/uploads/${filename}`;
-
-    return sendResponse(res, 200, 'Image processed successfully', {
-      url: fileUrl,
-    });
+      const fileUrl = getPublicFileUrl(req, filename);
+      return sendResponse(res, 200, 'Image processed successfully', {
+        url: fileUrl,
+      });
+    } catch (diskErr) {
+      console.warn('⚠️ Local disk write failed, returning Data URI fallback:', diskErr);
+      const b64 = Buffer.from(req.file.buffer).toString('base64');
+      const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+      return sendResponse(res, 200, 'Image processed successfully', {
+        url: dataURI,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -66,24 +107,33 @@ export const uploadMultipleImages = async (req: Request, res: Response, next: Ne
 
     const urls: string[] = [];
 
-    const protocol = req.protocol || 'http';
-    const host = req.get('host') || 'localhost:5000';
-
     for (const file of files) {
+      let uploadedUrl = '';
       if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== 'your-cloud-name') {
-        const b64 = Buffer.from(file.buffer).toString('base64');
-        const dataURI = `data:${file.mimetype};base64,${b64}`;
-        const result = await cloudinary.uploader.upload(dataURI, {
-          folder: 'dohssheba',
-        });
-        urls.push(result.secure_url);
-      } else {
-        const ext = file.mimetype.split('/')[1] || 'jpg';
-        const filename = `img_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-        const filepath = path.join(uploadsDir, filename);
-        fs.writeFileSync(filepath, file.buffer);
-        urls.push(`${protocol}://${host}/uploads/${filename}`);
+        try {
+          const b64 = Buffer.from(file.buffer).toString('base64');
+          const dataURI = `data:${file.mimetype};base64,${b64}`;
+          const result = await cloudinary.uploader.upload(dataURI, {
+            folder: 'dohssheba',
+          });
+          uploadedUrl = result.secure_url;
+        } catch (_) {}
       }
+
+      if (!uploadedUrl) {
+        try {
+          const ext = file.mimetype.split('/')[1] || 'jpg';
+          const filename = `img_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+          const filepath = path.join(uploadsDir, filename);
+          fs.writeFileSync(filepath, file.buffer);
+          uploadedUrl = getPublicFileUrl(req, filename);
+        } catch (_) {
+          const b64 = Buffer.from(file.buffer).toString('base64');
+          uploadedUrl = `data:${file.mimetype};base64,${b64}`;
+        }
+      }
+
+      urls.push(uploadedUrl);
     }
 
     return sendResponse(res, 200, 'Images uploaded successfully', { urls });

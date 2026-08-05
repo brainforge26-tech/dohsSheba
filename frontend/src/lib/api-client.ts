@@ -1,6 +1,17 @@
 import { useAuthStore } from '@/store/useAuthStore';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+export const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const { hostname, origin } = window.location;
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `${origin}/api/v1`;
+    }
+  }
+  return 'http://localhost:5000/api/v1';
+};
 
 export class ApiError extends Error {
   status: number;
@@ -34,7 +45,8 @@ export async function fetchApi<T>(
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    const baseUrl = getApiBaseUrl();
+    const response = await fetch(`${baseUrl}${endpoint}`, config);
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -113,7 +125,8 @@ export async function uploadSingleImageApi(file: File): Promise<string> {
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
-  const response = await fetch(`${API_BASE_URL}/upload/single`, {
+  const baseUrl = getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/upload/single`, {
     method: 'POST',
     headers,
     body: formData,
@@ -135,7 +148,8 @@ export async function uploadMultipleImagesApi(files: FileList | File[]): Promise
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
-  const response = await fetch(`${API_BASE_URL}/upload/multiple`, {
+  const baseUrl = getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/upload/multiple`, {
     method: 'POST',
     headers,
     body: formData,
