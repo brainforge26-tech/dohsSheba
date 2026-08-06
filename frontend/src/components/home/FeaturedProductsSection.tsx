@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProductCard } from '@/components/common/ProductCard';
+import { ProductGridSkeleton } from '@/components/ui/SkeletonLoaders';
 import { Sparkles, Star, ChevronRight } from 'lucide-react';
 import { getApiBaseUrl } from '@/lib/api-client';
 import Link from 'next/link';
@@ -95,11 +96,7 @@ export function FeaturedProductsSection() {
 
         {/* Product Cards Grid */}
         {products === null ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="aspect-3/4 rounded-2xl bg-slate-100 animate-pulse" />
-            ))}
-          </div>
+          <ProductGridSkeleton count={5} />
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
             {products.map((p) => {

@@ -7,6 +7,7 @@ import { SidebarCategoryMenu, MobileCategoryBar } from '@/components/shopping/Si
 import { SubCategoryCard } from '@/components/shopping/SubCategoryCard';
 import { BreadcrumbNav } from '@/components/common/BreadcrumbNav';
 import { ProductCard } from '@/components/common/ProductCard';
+import { ProductGridSkeleton } from '@/components/ui/SkeletonLoaders';
 import { ShoppingBag, Loader2, Package, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 
 export default function CategoryPage() {
@@ -160,11 +161,7 @@ export default function CategoryPage() {
 
             {/* Products Grid */}
             {loading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="aspect-3/4 rounded-2xl bg-slate-100 animate-pulse" />
-                ))}
-              </div>
+              <ProductGridSkeleton count={8} />
             ) : filteredProducts.length === 0 ? (
               <div className="p-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 space-y-3">
                 <Package className="w-10 h-10 mx-auto text-slate-400 opacity-60" />
