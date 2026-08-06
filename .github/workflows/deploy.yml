@@ -38,6 +38,7 @@ jobs:
             npm install
             npx prisma db push --accept-data-loss
             npm run build
+            fuser -k 5000/tcp || true
             pm2 restart project3-api || pm2 start dist/server.js --name "project3-api"
 
             # 3. Update Frontend & Restart PM2
@@ -45,7 +46,10 @@ jobs:
             cd ../frontend
             npm install
             npm run build
+            fuser -k 3000/tcp || true
+            fuser -k 3002/tcp || true
             pm2 restart project3-web || pm2 start npm --name "project3-web" -- start -- -p 3002
+            pm2 restart project-web || true
 
             pm2 save
             echo "🎉 Auto-deployment finished successfully!"
