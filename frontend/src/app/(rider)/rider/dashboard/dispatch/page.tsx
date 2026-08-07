@@ -3,5 +3,5 @@
 import { RiderDashboardContent } from '@/components/rider/RiderDashboardContent';
 
 export default function RiderDispatchRoute() {
-  return <RiderDashboardContent initialTab="mission" />;
+  return <RiderDashboardContent initialTab="orders" />;
 }

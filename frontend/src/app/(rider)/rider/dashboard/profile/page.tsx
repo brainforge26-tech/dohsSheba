@@ -1,7 +1,7 @@
 'use client';
 
-import ProfilePage from '@/app/dashboard/profile/page';
+import { RiderDashboardContent } from '@/components/rider/RiderDashboardContent';
 
 export default function RiderProfileRoute() {
-  return <ProfilePage />;
+  return <RiderDashboardContent initialTab="profile" />;
 }

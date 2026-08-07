@@ -3,5 +3,5 @@
 import { RiderDashboardContent } from '@/components/rider/RiderDashboardContent';
 
 export default function RiderWalletRoute() {
-  return <RiderDashboardContent initialTab="earnings" />;
+  return <RiderDashboardContent initialTab="wallet" />;
 }
