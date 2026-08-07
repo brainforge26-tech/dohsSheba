@@ -6,9 +6,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { fetchApi } from '@/lib/api-client';
 import { Loader2, ShieldAlert } from 'lucide-react';
 
-// Suppress the known FedCM AbortError that Google GSI emits when the
-// One-Tap flow is cancelled by navigation / component unmount.
-// This is a browser-level signal cancellation — NOT a real failure.
+// Suppress known FedCM / GSI cancellation logs emitted when One-Tap flow is unmounted
 if (typeof window !== 'undefined') {
   const _origConsoleError = console.error.bind(console);
   console.error = (...args: any[]) => {
@@ -17,7 +15,6 @@ if (typeof window !== 'undefined') {
       typeof msg === 'string' &&
       (msg.includes('[GSI_LOGGER]') || msg.includes('FedCM') || msg.includes('AbortError'))
     ) {
-      // Silently ignore: these are expected browser-level GSI flow cancellations
       return;
     }
     _origConsoleError(...args);
@@ -42,15 +39,17 @@ export function GoogleLoginButton({
   const [configError, setConfigError] = useState('');
   const [originError, setOriginError] = useState(false);
   const isMountedRef = useRef(true);
+  const googleNativeBtnRef = useRef<HTMLDivElement>(null);
 
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const clientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    '887203053583-c6bkj85urfuind0rp2fbbu24l817oce9.apps.googleusercontent.com';
 
-  // Dynamically load Google Identity Services (GIS) SDK
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     if (!clientId) {
-      setConfigError('NEXT_PUBLIC_GOOGLE_CLIENT_ID is missing in .env.local');
+      setConfigError('Google Client ID is missing. Please configure NEXT_PUBLIC_GOOGLE_CLIENT_ID.');
       return;
     }
 
@@ -73,7 +72,6 @@ export function GoogleLoginButton({
     };
     document.body.appendChild(script);
 
-    // Cleanup: cancel any pending One-Tap prompt on unmount
     return () => {
       isMountedRef.current = false;
       try {
@@ -94,15 +92,24 @@ export function GoogleLoginButton({
         auto_select: false,
         cancel_on_tap_outside: true,
       });
+
+      // Render native official Google Sign-In button element for 100% mobile touch compatibility
+      if (googleNativeBtnRef.current) {
+        googleNativeBtnRef.current.innerHTML = '';
+        (window as any).google.accounts.id.renderButton(googleNativeBtnRef.current, {
+          type: 'standard',
+          theme: 'filled_black',
+          size: 'large',
+          width: 320,
+          text: 'continue_with',
+          shape: 'pill',
+        });
+      }
     } catch (e: any) {
       console.warn('Google GIS init notice:', e);
     }
   };
 
-  /**
-   * Callback invoked by Google GIS script upon successful authentication in popup.
-   * Sends raw Google ID Token (credential) to backend for verification.
-   */
   const handleGoogleCallback = async (response: { credential?: string }) => {
     if (!response || !response.credential) {
       if (onError) onError('Google authentication cancelled or invalid token received.');
@@ -150,14 +157,21 @@ export function GoogleLoginButton({
 
   const handleGoogleClick = () => {
     if (!clientId) {
-      const msg = 'NEXT_PUBLIC_GOOGLE_CLIENT_ID is missing. Please set it in your .env file.';
+      const msg = 'NEXT_PUBLIC_GOOGLE_CLIENT_ID is missing.';
       if (onError) onError(msg);
-      alert(msg);
       return;
     }
 
     if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
       initializeGoogleGSI();
+
+      // Trigger native Google button click if present for seamless mobile touch popup
+      const nativeBtn = googleNativeBtnRef.current?.querySelector('div[role=button]') as HTMLElement;
+      if (nativeBtn) {
+        nativeBtn.click();
+        return;
+      }
+
       try {
         (window as any).google.accounts.id.prompt((notification: any) => {
           if (!isMountedRef.current) return;
@@ -167,13 +181,9 @@ export function GoogleLoginButton({
               setOriginError(true);
             }
           }
-          if (notification.isDismissedMoment?.()) {
-            // User closed the prompt — not an error
-          }
         });
       } catch (e: any) {
-        // Ignore AbortError — it is a normal FedCM cancellation, not a real failure
-        if (e?.name === 'AbortError' || e?.message?.includes('AbortError') || e?.message?.includes('signal')) return;
+        if (e?.name === 'AbortError' || e?.message?.includes('AbortError')) return;
         if (isMountedRef.current) setOriginError(true);
       }
     } else {
@@ -183,11 +193,12 @@ export function GoogleLoginButton({
 
   return (
     <div className="space-y-3">
+      {/* Primary Google Action Button */}
       <button
         type="button"
         onClick={handleGoogleClick}
         disabled={loading}
-        className="w-full py-3.5 px-4 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 text-white font-extrabold text-xs transition-all duration-300 flex items-center justify-center gap-3 border border-white/15 hover:border-blue-500/50 shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] disabled:opacity-60 group relative overflow-hidden"
+        className="w-full py-3.5 px-4 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 text-white font-extrabold text-xs transition-all duration-300 flex items-center justify-center gap-3 border border-white/15 hover:border-blue-500/50 shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] disabled:opacity-60 group relative overflow-hidden cursor-pointer"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         
@@ -218,6 +229,9 @@ export function GoogleLoginButton({
         <span className="relative z-10 tracking-wide">{loading ? 'Authenticating with Google...' : buttonText}</span>
       </button>
 
+      {/* Hidden Container for Native Google GIS Button (used for direct touch handling on mobile) */}
+      <div ref={googleNativeBtnRef} className="hidden opacity-0 h-0 overflow-hidden" />
+
       {/* Google Console Setup Notice */}
       {(originError || configError) && (
         <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-2 leading-relaxed">
@@ -226,11 +240,10 @@ export function GoogleLoginButton({
             <span>Google OAuth Origin Setup Required</span>
           </div>
           <p className="text-[11px] text-amber-200/90">
-            Google Cloud Console requires <code className="bg-amber-950/80 px-1.5 py-0.5 rounded text-amber-300 font-mono">http://localhost:3000</code> to be added to <strong>Authorized JavaScript origins</strong>.
+            Ensure <code className="bg-amber-950/80 px-1.5 py-0.5 rounded text-amber-300 font-mono">https://shop.dohsedu.com</code> is added to <strong>Authorized JavaScript origins</strong> in Google Cloud Console.
           </p>
         </div>
       )}
     </div>
   );
 }
-
