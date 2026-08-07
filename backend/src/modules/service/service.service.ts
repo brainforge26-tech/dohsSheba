@@ -273,15 +273,17 @@ export const getServices = async (filters: ServiceFilter) => {
   const where: any = { isActive: true };
 
   if (category && category !== 'all') {
-    const keyword = category
+    const slugClean = category.toLowerCase().trim();
+    const keyword = slugClean
       .replace(/-(service|repair|cleaner|plumber|services)$/i, '')
       .toLowerCase();
 
     where.OR = [
-      { category: { slug: { contains: category, mode: 'insensitive' } } },
+      { categoryId: category },
+      { category: { id: category } },
+      { category: { slug: { equals: slugClean, mode: 'insensitive' } } },
       { category: { slug: { contains: keyword, mode: 'insensitive' } } },
-      { category: { name: { contains: keyword, mode: 'insensitive' } } },
-      { title: { contains: keyword, mode: 'insensitive' } },
+      { category: { name: { equals: category, mode: 'insensitive' } } },
     ];
   }
 
