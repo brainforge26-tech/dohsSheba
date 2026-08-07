@@ -10,7 +10,7 @@ const router = Router();
 router.use(protect);
 
 router.get('/',               bookingController.getBookings);
-router.get('/provider/stats', authorize('PROVIDER', 'ADMIN'), bookingController.getProviderStats);
+router.get('/provider/stats', authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'), bookingController.getProviderStats);
 router.get('/:id',            bookingController.getBooking);
 
 router.post('/',
@@ -20,9 +20,14 @@ router.post('/',
 );
 
 router.patch('/:id/status',
-  authorize('PROVIDER', 'ADMIN'),
+  authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'),
   updateStatusValidator, validate,
   bookingController.updateStatus
+);
+
+router.patch('/:id/assign-technician',
+  authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'),
+  bookingController.assignTechnician
 );
 
 router.delete('/:id/cancel',

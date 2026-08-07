@@ -221,37 +221,34 @@ export function DashboardSidebar({
     } else if (effectiveRole === 'PROVIDER') {
       return [
         {
-          sectionTitle: 'OVERVIEW',
+          sectionTitle: 'SERVICE OPERATIONS',
           items: [
             {
-              label: 'Command Center',
+              label: 'Dashboard Overview',
               href: '/provider/dashboard',
-              icon: <LayoutDashboard className="w-4 h-4 text-emerald-400" />,
+              icon: <LayoutDashboard className="w-4 h-4 text-blue-400" />,
             },
             {
-              label: 'Live Job Bookings',
-              href: '/provider/dashboard/bookings',
-              icon: <Calendar className="w-4 h-4 text-blue-400" />,
+              label: 'Service Requests',
+              icon: <Wrench className="w-4 h-4 text-purple-400" />,
+              subItems: [
+                { label: 'New Requests', href: '/provider/dashboard?status=PENDING' },
+                { label: 'Confirmed Jobs', href: '/provider/dashboard?status=CONFIRMED' },
+                { label: 'Assigned Jobs', href: '/provider/dashboard?status=ASSIGNED' },
+                { label: 'In Progress', href: '/provider/dashboard?status=IN_PROGRESS' },
+                { label: 'Completed Jobs', href: '/provider/dashboard?status=COMPLETED' },
+                { label: 'Cancelled Jobs', href: '/provider/dashboard?status=CANCELLED' },
+              ],
             },
             {
-              label: 'My Listed Services',
+              label: 'Service Management',
               href: '/provider/dashboard/services',
-              icon: <Wrench className="w-4 h-4 text-amber-400" />,
-            },
-          ],
-        },
-        {
-          sectionTitle: 'MANAGEMENT',
-          items: [
-            {
-              label: 'Earnings & Wallet',
-              href: '/provider/dashboard/finance',
-              icon: <DollarSign className="w-4 h-4 text-emerald-400" />,
+              icon: <Layers className="w-4 h-4 text-emerald-400" />,
             },
             {
-              label: 'Customer Chat & Support',
-              href: '/dashboard/messages',
-              icon: <Mail className="w-4 h-4 text-indigo-400" />,
+              label: 'Technician Roster',
+              href: '/admin/dashboard/services',
+              icon: <Users className="w-4 h-4 text-amber-400" />,
             },
           ],
         },
@@ -600,7 +597,7 @@ export function DashboardSidebar({
             <div>
               <h3 className="font-bold text-sm text-white" suppressHydrationWarning>{(mounted && user?.name) || 'Account Workspace'}</h3>
               <p className="text-[11px] text-indigo-300 capitalize" suppressHydrationWarning>
-                {effectiveRole === 'SUPER_ADMIN' ? 'Super Administrator' : effectiveRole === 'SELLER' ? 'Shop Owner · Seller' : effectiveRole === 'PROVIDER' ? 'Service Provider' : effectiveRole === 'ADMIN' ? 'Platform Administrator' : `${effectiveRole.toLowerCase()} account`}
+                {effectiveRole === 'SUPER_ADMIN' ? 'Super Administrator' : effectiveRole === 'SELLER' ? 'Shop Owner · Seller' : effectiveRole === 'PROVIDER' ? 'Service Operations Manager' : effectiveRole === 'ADMIN' ? 'Platform Administrator' : `${effectiveRole.toLowerCase()} account`}
               </p>
             </div>
           </div>

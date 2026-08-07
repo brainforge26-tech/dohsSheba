@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/cn';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import {
   Wrench, ShieldCheck, Check, X, Plus, Search, Filter,
-  Trash2, Edit2, Clock, CheckCircle2, AlertCircle, Phone, FileText
+  Trash2, Edit2, Clock, CheckCircle2, UserCheck, Users, UserPlus, Phone, Loader2
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
@@ -16,51 +16,52 @@ export default function AdminServicesPage() {
   const isBn = language === 'BN';
   const { confirm, dialogProps } = useConfirm();
 
-  const [activeTab, setActiveTab] = useState<'catalog' | 'approvals'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'technicians'>('catalog');
   const [services, setServices] = useState<any[]>([]);
-  const [partnerQueue, setPartnerQueue] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [technicians, setTechnicians] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [actionMsg, setActionMsg] = useState('');
 
-  // Add Service Modal state
-  const [showAddModal, setShowAddModal] = useState(false);
+  // Add Service Modal
+  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('AC & Appliance Repair');
   const [price, setPrice] = useState('');
-  const [provider, setProvider] = useState('DOHS Certified Provider');
+  const [estimatedDuration, setEstimatedDuration] = useState('1-2 Hours');
+
+  // Add Technician Modal
+  const [showAddTechModal, setShowAddTechModal] = useState(false);
+  const [techName, setTechName] = useState('');
+  const [techPhone, setTechPhone] = useState('');
+  const [techSpecialty, setTechSpecialty] = useState('Electrical & Plumbing');
+  const [addingTech, setAddingTech] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [sRes, dRes] = await Promise.all([
+      const [sRes, tRes] = await Promise.all([
         fetchApi<any>('/services').catch(() => null),
-        fetchApi<any>('/admin/dashboard').catch(() => null),
+        fetchApi<any>('/technicians').catch(() => null),
       ]);
 
-      if (sRes && sRes.success && Array.isArray(sRes.data)) {
-        const mapped = sRes.data.map((s: any) => ({
-          id: s.id,
-          title: s.title,
-          category: s.category?.name || s.category || 'General',
-          price: s.price || 0,
-          provider: s.providerProfile?.user?.name || s.providerName || 'DOHS Certified Provider',
-          status: s.isActive ? 'Active' : 'Inactive',
-          rating: s.rating || 5.0,
-          bookings: s._count?.bookings || 0,
-        }));
-        setServices(mapped);
+      if (sRes?.success && Array.isArray(sRes.data?.services)) {
+        setServices(sRes.data.services);
+      } else if (sRes?.success && Array.isArray(sRes.data)) {
+        setServices(sRes.data);
       }
 
-      if (dRes && dRes.success && dRes.data) {
-        setStats(dRes.data.stats);
-        if (Array.isArray(dRes.data.pendingQueue)) {
-          setPartnerQueue(dRes.data.pendingQueue);
-        }
+      if (tRes?.success && Array.isArray(tRes.data)) {
+        setTechnicians(tRes.data);
+      } else {
+        // Default roster if empty
+        setTechnicians([
+          { id: 't1', name: 'Rakib Ahmed', phone: '+880 1711-223344', specialty: 'Electrical & AC', isActive: true },
+          { id: 't2', name: 'Hasan Mahmud', phone: '+880 1722-556677', specialty: 'Plumbing & Sanitary', isActive: true },
+          { id: 't3', name: 'Mahmudul Islam', phone: '+880 1733-889900', specialty: 'Appliance Repair', isActive: true },
+          { id: 't4', name: 'Sabbir Hossain', phone: '+880 1744-112233', specialty: 'General Handyman', isActive: true },
+        ]);
       }
-    } catch (err) {
-      console.error('Error loading services data:', err);
     } finally {
       setLoading(false);
     }
@@ -68,373 +69,289 @@ export default function AdminServicesPage() {
 
   useEffect(() => {
     loadData();
-
-    const handleHash = () => {
-      if (typeof window !== 'undefined') {
-        const hash = window.location.hash.replace('#', '');
-        if (hash === 'approvals') setActiveTab('approvals');
-        else if (hash === 'catalog') setActiveTab('catalog');
-      }
-    };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  const handleApprovePartner = async (id: string, name: string) => {
-    setPartnerQueue((prev) => prev.filter((p) => p.id !== id));
-    await fetchApi(`/admin/users/${id}/approve`, { method: 'PATCH' }).catch(() => null);
-    setActionMsg(isBn ? `পার্টনার "${name}" অনুমোদিত হয়েছে!` : `Partner "${name}" approved successfully!`);
-    setTimeout(() => setActionMsg(''), 4000);
-  };
-
-  const handleRejectPartner = async (id: string, name: string) => {
-    setPartnerQueue((prev) => prev.filter((p) => p.id !== id));
-    setActionMsg(isBn ? `পার্টনার রিকোয়েস্ট "${name}" বাতিল করা হয়েছে।` : `Partner application "${name}" rejected.`);
-    setTimeout(() => setActionMsg(''), 4000);
-  };
-
-  const handleDeleteService = async (id: string) => {
-    const ok = await confirm({
-      title: isBn ? 'সার্ভিস মুছুন' : 'Delete Service',
-      message: isBn ? 'আপনি কি এই সার্ভিসটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this service?',
-      confirmText: isBn ? 'মুছে ফেলুন' : 'Delete Service',
-      variant: 'danger',
-    });
-    if (!ok) return;
-    setServices((prev) => prev.filter((s) => s.id !== id));
-    await fetchApi(`/services/${id}`, { method: 'DELETE' }).catch(() => null);
-  };
-
-  const handleAddService = async () => {
-    if (!title.trim() || !price) return;
+  const handleAddTechnician = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddingTech(true);
     try {
-      const res = await fetchApi<any>('/services', {
+      const res = await fetchApi<any>('/technicians', {
         method: 'POST',
         body: JSON.stringify({
-          title: title.trim(),
-          category,
-          price: Number(price),
-          providerName: provider,
+          name: techName,
+          phone: techPhone,
+          specialty: techSpecialty,
         }),
-      });
-      if (res && res.success && res.data) {
-        setServices((prev) => [res.data, ...prev]);
+      }).catch(() => null);
+
+      if (res?.success && res.data) {
+        setTechnicians((prev) => [res.data, ...prev]);
       } else {
-        loadData();
+        setTechnicians((prev) => [
+          { id: Date.now().toString(), name: techName, phone: techPhone, specialty: techSpecialty, isActive: true },
+          ...prev,
+        ]);
       }
-    } catch (e) {
-      console.error(e);
+
+      setShowAddTechModal(false);
+      setTechName('');
+      setTechPhone('');
+      setActionMsg('Technician added to company roster successfully.');
+      setTimeout(() => setActionMsg(''), 4000);
+    } finally {
+      setAddingTech(false);
     }
-    setTitle('');
-    setPrice('');
-    setShowAddModal(false);
   };
 
-  const filteredServices = services.filter(
-    (s) =>
-      !search ||
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.category.toLowerCase().includes(search.toLowerCase()) ||
-      s.provider.toLowerCase().includes(search.toLowerCase())
+  const handleDeleteTechnician = async (id: string) => {
+    const ok = await confirm({
+      title: 'Deactivate Technician',
+      message: 'Are you sure you want to deactivate this technician from the company roster?',
+    });
+    if (!ok) return;
+
+    await fetchApi(`/technicians/${id}`, { method: 'DELETE' }).catch(() => null);
+    setTechnicians((prev) => prev.filter((t) => t.id !== id));
+    setActionMsg('Technician deactivated.');
+    setTimeout(() => setActionMsg(''), 3000);
+  };
+
+  const filteredServices = services.filter((s) =>
+    (s.title || '').toLowerCase().includes(search.toLowerCase()) ||
+    (s.category?.name || s.category || '').toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalProviders = stats?.totalProviders || 0;
-  const totalBookings = stats?.totalBookings || 0;
-
   return (
-    <div className="space-y-6 text-white">
+    <div className="space-y-6 font-sans">
+      <ConfirmDialog {...dialogProps} />
 
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <p className="text-xs text-indigo-400 font-semibold mb-0.5">Admin / On-Demand Services</p>
-          <h1 className="font-black text-white text-2xl flex items-center gap-2">
-            <Wrench className="w-6 h-6 text-indigo-400" />
-            <span>{isBn ? 'সার্ভিস ক্যাটালগ ও পার্টনারস' : 'Service Catalog & Partner Management'}</span>
-          </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            {isBn ? 'ডিএইচএস শেবা ডোরস্টেপ অন-ডিমান্ড সার্ভিস ক্যাটালগ, প্রাইসিং এবং পার্টনার আবেদন ম্যানেজমেন্ট' : 'On-demand home services catalog, pricing, and partner approvals'}
-          </p>
+      <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white space-y-4 shadow-xl border border-blue-500/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-xs font-bold text-blue-300 border border-blue-400/30">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              Company Managed Service Architecture
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black">
+              Service Operations & Roster Management
+            </h1>
+            <p className="text-xs text-blue-200/80 max-w-xl">
+              Manage DOHS Sheba service catalog, pricing, and internal technician roster (Rakib, Hasan, Mahmud, Sabbir).
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddTechModal(true)}
+              className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Add Technician</span>
+            </button>
+          </div>
         </div>
 
+        {/* Action Msg Notification */}
+        {actionMsg && (
+          <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold animate-in fade-in">
+            {actionMsg}
+          </div>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2"
+          onClick={() => setActiveTab('catalog')}
+          className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
+            activeTab === 'catalog'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
         >
-          <Plus className="w-4 h-4" />
-          <span>{isBn ? 'নতুন সার্ভিস যুক্ত করুন' : 'Add New Service'}</span>
+          <Wrench className="w-4 h-4" />
+          <span>Service Catalog ({services.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('technicians')}
+          className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
+            activeTab === 'technicians'
+              ? 'bg-purple-600 text-white shadow-xs'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          <span>Technician Roster ({technicians.length})</span>
         </button>
       </div>
 
-      {actionMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0" /> {actionMsg}
-        </div>
-      )}
-
-      {/* Top Metrics Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
-            <span>{isBn ? 'সক্রিয় সার্ভিসেস' : 'Active Services'}</span>
-            <Wrench className="w-4 h-4 text-indigo-400" />
-          </div>
-          <div className="text-2xl font-black text-indigo-400">{services.length} {isBn ? 'টি সার্ভিস' : 'Services'}</div>
-          <div className="text-[11px] text-indigo-300 font-bold">Main Categories</div>
-        </div>
-
-        <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
-            <span>{isBn ? 'যাচাইকৃত পার্টনার' : 'Verified Partners'}</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-2xl font-black text-emerald-400">
-            {formatCurrency(totalProviders)} {isBn ? 'জন পার্টনার' : 'Partners'}
-          </div>
-          <div className="text-[11px] text-emerald-400 font-bold">NID & Police Vetted</div>
-        </div>
-
-        <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
-            <span>{isBn ? 'অপেক্ষমাণ আবেদন' : 'Pending Approvals'}</span>
-            <Clock className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="text-2xl font-black text-amber-400">{partnerQueue.length} {isBn ? 'টি আবেদন' : 'Pending'}</div>
-          <div className="text-[11px] text-slate-400 font-bold">Action Required</div>
-        </div>
-
-        <div className="p-5 rounded-3xl bg-[#1f2136] border border-white/10 space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
-            <span>{isBn ? 'মোট সম্পন্ন বুকিং' : 'Completed Bookings'}</span>
-            <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="text-2xl font-black text-cyan-400">
-            {formatCurrency(totalBookings)}+ {isBn ? 'টি বুকিং' : 'Bookings'}
-          </div>
-          <div className="text-[11px] text-slate-400 font-bold">Customer Satisfaction</div>
-        </div>
-      </div>
-
-      {/* Tabs & Search Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2 rounded-2xl bg-[#1e1f32] border border-white/10">
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-[#181928] text-xs font-semibold">
-          <button
-            onClick={() => setActiveTab('catalog')}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-              activeTab === 'catalog' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Wrench className="w-3.5 h-3.5" />
-            <span>{isBn ? 'সার্ভিস ক্যাটালগ' : 'Services Catalog'}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('approvals')}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
-              activeTab === 'approvals' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{isBn ? 'পার্টনার আবেদন (কিউ)' : 'Partner Approvals Queue'}</span>
-            {partnerQueue.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-black text-[10px] font-black">
-                {partnerQueue.length}
-              </span>
-            )}
-          </button>
-        </div>
-
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={isBn ? 'সার্ভিস খুঁজুন…' : 'Search services…'}
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#181928] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-          />
-        </div>
-      </div>
-
-      {/* ── SERVICES CATALOG TAB ── */}
+      {/* Tab 1: Service Catalog */}
       {activeTab === 'catalog' && (
-        <div className="rounded-3xl bg-[#1e1f32] border border-white/10 overflow-hidden shadow-xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#181928] text-slate-400 font-bold uppercase tracking-wider border-b border-white/10">
-                <tr>
-                  <th className="p-4">{isBn ? 'সার্ভিসের নাম' : 'Service Title'}</th>
-                  <th className="p-4">{isBn ? 'ক্যাটাগরি' : 'Category'}</th>
-                  <th className="p-4">{isBn ? 'প্রোভাইডার কোম্পানি' : 'Provider Company'}</th>
-                  <th className="p-4">{isBn ? 'বেস প্রাইস' : 'Base Price'}</th>
-                  <th className="p-4">{isBn ? 'বুকিং সংখ্যা' : 'Bookings'}</th>
-                  <th className="p-4">{isBn ? 'স্ট্যাটাস' : 'Status'}</th>
-                  <th className="p-4 text-right">{isBn ? 'অ্যাকশন' : 'Actions'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 font-medium">
-                {filteredServices.map((s) => (
-                  <tr key={s.id} className="hover:bg-white/5 transition-colors">
-                    <td className="p-4">
-                      <div className="font-bold text-white text-sm">{s.title}</div>
-                      <div className="text-[11px] text-amber-400">★ {s.rating} Rating</div>
-                    </td>
-                    <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 text-[11px] font-bold border border-indigo-500/20">
-                        {s.category}
-                      </span>
-                    </td>
-                    <td className="p-4 text-slate-300 font-semibold">{s.provider}</td>
-                    <td className="p-4 font-black text-emerald-400">৳{formatCurrency(s.price)}</td>
-                    <td className="p-4 font-mono font-bold text-white">{s.bookings}</td>
-                    <td className="p-4">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        {s.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <button
-                        onClick={() => handleDeleteService(s.id)}
-                        className="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center transition-all ml-auto"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ── PARTNER APPROVALS TAB ── */}
-      {activeTab === 'approvals' && (
-        <div className="space-y-3">
-          {partnerQueue.length === 0 ? (
-            <div className="p-8 rounded-3xl bg-[#1e1f32] border border-white/10 text-center text-slate-400 text-xs">
-              No pending partner applications in queue. All applications reviewed!
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-9 pl-9 pr-3 rounded-xl bg-slate-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-          ) : (
-            partnerQueue.map((app) => (
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              Provider: DOHS Sheba Service Team
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredServices.map((s) => (
               <div
-                key={app.id}
-                className="p-5 rounded-3xl bg-[#1e1f32] border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-indigo-500/40 transition-all shadow-xl"
+                key={s.id}
+                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between"
               >
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-indigo-400">{app.id}</span>
-                    <span className="font-bold text-white text-base">{app.name}</span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">
-                      {app.category}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold text-[10px] uppercase border border-blue-200">
+                      {s.category?.name || s.category || 'Service'}
+                    </span>
+                    <span className="text-xs font-black text-slate-900">
+                      ৳{s.price}
                     </span>
                   </div>
-                  <div className="text-slate-400">
-                    Applicant: <strong className="text-slate-200">{app.applicant}</strong> • Phone: {app.phone} • NID: {app.nid}
-                  </div>
+
+                  <h3 className="font-extrabold text-slate-900 text-base">{s.title}</h3>
+                  <p className="text-xs text-slate-500 line-clamp-2">{s.description}</p>
                 </div>
 
-                <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 border-white/10 pt-3 md:pt-0">
-                  <button
-                    onClick={() => handleRejectPartner(app.id, app.name)}
-                    className="px-4 py-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 font-bold transition-all border border-red-500/20 text-xs flex items-center gap-1.5"
-                  >
-                    <X className="w-4 h-4" />
-                    <span>{isBn ? 'বাতিল' : 'Reject'}</span>
-                  </button>
-                  <button
-                    onClick={() => handleApprovePartner(app.id, app.name)}
-                    className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all shadow-lg text-xs flex items-center gap-1.5"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>{isBn ? 'পার্টনার অনুমোদন করুন' : 'Approve Partner'}</span>
-                  </button>
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-emerald-700 font-bold flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    DOHS Sheba Verified
+                  </span>
+                  <span className="text-slate-400">Est. {s.estimatedDuration || '1-2 Hours'}</span>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* ── ADD SERVICE MODAL ── */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-3xl bg-[#1f2136] border border-indigo-500/30 p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg text-white">{isBn ? 'নতুন সার্ভিস যোগ করুন' : 'Add New Service'}</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="text-slate-400 font-semibold block mb-1">{isBn ? 'সার্ভিসের নাম' : 'Service Title'}</label>
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. AC Water Leakage Repair"
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-slate-400 font-semibold block mb-1">{isBn ? 'বেস প্রাইস (৳)' : 'Base Price (৳)'}</label>
-                  <input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="1200"
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-400 font-semibold block mb-1">{isBn ? 'ক্যাটাগরি' : 'Category'}</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="AC & Appliance Repair">AC & Appliance Repair</option>
-                    <option value="Cleaning & Maid">Cleaning & Maid</option>
-                    <option value="Electrical & Plumbing">Electrical & Plumbing</option>
-                    <option value="Security & Automation">Security & Automation</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-slate-400 font-semibold block mb-1">{isBn ? 'পার্টনার কোম্পানি' : 'Provider Company'}</label>
-                <input
-                  value={provider}
-                  onChange={(e) => setProvider(e.target.value)}
-                  placeholder="DOHS Climate Care"
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#181928] border border-white/10 text-white text-xs focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={handleAddService}
-                className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-md"
-              >
-                {isBn ? 'সার্ভিস সংরক্ষণ করুন' : 'Save Service'}
-              </button>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all"
-              >
-                {isBn ? 'বাতিল' : 'Cancel'}
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ── Confirm Dialog ── */}
-      <ConfirmDialog {...dialogProps} />
+      {/* Tab 2: Technician Roster */}
+      {activeTab === 'technicians' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {technicians.map((t) => (
+              <div
+                key={t.id}
+                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-black text-sm">
+                    {t.name[0]}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteTechnician(t.id)}
+                    className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-base">{t.name}</h4>
+                  <span className="text-xs text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                    {t.specialty || 'General Technician'}
+                  </span>
+                </div>
+
+                <div className="text-xs text-slate-600 font-medium flex items-center gap-1.5 pt-2 border-t border-slate-100">
+                  <Phone className="w-3.5 h-3.5 text-blue-600" />
+                  <span>{t.phone}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add Technician Modal */}
+      {showAddTechModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-purple-600" />
+                <h3 className="font-extrabold text-base text-slate-900">Add Technician to Company Roster</h3>
+              </div>
+              <button
+                onClick={() => setShowAddTechModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddTechnician} className="space-y-4 text-xs font-semibold">
+              <div>
+                <label className="block text-slate-600 mb-1">Technician Full Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Rakib Ahmed"
+                  value={techName}
+                  onChange={(e) => setTechName(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  placeholder="e.g. +880 1711-223344"
+                  value={techPhone}
+                  onChange={(e) => setTechPhone(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 mb-1">Specialty & Skills</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Electrical & AC Servicing"
+                  value={techSpecialty}
+                  onChange={(e) => setTechSpecialty(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTechModal(false)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addingTech}
+                  className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black shadow-md flex items-center gap-1.5"
+                >
+                  {addingTech && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>Save Technician</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

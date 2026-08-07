@@ -34,6 +34,7 @@
 - Earnings & delivery trip history.
 
 ---
+------
 
 ## 🚀 Getting Started
 

@@ -25,7 +25,11 @@ enum Role {
 enum BookingStatus {
   PENDING
   CONFIRMED
+  TECHNICIAN_ASSIGNED
+  TECHNICIAN_ON_THE_WAY
   IN_PROGRESS
+  WORK_COMPLETED
+  CUSTOMER_CONFIRMED
   COMPLETED
   CANCELLED
   REJECTED
@@ -191,19 +195,25 @@ model ServiceCategory {
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 model Service {
-  id           String          @id @default(cuid())
-  providerId   String
-  categoryId   String
-  title        String
-  description  String
-  price        Float
-  priceUnit    String          @default("hour")
-  images       String[]
-  isActive     Boolean         @default(true)
-  rating       Float           @default(0)
-  totalReviews Int             @default(0)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id                String          @id @default(cuid())
+  providerId        String
+  categoryId        String
+  title             String
+  description       String
+  price             Float
+  startingPrice     Float?
+  priceUnit         String          @default("hour")
+  estimatedDuration String?         @default("1-2 Hours")
+  features          String[]
+  faqs              Json?
+  terms             String?
+  images            String[]
+  isActive          Boolean         @default(true)
+  isVerified        Boolean         @default(true)
+  rating            Float           @default(5.0)
+  totalReviews      Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   provider  User            @relation(fields: [providerId], references: [id])
   category  ServiceCategory @relation(fields: [categoryId], references: [id])
@@ -213,25 +223,48 @@ model Service {
   @@map("services")
 }
 
+// ─── Technician ───────────────────────────────────────────────────────────────
+
+model Technician {
+  id          String    @id @default(cuid())
+  name        String
+  phone       String
+  specialty   String?
+  avatar      String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  bookings    Booking[]
+
+  @@map("technicians")
+}
+
 // ─── Booking ──────────────────────────────────────────────────────────────────
 
 model Booking {
-  id          String        @id @default(cuid())
-  customerId  String
-  serviceId   String
-  addressId   String
-  scheduledAt DateTime
-  status      BookingStatus @default(PENDING)
-  totalAmount Float
-  notes       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  customerId      String
+  serviceId       String
+  addressId       String
+  technicianId    String?
+  technicianName  String?
+  technicianPhone String?
+  scheduledAt     DateTime
+  status          BookingStatus @default(PENDING)
+  totalAmount     Float
+  notes           String?
+  assignedAt      DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
-  customer User     @relation("CustomerBookings", fields: [customerId], references: [id])
-  service  Service  @relation(fields: [serviceId], references: [id])
-  address  Address  @relation(fields: [addressId], references: [id])
-  payment  Payment?
-  review   Review?
+  customer   User        @relation("CustomerBookings", fields: [customerId], references: [id])
+  service    Service     @relation(fields: [serviceId], references: [id])
+  address    Address     @relation(fields: [addressId], references: [id])
+  technician Technician? @relation(fields: [technicianId], references: [id])
+  payment    Payment?
+  review     Review?
 
   @@map("bookings")
 }

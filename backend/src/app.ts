@@ -4,11 +4,12 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
 
 import { errorHandler } from './middlewares/error.middleware';
 import { notFound } from './middlewares/notFound.middleware';
 
-// ─── Module Routes ────────────────────────────────────────────────────────────
+// ─── Module & Route Imports ───────────────────────────────────────────────────
 import authRoutes                              from './modules/auth/auth.routes';
 import userRoutes                              from './modules/user/user.routes';
 import serviceRoutes, { categoryRouter as serviceCategoryRoutes } from './modules/service/service.routes';
@@ -25,6 +26,10 @@ import uploadRoutes                            from './modules/upload/upload.rou
 import couponRoutes                            from './modules/coupon/coupon.routes';
 import riderRoutes                             from './modules/rider/rider.routes';
 import bannerRoutes                            from './modules/banner/banner.routes';
+import technicianRoutes                        from './modules/technician/technician.routes';
+import homepageRoutes                         from './routes/homepage.routes';
+import adminHomepageRoutes                    from './routes/adminHomepage.routes';
+import brandRoutes                            from './routes/brand.routes';
 
 const app = express();
 
@@ -32,6 +37,7 @@ const app = express();
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
+
 const allowedOrigins = [
   process.env.CLIENT_URL,
   'http://localhost:3000',
@@ -42,7 +48,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
@@ -63,8 +68,6 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-import path from 'path';
-
 // ─── Body & Cookies ───────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -75,6 +78,13 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
+app.get('/', (_req, res) => res.json({
+  success:     true,
+  message:     '🚀 dohsSheba API is running successfully',
+  environment: process.env.NODE_ENV,
+  timestamp:   new Date().toISOString(),
+}));
+
 app.get('/health', (_req, res) => res.json({
   success:     true,
   message:     '🚀 dohsSheba API is running',
@@ -92,10 +102,6 @@ app.use(`${API}/service-categories`,  serviceCategoryRoutes);
 app.use(`${API}/bookings`,            bookingRoutes);
 app.use(`${API}/products`,            productRoutes);
 app.use(`${API}/product-categories`,  productCategoryRoutes);
-import homepageRoutes                         from './routes/homepage.routes';
-import adminHomepageRoutes                    from './routes/adminHomepage.routes';
-import brandRoutes                            from './routes/brand.routes';
-
 app.use(`${API}/cart`,                cartRoutes);
 app.use(`${API}/orders`,              orderRoutes);
 app.use(`${API}/reviews`,             reviewRoutes);
@@ -106,6 +112,7 @@ app.use(`${API}/upload`,              uploadRoutes);
 app.use(`${API}/coupons`,             couponRoutes);
 app.use(`${API}/rider`,               riderRoutes);
 app.use(`${API}/banners`,             bannerRoutes);
+app.use(`${API}/technicians`,          technicianRoutes);
 app.use(`${API}/homepage`,            homepageRoutes);
 app.use(`${API}/admin/homepage`,      adminHomepageRoutes);
 app.use(`${API}/brands`,              brandRoutes);

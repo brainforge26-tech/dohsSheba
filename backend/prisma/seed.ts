@@ -751,6 +751,154 @@ async function seedOrders(customer: any, rider: any, customerAddr: any, products
   console.log('   ✓ Sample orders seeded across lifecycle statuses.');
 }
 
+// ─── 9. COMPANY SERVICES & TECHNICIANS ────────────────────────────────────────
+async function seedServicesAndTechnicians(provider: any) {
+  console.log('🛠️ Seeding DOHS Sheba Company Managed Services & Technicians...');
+
+  // Technicians
+  if ((prisma as any).technician) {
+    await (prisma as any).technician.createMany({
+      data: [
+        { name: 'Rakib Ahmed', phone: '+8801711223344', specialty: 'Electrical & AC', isActive: true },
+        { name: 'Hasan Mahmud', phone: '+8801722556677', specialty: 'Plumbing & Sanitary', isActive: true },
+        { name: 'Mahmudul Islam', phone: '+8801733889900', specialty: 'Appliance Repair', isActive: true },
+        { name: 'Sabbir Hossain', phone: '+8801744112233', specialty: 'General Handyman', isActive: true },
+      ],
+    });
+  }
+
+  // Service Categories
+  const catAC = await prisma.serviceCategory.create({
+    data: { name: 'AC Service & Repair', slug: 'ac-service', icon: 'Wind', isActive: true },
+  });
+  const catElec = await prisma.serviceCategory.create({
+    data: { name: 'Electrician', slug: 'electrician', icon: 'Zap', isActive: true },
+  });
+  const catPlumb = await prisma.serviceCategory.create({
+    data: { name: 'Plumbing Service', slug: 'plumber', icon: 'Droplet', isActive: true },
+  });
+  const catClean = await prisma.serviceCategory.create({
+    data: { name: 'House & Deep Cleaning', slug: 'cleaner', icon: 'Sparkles', isActive: true },
+  });
+  const catPest = await prisma.serviceCategory.create({
+    data: { name: 'Pest Control', slug: 'pest-control', icon: 'ShieldAlert', isActive: true },
+  });
+  const catAppliance = await prisma.serviceCategory.create({
+    data: { name: 'Appliance Repair', slug: 'appliance-repair', icon: 'Wrench', isActive: true },
+  });
+
+  // Services
+  await prisma.service.createMany({
+    data: [
+      {
+        title: 'AC Jet Cleaning & Master Servicing',
+        description: 'Complete jet wash indoor & outdoor unit cleaning with anti-bacterial foam treatment.',
+        price: 1200,
+        priceUnit: 'job',
+        categoryId: catAC.id,
+        providerId: provider.id,
+        isActive: true,
+        rating: 4.9,
+        images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+      },
+      {
+        title: 'Gas Refilling & Leakage Repair',
+        description: 'R22 / R410 / R32 refrigerant gas refill with pressure testing and leak fix.',
+        price: 2500,
+        priceUnit: 'job',
+        categoryId: catAC.id,
+        providerId: provider.id,
+        isActive: true,
+        rating: 4.8,
+        images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+      },
+      {
+        title: 'Full House Deep Cleaning Package',
+        description: 'Whole house vacuuming, floor scrubbing, window cleaning & bathroom disinfection.',
+        price: 4500,
+        priceUnit: 'job',
+        categoryId: catClean.id,
+        providerId: provider.id,
+        isActive: true,
+        rating: 5.0,
+        images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+      },
+      {
+        title: 'Sofa & Carpet Shampoo Cleaning',
+        description: 'Deep extraction shampoo washing for 5-seater sofa set or large living room carpet.',
+        price: 1800,
+        priceUnit: 'job',
+        categoryId: catClean.id,
+        providerId: provider.id,
+        isActive: true,
+        rating: 4.9,
+        images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+      },
+      {
+        title: 'Plumbing Leakage & Pipe Repair',
+        description: 'Expert plumber visit for pipe leak detection, basin connection & tap replacement.',
+        price: 850,
+        priceUnit: 'job',
+        categoryId: catPlumb.id,
+        providerId: provider.id,
+        isActive: true,
+        rating: 4.8,
+        images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+      },
+      {
+        title: 'Electrical Short-Circuit Inspection',
+        description: 'Diagnostic inspection for tripped breakers, burnt switches, and wire short-circuits.',
+        price: 500,
+        priceUnit: 'job',
+        categoryId: catElec.id,
+        providerId: provider.id,
+        isActive: true,
+        rating: 4.9,
+        images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+      },
+    ],
+  });
+
+  // Fetch first service and customer for sample bookings
+  const [firstService, secondService, sampleCustomer, sampleAddress] = await Promise.all([
+    prisma.service.findFirst({ where: { title: { contains: 'AC Jet Cleaning' } } }),
+    prisma.service.findFirst({ where: { title: { contains: 'Plumbing' } } }),
+    prisma.user.findFirst({ where: { email: 'customer@dohssheba.com' } }),
+    prisma.address.findFirst({}),
+  ]);
+
+  if (firstService && sampleCustomer && sampleAddress) {
+    await prisma.booking.createMany({
+      data: [
+        {
+          id: 'BK-1001',
+          customerId: sampleCustomer.id,
+          serviceId: firstService.id,
+          addressId: sampleAddress.id,
+          scheduledAt: new Date(Date.now() + 86400000),
+          totalAmount: 1200,
+          notes: 'Master AC Jet cleaning requested for Mohakhali DOHS House #12',
+          status: 'PENDING',
+        },
+        {
+          id: 'BK-1002',
+          customerId: sampleCustomer.id,
+          serviceId: secondService ? secondService.id : firstService.id,
+          addressId: sampleAddress.id,
+          scheduledAt: new Date(Date.now() + 172800000),
+          totalAmount: 850,
+          technicianName: 'Rakib Ahmed',
+          technicianPhone: '+880 1711-223344',
+          notes: 'Bathroom pipe leakage repair',
+          status: 'TECHNICIAN_ASSIGNED',
+        },
+      ],
+    });
+  }
+
+  console.log('   ✓ Company Services, Technicians & Sample Bookings seeded successfully.');
+}
+
 // ─── MAIN RUNNER ─────────────────────────────────────────────────────────────
 async function main() {
   if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') {
@@ -769,6 +917,7 @@ async function main() {
   const products = await seedProducts(users.seller, categoryMap, brands);
   const { customerAddr } = await seedCouponsAndAddresses(users.customer, users.seller);
   await seedOrders(users.customer, users.rider, customerAddr, products);
+  await seedServicesAndTechnicians(users.provider);
 
   console.log('='.repeat(60));
   console.log('✅ Seed completed successfully with zero errors!');

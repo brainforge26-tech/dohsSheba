@@ -52,6 +52,14 @@ export const updateStatus = async (req: AuthRequest, res: Response, next: NextFu
   } catch (error) { next(error); }
 };
 
+// PATCH /api/v1/bookings/:id/assign-technician
+export const assignTechnician = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const booking = await bookingService.assignTechnician(req.params.id as string, req.body);
+    return sendResponse(res, 200, 'Technician assigned successfully', booking);
+  } catch (error) { next(error); }
+};
+
 // DELETE /api/v1/bookings/:id/cancel
 export const cancelBooking = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
