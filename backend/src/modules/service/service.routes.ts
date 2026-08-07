@@ -35,7 +35,12 @@ router.post('/',
   serviceController.createService
 );
 router.put('/:id',
-  protect, authorize('PROVIDER', 'ADMIN'),
+  protect, authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'),
+  updateServiceValidator, validate,
+  serviceController.updateService
+);
+router.patch('/:id',
+  protect, authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'),
   updateServiceValidator, validate,
   serviceController.updateService
 );

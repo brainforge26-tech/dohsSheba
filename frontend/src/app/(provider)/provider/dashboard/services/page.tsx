@@ -212,21 +212,18 @@ export default function ProviderServicesPage() {
       };
 
       if (editingService) {
-        const res = await fetchApi<any>(`/services/${editingService.id}`, {
+        await fetchApi<any>(`/services/${editingService.id}`, {
           method: 'PATCH',
           body: JSON.stringify(payload),
         }).catch(() => null);
-
-        if (res?.success) loadData();
       } else {
-        const res = await fetchApi<any>('/services', {
+        await fetchApi<any>('/services', {
           method: 'POST',
           body: JSON.stringify(payload),
         }).catch(() => null);
-
-        if (res?.success) loadData();
       }
       setShowModal(false);
+      loadData();
     } finally {
       setActionLoading(null);
     }
