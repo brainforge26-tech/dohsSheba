@@ -8,6 +8,7 @@ export const createServiceValidator = [
   body('priceUnit').optional().isIn(['hour', 'fixed', 'day']).withMessage('Invalid price unit'),
   body('categoryId').notEmpty().withMessage('Category is required'),
   body('images').optional().isArray().withMessage('Images must be an array'),
+  body('addons').optional().isArray().withMessage('Addons must be an array'),
 ];
 
 export const updateServiceValidator = [
@@ -16,6 +17,7 @@ export const updateServiceValidator = [
   body('price').optional().isFloat({ min: 0 }),
   body('priceUnit').optional().isIn(['hour', 'fixed', 'day']),
   body('isActive').optional().isBoolean(),
+  body('addons').optional().isArray(),
 ];
 
 export const serviceCategoryValidator = [

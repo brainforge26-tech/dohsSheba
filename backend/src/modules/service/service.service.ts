@@ -59,6 +59,11 @@ const ensureCompanyServices = async () => {
                 priceUnit: 'job',
                 estimatedDuration: '1-2 Hours',
                 features: ['High-pressure jet wash', 'Gas leakage check', '90-day warranty'],
+                addons: [
+                  { id: 'add_gas', title: 'R22/R410 Refrigerant Gas Top-Up', price: 800, description: 'Up to 50% gas pressure refill' },
+                  { id: 'add_filter', title: 'Antibacterial Anti-Allergen Filter Replacement', price: 450, description: 'Medical grade air filter' },
+                  { id: 'add_out', title: 'Outdoor Bracket Safety Reinforcement', price: 300, description: 'Anti-rust steel bracket fitting' },
+                ],
                 categoryId: catAC.id,
                 providerId: provider.id,
                 isActive: true,
@@ -73,6 +78,10 @@ const ensureCompanyServices = async () => {
                 priceUnit: 'job',
                 estimatedDuration: '1-2 Hours',
                 features: ['Refrigerant pressure check', 'Leakage detection', '100% cooling test'],
+                addons: [
+                  { id: 'add_leak', title: 'Copper Pipe Flare Nut Repair', price: 400, description: 'Leakproof brass flare nut replacement' },
+                  { id: 'add_cap', title: 'AC Compressor Capacitor Replacement', price: 650, description: 'Heavy duty Japanese capacitor' },
+                ],
                 categoryId: catAC.id,
                 providerId: provider.id,
                 isActive: true,
@@ -87,6 +96,10 @@ const ensureCompanyServices = async () => {
                 priceUnit: 'job',
                 estimatedDuration: '3-4 Hours',
                 features: ['Deep floor scrubbing', 'Bathroom disinfection', 'Kitchen grease wash'],
+                addons: [
+                  { id: 'add_sofa', title: '5-Seater Sofa Shampoo Wash', price: 1200, description: 'Deep foam shampooing & stain removal' },
+                  { id: 'add_fridge', title: 'Refrigerator Interior Disinfection', price: 500, description: 'Odour removal & sanitization' },
+                ],
                 categoryId: catClean.id,
                 providerId: provider.id,
                 isActive: true,
@@ -101,6 +114,10 @@ const ensureCompanyServices = async () => {
                 priceUnit: 'job',
                 estimatedDuration: '1 Hour',
                 features: ['Concealed leak fix', 'Sanitary fitting', 'Tap replacement'],
+                addons: [
+                  { id: 'add_tap', title: 'High Pressure Brass Tap Fitting', price: 350, description: 'Heavy duty chrome brass tap' },
+                  { id: 'add_filter', title: 'Water Line Filter Connection', price: 600, description: 'Dual stage sediment filter' },
+                ],
                 categoryId: catPlumb.id,
                 providerId: provider.id,
                 isActive: true,
@@ -115,6 +132,10 @@ const ensureCompanyServices = async () => {
                 priceUnit: 'job',
                 estimatedDuration: '1 Hour',
                 features: ['Breaker diagnostic', 'Burnt wire replace', 'Safety check'],
+                addons: [
+                  { id: 'add_mcb', title: 'Schneider 32A Circuit Breaker', price: 450, description: 'Original Schneider Electric MCB' },
+                  { id: 'add_switch', title: 'Modular Touch Switch Socket Box', price: 300, description: 'Fireproof polycarbonate gang switch' },
+                ],
                 categoryId: catElec.id,
                 providerId: provider.id,
                 isActive: true,
@@ -353,6 +374,7 @@ export const createService = async (
     priceUnit?: string;
     categoryId: string;
     images?: string[];
+    addons?: any[];
   }
 ) => {
   return prisma.service.create({
@@ -363,6 +385,7 @@ export const createService = async (
       priceUnit: data.priceUnit || 'hour',
       categoryId: data.categoryId,
       images: data.images ?? [],
+      addons: data.addons ?? [],
       providerId,
     },
   });

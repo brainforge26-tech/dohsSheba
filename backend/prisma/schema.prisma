@@ -205,6 +205,7 @@ model Service {
   priceUnit         String          @default("hour")
   estimatedDuration String?         @default("1-2 Hours")
   features          String[]
+  addons            Json?
   faqs              Json?
   terms             String?
   images            String[]

@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/cn';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import {
   Wrench, ShieldCheck, Check, X, Plus, Search, Filter,
-  Trash2, Edit, Edit2, Clock, CheckCircle2, UserCheck, Users, UserPlus, Phone, Loader2, Upload, Image as ImageIcon, Sparkles
+  Trash2, Edit, Edit2, Clock, CheckCircle2, UserCheck, Users, UserPlus, Phone, Loader2, Upload, Image as ImageIcon, Sparkles, Layers, Tag
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
@@ -23,6 +23,18 @@ export default function AdminServicesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [actionMsg, setActionMsg] = useState('');
+
+  // Service Edit Modal
+  const [showEditServiceModal, setShowEditServiceModal] = useState(false);
+  const [editingService, setEditingService] = useState<any | null>(null);
+  const [formTitle, setFormTitle] = useState('');
+  const [formPrice, setFormPrice] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [formAddons, setFormAddons] = useState<any[]>([]);
+  const [newAddonTitle, setNewAddonTitle] = useState('');
+  const [newAddonPrice, setNewAddonPrice] = useState('');
+  const [newAddonDesc, setNewAddonDesc] = useState('');
+  const [savingService, setSavingService] = useState(false);
 
   // Add Technician Modal
   const [showAddTechModal, setShowAddTechModal] = useState(false);
@@ -85,6 +97,60 @@ export default function AdminServicesPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleOpenEditServiceModal = (service: any) => {
+    setEditingService(service);
+    setFormTitle(service.title || '');
+    setFormPrice(String(service.price || ''));
+    setFormDescription(service.description || '');
+    setFormAddons(Array.isArray(service.addons) ? service.addons : []);
+    setNewAddonTitle('');
+    setNewAddonPrice('');
+    setNewAddonDesc('');
+    setShowEditServiceModal(true);
+  };
+
+  const handleAddAddonItem = () => {
+    if (!newAddonTitle || !newAddonPrice) return;
+    const addon = {
+      id: `add_${Date.now()}`,
+      title: newAddonTitle,
+      price: Number(newAddonPrice),
+      description: newAddonDesc || '',
+    };
+    setFormAddons((prev) => [...prev, addon]);
+    setNewAddonTitle('');
+    setNewAddonPrice('');
+    setNewAddonDesc('');
+  };
+
+  const handleRemoveAddonItem = (index: number) => {
+    setFormAddons((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveServiceAddons = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingService) return;
+    setSavingService(true);
+    try {
+      await fetchApi(`/services/${editingService.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          title: formTitle,
+          price: Number(formPrice),
+          description: formDescription,
+          addons: formAddons,
+        }),
+      }).catch(() => null);
+
+      setShowEditServiceModal(false);
+      setActionMsg(`Service & Addons updated for "${formTitle}".`);
+      setTimeout(() => setActionMsg(''), 4000);
+      loadData();
+    } finally {
+      setSavingService(false);
+    }
+  };
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -229,10 +295,10 @@ export default function AdminServicesPage() {
               Company Managed Service Architecture
             </div>
             <h1 className="text-2xl md:text-3xl font-black">
-              Service Operations & Roster Management
+              Service Operations, Addons & Roster Management
             </h1>
             <p className="text-xs text-blue-200/80 max-w-xl">
-              Create, edit, and delete service categories with custom cover photos, services, and technician roster.
+              Create, edit, and manage services, recommended service addons, cover photos, and internal technician roster.
             </p>
           </div>
 
@@ -321,34 +387,73 @@ export default function AdminServicesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredServices.map((s) => (
-              <div
-                key={s.id}
-                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold text-[10px] uppercase border border-blue-200">
-                      {s.category?.name || s.category || 'Service'}
-                    </span>
-                    <span className="text-xs font-black text-slate-900">
-                      ৳{s.price}
-                    </span>
+            {filteredServices.map((s) => {
+              const addonCount = Array.isArray(s.addons) ? s.addons.length : 0;
+
+              return (
+                <div
+                  key={s.id}
+                  className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold text-[10px] uppercase border border-blue-200">
+                          {s.category?.name || s.category || 'Service'}
+                        </span>
+                        {addonCount > 0 && (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] border border-emerald-200 flex items-center gap-1">
+                            <Layers className="w-3 h-3 text-emerald-600" /> {addonCount} Addons
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-slate-900">
+                          ৳{s.price}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditServiceModal(s)}
+                          className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+                          title="Manage Service & Addons"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <h3 className="font-extrabold text-slate-900 text-base">{s.title}</h3>
+                    <p className="text-xs text-slate-500 line-clamp-2">{s.description}</p>
+
+                    {/* Addons Summary */}
+                    {addonCount > 0 && (
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] space-y-1">
+                        <span className="font-bold text-slate-500 flex items-center gap-1">
+                          <Tag className="w-3 h-3 text-blue-600" /> Service Addons:
+                        </span>
+                        <div className="space-y-0.5">
+                          {s.addons.slice(0, 2).map((a: any, idx: number) => (
+                            <div key={idx} className="flex justify-between text-slate-700 font-medium">
+                              <span className="truncate max-w-[140px]">{a.title}</span>
+                              <span className="font-bold text-emerald-600">+৳{a.price}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <h3 className="font-extrabold text-slate-900 text-base">{s.title}</h3>
-                  <p className="text-xs text-slate-500 line-clamp-2">{s.description}</p>
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span className="text-emerald-700 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      DOHS Sheba Verified
+                    </span>
+                    <span className="text-slate-400">Est. {s.estimatedDuration || '1-2 Hours'}</span>
+                  </div>
                 </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-emerald-700 font-bold flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    DOHS Sheba Verified
-                  </span>
-                  <span className="text-slate-400">Est. {s.estimatedDuration || '1-2 Hours'}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -443,6 +548,149 @@ export default function AdminServicesPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Edit Service & Addons Modal */}
+      {showEditServiceModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto max-h-screen">
+          <form onSubmit={handleSaveServiceAddons} className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-base text-slate-900">Manage Service & Recommended Addons</h3>
+              <button
+                type="button"
+                onClick={() => setShowEditServiceModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs font-semibold max-h-[75vh] overflow-y-auto pr-1">
+              <div>
+                <label className="block text-slate-600 mb-1 font-bold">Service Title</label>
+                <input
+                  type="text"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  className="w-full h-11 px-4 rounded-xl border border-slate-300 bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 mb-1 font-bold">Starting Price (৳)</label>
+                <input
+                  type="number"
+                  value={formPrice}
+                  onChange={(e) => setFormPrice(e.target.value)}
+                  className="w-full h-11 px-4 rounded-xl border border-slate-300 bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 mb-1 font-bold">Description</label>
+                <textarea
+                  rows={2}
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  className="w-full p-3 rounded-xl border border-slate-300 bg-white"
+                />
+              </div>
+
+              {/* Service Addons Manager */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-emerald-600" />
+                    <span className="font-extrabold text-slate-900 text-xs">
+                      Recommended Service Addons ({formAddons.length})
+                    </span>
+                  </div>
+                </div>
+
+                {formAddons.length > 0 && (
+                  <div className="space-y-2">
+                    {formAddons.map((addon, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200 shadow-2xs">
+                        <div className="space-y-0.5">
+                          <span className="font-bold text-slate-900 text-xs block">{addon.title}</span>
+                          {addon.description && <p className="text-[10px] text-slate-500">{addon.description}</p>}
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <span className="font-black text-xs text-emerald-600">+৳{addon.price}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAddonItem(idx)}
+                            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="p-3 rounded-xl bg-white border border-dashed border-slate-300 space-y-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                    Add New Service Addon Item:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Addon Title (e.g. Gas Top-Up)"
+                      value={newAddonTitle}
+                      onChange={(e) => setNewAddonTitle(e.target.value)}
+                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Price ৳ (e.g. 800)"
+                      value={newAddonPrice}
+                      onChange={(e) => setNewAddonPrice(e.target.value)}
+                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Desc (e.g. Up to 50% refill)"
+                      value={newAddonDesc}
+                      onChange={(e) => setNewAddonDesc(e.target.value)}
+                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddAddonItem}
+                    disabled={!newAddonTitle || !newAddonPrice}
+                    className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Addon to Service
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowEditServiceModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={savingService}
+                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-md flex items-center gap-1.5"
+              >
+                {savingService && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>Save Service & Addons</span>
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
