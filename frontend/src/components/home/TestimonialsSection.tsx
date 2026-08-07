@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Quote, ArrowRight, ShieldCheck, UserPlus, Store } from 'lucide-react';
+import { Star, Quote, ArrowRight } from 'lucide-react';
 
 const REVIEWS = [
   {
@@ -85,41 +85,6 @@ export function TestimonialsSection() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* CTA Banner for Service Providers & Shop Sellers */}
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 p-8 sm:p-12 text-white border border-blue-500/20 shadow-2xl">
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-            <div className="lg:col-span-2 space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-blue-300">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Partner with DOHS Premier Platform
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
-                Are You a Skilled Technician or Local Shop Owner?
-              </h3>
-              <p className="text-sm text-slate-300 max-w-xl">
-                Join 500+ verified service providers & local shops on dohsSheba. Expand your business, reach thousands of DOHS residents, and manage bookings effortlessly with dedicated partner dashboards.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
-              <Link
-                href="/register?role=provider"
-                className="py-3 px-6 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs text-center flex items-center justify-center gap-2 shadow-lg transition-all"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Register as Service Provider</span>
-              </Link>
-              <Link
-                href="/register?role=seller"
-                className="py-3 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs text-center flex items-center justify-center gap-2 shadow-lg transition-all"
-              >
-                <Store className="w-4 h-4" />
-                <span>Register as Shop Owner</span>
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </section>
