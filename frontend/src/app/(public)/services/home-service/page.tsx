@@ -124,7 +124,7 @@ export default function HomeServiceOverviewPage() {
 
                     <div>
                       <h3 className="font-extrabold text-slate-900 text-xl hover:text-blue-600 transition-colors">
-                        <Link href={`/services/home-service/${service.id}`}>
+                        <Link href={`/services/home-service/book/${service.id}`}>
                           {service.title}
                         </Link>
                       </h3>

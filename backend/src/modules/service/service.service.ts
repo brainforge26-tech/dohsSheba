@@ -2,9 +2,137 @@ import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middlewares/error.middleware';
 import { generateSlug } from '../../utils/auth.util';
 
+// ─── Auto-ensure Default Company Services & Categories ─────────────────────
+const ensureCompanyServices = async () => {
+  try {
+    const categoryCount = await prisma.serviceCategory.count();
+    if (categoryCount === 0) {
+      await prisma.serviceCategory.createMany({
+        data: [
+          { name: 'AC Service & Repair', slug: 'ac-service', icon: 'Wind', isActive: true },
+          { name: 'Electrician', slug: 'electrician', icon: 'Zap', isActive: true },
+          { name: 'Plumbing Service', slug: 'plumber', icon: 'Droplet', isActive: true },
+          { name: 'House & Deep Cleaning', slug: 'cleaner', icon: 'Sparkles', isActive: true },
+          { name: 'Pest Control', slug: 'pest-control', icon: 'ShieldAlert', isActive: true },
+          { name: 'Appliance Repair', slug: 'appliance-repair', icon: 'Wrench', isActive: true },
+        ],
+        skipDuplicates: true,
+      });
+    }
+
+    const serviceCount = await prisma.service.count();
+    if (serviceCount === 0) {
+      let provider = await prisma.user.findFirst({ where: { role: 'PROVIDER' } });
+      if (!provider) provider = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+      if (!provider) provider = await prisma.user.findFirst();
+
+      if (provider) {
+        const catAC = await prisma.serviceCategory.findFirst({ where: { slug: 'ac-service' } });
+        const catElec = await prisma.serviceCategory.findFirst({ where: { slug: 'electrician' } });
+        const catPlumb = await prisma.serviceCategory.findFirst({ where: { slug: 'plumber' } });
+        const catClean = await prisma.serviceCategory.findFirst({ where: { slug: 'cleaner' } });
+
+        if (catAC && catElec && catPlumb && catClean) {
+          await prisma.service.createMany({
+            data: [
+              {
+                title: 'AC Jet Cleaning & Master Servicing',
+                description: 'Complete jet wash indoor & outdoor unit cleaning with anti-bacterial foam treatment.',
+                price: 1200,
+                startingPrice: 1200,
+                priceUnit: 'job',
+                estimatedDuration: '1-2 Hours',
+                features: ['High-pressure jet wash', 'Gas leakage check', '90-day warranty'],
+                categoryId: catAC.id,
+                providerId: provider.id,
+                isActive: true,
+                rating: 4.9,
+                images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+              },
+              {
+                title: 'Gas Refilling & Leakage Repair',
+                description: 'R22 / R410 / R32 refrigerant gas refill with pressure testing and leak fix.',
+                price: 2500,
+                startingPrice: 2500,
+                priceUnit: 'job',
+                estimatedDuration: '1-2 Hours',
+                features: ['Refrigerant pressure check', 'Leakage detection', '100% cooling test'],
+                categoryId: catAC.id,
+                providerId: provider.id,
+                isActive: true,
+                rating: 4.8,
+                images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+              },
+              {
+                title: 'Full House Deep Cleaning Package',
+                description: 'Whole house vacuuming, floor scrubbing, window cleaning & bathroom disinfection.',
+                price: 4500,
+                startingPrice: 4500,
+                priceUnit: 'job',
+                estimatedDuration: '3-4 Hours',
+                features: ['Deep floor scrubbing', 'Bathroom disinfection', 'Kitchen grease wash'],
+                categoryId: catClean.id,
+                providerId: provider.id,
+                isActive: true,
+                rating: 5.0,
+                images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+              },
+              {
+                title: 'Plumbing Leakage & Pipe Repair',
+                description: 'Expert plumber visit for pipe leak detection, basin connection & tap replacement.',
+                price: 850,
+                startingPrice: 850,
+                priceUnit: 'job',
+                estimatedDuration: '1 Hour',
+                features: ['Concealed leak fix', 'Sanitary fitting', 'Tap replacement'],
+                categoryId: catPlumb.id,
+                providerId: provider.id,
+                isActive: true,
+                rating: 4.8,
+                images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+              },
+              {
+                title: 'Electrical Short-Circuit Inspection',
+                description: 'Diagnostic inspection for tripped breakers, burnt switches, and wire short-circuits.',
+                price: 500,
+                startingPrice: 500,
+                priceUnit: 'job',
+                estimatedDuration: '1 Hour',
+                features: ['Breaker diagnostic', 'Burnt wire replace', 'Safety check'],
+                categoryId: catElec.id,
+                providerId: provider.id,
+                isActive: true,
+                rating: 4.9,
+                images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80'],
+              },
+            ],
+          });
+        }
+      }
+    }
+
+    if ((prisma as any).technician) {
+      const techCount = await (prisma as any).technician.count();
+      if (techCount === 0) {
+        await (prisma as any).technician.createMany({
+          data: [
+            { name: 'Rakib Ahmed', phone: '+8801711223344', specialty: 'Electrical & AC', isActive: true },
+            { name: 'Hasan Mahmud', phone: '+8801722556677', specialty: 'Plumbing & Sanitary', isActive: true },
+            { name: 'Mahmudul Islam', phone: '+8801733889900', specialty: 'Appliance Repair', isActive: true },
+            { name: 'Sabbir Hossain', phone: '+8801744112233', specialty: 'General Handyman', isActive: true },
+          ],
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('ensureCompanyServices notice:', err);
+  }
+};
+
 // ─── Service Categories ───────────────────────────────────────────────────────
 
 export const getAllServiceCategories = async () => {
+  await ensureCompanyServices();
   return prisma.serviceCategory.findMany({
     where: { isActive: true },
     orderBy: { name: 'asc' },
@@ -46,6 +174,7 @@ interface ServiceFilter {
 }
 
 export const getServices = async (filters: ServiceFilter) => {
+  await ensureCompanyServices();
   const { page = 1, limit = 20, category, search, minPrice, maxPrice, sort } = filters;
   const skip = (page - 1) * limit;
 

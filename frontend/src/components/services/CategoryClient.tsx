@@ -117,7 +117,7 @@ export function CategoryClient({ categorySlug, currentCategory }: CategoryClient
 
                   <div>
                     <h3 className="font-extrabold text-slate-900 text-xl hover:text-blue-600 transition-colors">
-                      <Link href={`/services/home-service/book?serviceId=${service.id}`}>
+                      <Link href={`/services/home-service/book/${service.id}`}>
                         {service.title}
                       </Link>
                     </h3>
