@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middlewares/error.middleware';
 import { BookingStatus } from '@prisma/client';
+import { getAllServiceCategories } from '../service/service.service';
 
 const bookingInclude = {
   service: {
@@ -21,6 +22,7 @@ export const getBookings = async (
   role: string,
   filters: { page: number; limit: number; status?: string }
 ) => {
+  await getAllServiceCategories().catch(() => null);
   const { page, limit, status } = filters;
   const skip = (page - 1) * limit;
 
@@ -45,6 +47,7 @@ export const getBookings = async (
 // ─── Get Provider / Operations Dashboard Stats ──────────────────────────────
 
 export const getProviderDashboardStats = async (providerId: string) => {
+  await getAllServiceCategories().catch(() => null);
   const [completedBookings, pendingCount, activeCount, assignedCount] = await Promise.all([
     prisma.booking.findMany({
       where: {
