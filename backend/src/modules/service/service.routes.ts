@@ -14,9 +14,10 @@ const router = Router();
 const categoryRouter = Router();
 
 categoryRouter.get('/',     serviceController.getCategories);
-categoryRouter.post('/',    protect, authorize('ADMIN'), serviceCategoryValidator, validate, serviceController.createCategory);
-categoryRouter.put('/:id',  protect, authorize('ADMIN'), serviceController.updateCategory);
-categoryRouter.delete('/:id', protect, authorize('ADMIN'), serviceController.deleteCategory);
+categoryRouter.post('/',    protect, authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'), serviceCategoryValidator, validate, serviceController.createCategory);
+categoryRouter.patch('/:id', protect, authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'), serviceController.updateCategory);
+categoryRouter.put('/:id',  protect, authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'), serviceController.updateCategory);
+categoryRouter.delete('/:id', protect, authorize('PROVIDER', 'ADMIN', 'SUPER_ADMIN'), serviceController.deleteCategory);
 
 // ─── Services ─────────────────────────────────────────────────────────────────
 

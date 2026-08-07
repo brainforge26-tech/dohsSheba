@@ -34,20 +34,35 @@ export function ServiceCategoriesGrid() {
   const [scrollLeftState, setScrollLeftState] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Fetch data
+const CATEGORY_IMAGE_MAP: Record<string, string> = {
+  'ac-service': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80',
+  'electrician': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&q=80',
+  'plumber': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=500&q=80',
+  'cleaner': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80',
+  'pest-control': 'https://images.unsplash.com/photo-1615873968403-89e068629265?w=500&q=80',
+  'appliance-repair': 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=500&q=80',
+  'carpenter': 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=500&q=80',
+  'painter': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=500&q=80',
+  'cctv': 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=500&q=80',
+};
+
+// Fetch data
   useEffect(() => {
     fetch(`${getApiBaseUrl()}/service-categories`)
       .then((r) => r.json())
       .then((res) => {
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
-          const mapped: ServiceCategory[] = res.data.map((cat: any) => ({
-            id: cat.id,
-            name: cat.name,
-            slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and'),
-            rating: cat.averageRating ? Number(cat.averageRating).toFixed(2) : '4.80',
-            bookings: cat._count?.services ? `${cat._count.services} Services` : cat.bookings || '—',
-            image: cat.image || cat.imageUrl || FALLBACK_SERVICES[0].image,
-          }));
+          const mapped: ServiceCategory[] = res.data.map((cat: any) => {
+            const catSlug = cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and');
+            return {
+              id: cat.id,
+              name: cat.name,
+              slug: catSlug,
+              rating: cat.averageRating ? Number(cat.averageRating).toFixed(2) : '4.80',
+              bookings: cat._count?.services ? `${cat._count.services} Services` : cat.bookings || '—',
+              image: cat.image || cat.imageUrl || CATEGORY_IMAGE_MAP[catSlug] || FALLBACK_SERVICES[0].image,
+            };
+          });
           setServices(mapped);
         } else {
           setServices(FALLBACK_SERVICES);

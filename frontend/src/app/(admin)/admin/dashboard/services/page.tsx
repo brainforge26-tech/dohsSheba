@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/cn';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import {
   Wrench, ShieldCheck, Check, X, Plus, Search, Filter,
-  Trash2, Edit2, Clock, CheckCircle2, UserCheck, Users, UserPlus, Phone, Loader2
+  Trash2, Edit2, Clock, CheckCircle2, UserCheck, Users, UserPlus, Phone, Loader2, Upload, Image as ImageIcon, Sparkles
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
@@ -23,19 +23,28 @@ export default function AdminServicesPage() {
   const [search, setSearch] = useState('');
   const [actionMsg, setActionMsg] = useState('');
 
-  // Add Service Modal
-  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('AC & Appliance Repair');
-  const [price, setPrice] = useState('');
-  const [estimatedDuration, setEstimatedDuration] = useState('1-2 Hours');
-
   // Add Technician Modal
   const [showAddTechModal, setShowAddTechModal] = useState(false);
   const [techName, setTechName] = useState('');
   const [techPhone, setTechPhone] = useState('');
   const [techSpecialty, setTechSpecialty] = useState('Electrical & Plumbing');
   const [addingTech, setAddingTech] = useState(false);
+
+  // Add Category Modal
+  const [showAddCatModal, setShowAddCatModal] = useState(false);
+  const [catName, setCatName] = useState('');
+  const [catDesc, setCatDesc] = useState('');
+  const [catImage, setCatImage] = useState('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
+  const [addingCat, setAddingCat] = useState(false);
+
+  const CATEGORY_IMAGE_PRESETS = [
+    { label: 'AC Service', url: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80' },
+    { label: 'Electrician', url: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&q=80' },
+    { label: 'Plumbing', url: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=500&q=80' },
+    { label: 'Deep Cleaning', url: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80' },
+    { label: 'Pest Control', url: 'https://images.unsplash.com/photo-1615873968403-89e068629265?w=500&q=80' },
+    { label: 'Appliance Repair', url: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=500&q=80' },
+  ];
 
   const loadData = async () => {
     setLoading(true);
@@ -54,7 +63,6 @@ export default function AdminServicesPage() {
       if (tRes?.success && Array.isArray(tRes.data)) {
         setTechnicians(tRes.data);
       } else {
-        // Default roster if empty
         setTechnicians([
           { id: 't1', name: 'Rakib Ahmed', phone: '+880 1711-223344', specialty: 'Electrical & AC', isActive: true },
           { id: 't2', name: 'Hasan Mahmud', phone: '+880 1722-556677', specialty: 'Plumbing & Sanitary', isActive: true },
@@ -70,6 +78,44 @@ export default function AdminServicesPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setCatImage(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!catName) return;
+    setAddingCat(true);
+    try {
+      const res = await fetchApi<any>('/service-categories', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: catName,
+          description: catDesc,
+          image: catImage,
+        }),
+      }).catch(() => null);
+
+      setShowAddCatModal(false);
+      setCatName('');
+      setCatDesc('');
+      setActionMsg('Service Category created successfully with cover picture.');
+      setTimeout(() => setActionMsg(''), 4000);
+      loadData();
+    } finally {
+      setAddingCat(false);
+    }
+  };
 
   const handleAddTechnician = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,11 +183,19 @@ export default function AdminServicesPage() {
               Service Operations & Roster Management
             </h1>
             <p className="text-xs text-blue-200/80 max-w-xl">
-              Manage DOHS Sheba service catalog, pricing, and internal technician roster (Rakib, Hasan, Mahmud, Sabbir).
+              Manage DOHS Sheba service catalog, categories, pricing, and internal technician roster.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddCatModal(true)}
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Add Service Category</span>
+            </button>
+
             <button
               onClick={() => setShowAddTechModal(true)}
               className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
@@ -152,7 +206,6 @@ export default function AdminServicesPage() {
           </div>
         </div>
 
-        {/* Action Msg Notification */}
         {actionMsg && (
           <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold animate-in fade-in">
             {actionMsg}
@@ -273,6 +326,128 @@ export default function AdminServicesPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add Service Category Modal */}
+      {showAddCatModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-extrabold text-base text-slate-900">Create Service Category with Picture</h3>
+              </div>
+              <button
+                onClick={() => setShowAddCatModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddCategory} className="space-y-4 text-xs font-semibold">
+              <div>
+                <label className="block text-slate-600 mb-1 font-bold">Category Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. CCTV Security & Automation"
+                  value={catName}
+                  onChange={(e) => setCatName(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 mb-1 font-bold">Description</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Security cameras, IP camera & DVR setup"
+                  value={catDesc}
+                  onChange={(e) => setCatDesc(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                />
+              </div>
+
+              {/* Picture Uploader */}
+              <div className="space-y-2">
+                <label className="block text-slate-600 font-bold">Category Picture Uploader</label>
+
+                <div className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="relative w-20 h-16 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                    {catImage ? (
+                      <img src={catImage} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-slate-400 absolute inset-0 m-auto" />
+                    )}
+                  </div>
+                  <div className="space-y-1 flex-1">
+                    <span className="text-slate-700 font-bold block">Picture Live Preview</span>
+                    <p className="text-[11px] text-slate-400 font-medium">This photo will display on home page categories carousel.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label className="flex-1 px-4 py-2.5 rounded-xl border border-dashed border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold cursor-pointer flex items-center justify-center gap-2">
+                    <Upload className="w-4 h-4 text-emerald-600" />
+                    <span>Upload Image File from Device</span>
+                    <input type="file" accept="image/*" onChange={handleImageFileChange} className="hidden" />
+                  </label>
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Or paste image URL (https://...)"
+                    value={catImage}
+                    onChange={(e) => setCatImage(e.target.value)}
+                    className="w-full h-10 px-3.5 rounded-xl bg-white border border-slate-300 font-normal text-[11px]"
+                  />
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                    Or Select High-Res Cover Preset:
+                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {CATEGORY_IMAGE_PRESETS.map((preset) => (
+                      <button
+                        type="button"
+                        key={preset.label}
+                        onClick={() => setCatImage(preset.url)}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all ${
+                          catImage === preset.url
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddCatModal(false)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addingCat}
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-md flex items-center gap-1.5"
+                >
+                  {addingCat && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>Save Category</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

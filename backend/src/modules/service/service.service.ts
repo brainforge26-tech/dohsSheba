@@ -9,15 +9,31 @@ const ensureCompanyServices = async () => {
     if (categoryCount === 0) {
       await prisma.serviceCategory.createMany({
         data: [
-          { name: 'AC Service & Repair', slug: 'ac-service', icon: 'Wind', isActive: true },
-          { name: 'Electrician', slug: 'electrician', icon: 'Zap', isActive: true },
-          { name: 'Plumbing Service', slug: 'plumber', icon: 'Droplet', isActive: true },
-          { name: 'House & Deep Cleaning', slug: 'cleaner', icon: 'Sparkles', isActive: true },
-          { name: 'Pest Control', slug: 'pest-control', icon: 'ShieldAlert', isActive: true },
-          { name: 'Appliance Repair', slug: 'appliance-repair', icon: 'Wrench', isActive: true },
+          { name: 'AC Service & Repair', slug: 'ac-service', icon: 'Wind', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80', isActive: true },
+          { name: 'Electrician', slug: 'electrician', icon: 'Zap', image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&q=80', isActive: true },
+          { name: 'Plumbing Service', slug: 'plumber', icon: 'Droplet', image: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=500&q=80', isActive: true },
+          { name: 'House & Deep Cleaning', slug: 'cleaner', icon: 'Sparkles', image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80', isActive: true },
+          { name: 'Pest Control', slug: 'pest-control', icon: 'ShieldAlert', image: 'https://images.unsplash.com/photo-1615873968403-89e068629265?w=500&q=80', isActive: true },
+          { name: 'Appliance Repair', slug: 'appliance-repair', icon: 'Wrench', image: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=500&q=80', isActive: true },
         ],
         skipDuplicates: true,
       });
+
+      // Update existing categories if images are missing
+      const catImages: Record<string, string> = {
+        'ac-service': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80',
+        'electrician': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&q=80',
+        'plumber': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=500&q=80',
+        'cleaner': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80',
+        'pest-control': 'https://images.unsplash.com/photo-1615873968403-89e068629265?w=500&q=80',
+        'appliance-repair': 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=500&q=80',
+      };
+      for (const [slug, imgUrl] of Object.entries(catImages)) {
+        await prisma.serviceCategory.updateMany({
+          where: { slug, image: null },
+          data: { image: imgUrl },
+        }).catch(() => null);
+      }
     }
 
     const serviceCount = await prisma.service.count();

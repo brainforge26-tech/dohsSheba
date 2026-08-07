@@ -22,5 +22,5 @@ export const serviceCategoryValidator = [
   body('name').trim().notEmpty().withMessage('Category name is required'),
   body('description').optional().trim(),
   body('icon').optional().trim(),
-  body('image').optional().isURL().withMessage('Image must be a valid URL'),
+  body('image').optional().trim(),
 ];
