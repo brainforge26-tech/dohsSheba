@@ -154,6 +154,17 @@ export default function ServiceOperationsDashboard() {
     return b.status === filterTab;
   });
 
+  const getTabCount = (tabId: string) => {
+    if (tabId === 'ALL') return bookings.length;
+    if (tabId === 'ASSIGNED') {
+      return bookings.filter((b) => b.status === 'TECHNICIAN_ASSIGNED' || b.status === 'TECHNICIAN_ON_THE_WAY').length;
+    }
+    if (tabId === 'COMPLETED') {
+      return bookings.filter((b) => b.status === 'WORK_COMPLETED' || b.status === 'CUSTOMER_CONFIRMED' || b.status === 'COMPLETED').length;
+    }
+    return bookings.filter((b) => b.status === tabId).length;
+  };
+
   return (
     <div className="space-y-6 font-sans">
       {/* Top Banner */}
@@ -225,19 +236,35 @@ export default function ServiceOperationsDashboard() {
             { id: 'IN_PROGRESS', label: 'In Progress' },
             { id: 'COMPLETED', label: 'Completed Jobs' },
             { id: 'CANCELLED', label: 'Cancelled Jobs' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setFilterTab(tab.id as any)}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap ${
-                filterTab === tab.id
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+          ].map((tab) => {
+            const count = getTabCount(tab.id);
+            const isActive = filterTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setFilterTab(tab.id as any)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-all ${
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : count > 0
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-slate-200/80 text-slate-500'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
