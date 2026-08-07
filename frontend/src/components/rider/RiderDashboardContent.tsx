@@ -11,10 +11,8 @@ import {
   Bike, Navigation, CheckCircle2, Clock, MapPin, Phone, Store,
   BellRing, DollarSign, Package, Check, X, Loader2, Wifi, WifiOff,
   ExternalLink, Sparkles, TrendingUp, Calendar, Award, AlertTriangle, User,
-  Radio, Search, Filter, ShieldCheck, Wallet, ChevronRight, Activity, Compass,
-  Sliders, ArrowUpRight, Lock, LogOut, PhoneCall, HelpCircle, FileText, ChevronDown, CheckCircle
+  Radio, Search, Filter, ShieldCheck, Wallet, ChevronRight, Activity, Compass, LogOut
 } from 'lucide-react';
-import { CurrentMissionView } from '@/components/rider/CurrentMissionView';
 
 // Audio chime synthesis & Haptic Vibration for incoming dispatch request
 const triggerOrderAlert = () => {
@@ -453,37 +451,15 @@ export function RiderDashboardContent({ initialTab = 'orders' }: RiderDashboardP
 
             {/* SECTION 1: PINNED CURRENT DELIVERY (#1 Priority) */}
             {pinnedCurrentDelivery ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-black text-indigo-400 uppercase tracking-wider px-1">
                   <span className="flex items-center gap-1.5">
                     <Compass className="w-4 h-4 text-indigo-400 animate-spin" />
                     CURRENT DELIVERY (Pinned #1)
                   </span>
-                  <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl">
-                    <button
-                      type="button"
-                      onClick={() => setViewMode('map')}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
-                        viewMode === 'map' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      <Navigation className="w-3 h-3" /> Live GPS Map
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setViewMode('card')}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
-                        viewMode === 'card' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      <FileText className="w-3 h-3" /> Task Card
-                    </button>
-                  </div>
+                  <span className="text-[10px] text-slate-400">Order #{pinnedCurrentDelivery.id?.slice(-6)}</span>
                 </div>
 
-                {viewMode === 'map' ? (
-                  <CurrentMissionView mission={pinnedCurrentDelivery} onMissionUpdate={loadRiderData} />
-                ) : (
                 <div className="p-6 rounded-3xl bg-slate-900 border-2 border-indigo-500/60 shadow-2xl space-y-5 relative overflow-hidden">
                   {/* Status Badge & Earnings */}
                   <div className="flex items-center justify-between gap-2">
@@ -516,7 +492,7 @@ export function RiderDashboardContent({ initialTab = 'orders' }: RiderDashboardP
                           className="p-3 rounded-2xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 font-bold text-xs flex items-center gap-1"
                           title="Call Customer"
                         >
-                          <PhoneCall className="w-4 h-4" />
+                          <Phone className="w-4 h-4" />
                         </a>
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -622,7 +598,6 @@ export function RiderDashboardContent({ initialTab = 'orders' }: RiderDashboardP
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                )}
               </div>
             ) : (
               <div className="p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3">
