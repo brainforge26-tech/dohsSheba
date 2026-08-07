@@ -21,6 +21,7 @@ export default function ProviderServicesPage() {
 
   // Category Modal State
   const [showCatModal, setShowCatModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [catName, setCatName] = useState('');
   const [catDesc, setCatDesc] = useState('');
   const [catIcon, setCatIcon] = useState('Wrench');
@@ -84,6 +85,24 @@ export default function ProviderServicesPage() {
     setShowModal(true);
   };
 
+  const handleOpenCreateCatModal = () => {
+    setEditingCategory(null);
+    setCatName('');
+    setCatDesc('');
+    setCatIcon('Wrench');
+    setCatImage('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
+    setShowCatModal(true);
+  };
+
+  const handleOpenEditCatModal = (cat: any) => {
+    setEditingCategory(cat);
+    setCatName(cat.name || '');
+    setCatDesc(cat.description || '');
+    setCatIcon(cat.icon || 'Wrench');
+    setCatImage(cat.image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
+    setShowCatModal(true);
+  };
+
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -103,24 +122,48 @@ export default function ProviderServicesPage() {
 
     setSavingCat(true);
     try {
-      const res = await fetchApi<any>('/service-categories', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: catName,
-          description: catDesc,
-          icon: catIcon,
-          image: catImage,
-        }),
-      }).catch(() => null);
-
-      if (res?.success || res?.data) {
-        setShowCatModal(false);
-        setCatName('');
-        setCatDesc('');
-        loadData();
+      if (editingCategory) {
+        // Edit category
+        await fetchApi<any>(`/service-categories/${editingCategory.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            name: catName,
+            description: catDesc,
+            icon: catIcon,
+            image: catImage,
+          }),
+        }).catch(() => null);
+      } else {
+        // Create new category
+        await fetchApi<any>('/service-categories', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: catName,
+            description: catDesc,
+            icon: catIcon,
+            image: catImage,
+          }),
+        }).catch(() => null);
       }
+
+      setShowCatModal(false);
+      setEditingCategory(null);
+      setCatName('');
+      setCatDesc('');
+      loadData();
     } finally {
       setSavingCat(false);
+    }
+  };
+
+  const handleDeleteCategory = async (catId: string, catName: string) => {
+    if (!confirm(`Are you sure you want to delete category "${catName}"?`)) return;
+    setActionLoading(catId);
+    try {
+      await fetchApi(`/service-categories/${catId}`, { method: 'DELETE' }).catch(() => null);
+      setCategories((prev) => prev.filter((c) => c.id !== catId));
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -199,13 +242,13 @@ export default function ProviderServicesPage() {
           <h1 className="font-black text-slate-900 text-xl flex items-center gap-2">
             <Wrench className="w-6 h-6 text-blue-600" /> DOHS Sheba Service & Category Catalog
           </h1>
-          <p className="text-xs text-slate-500">Create service categories with custom pictures and list active home services</p>
+          <p className="text-xs text-slate-500">Create, edit, and delete service categories with custom pictures and manage services</p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setShowCatModal(true)}
+            onClick={handleOpenCreateCatModal}
             className="px-4 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all shadow-md flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Create Category
@@ -221,22 +264,49 @@ export default function ProviderServicesPage() {
         </div>
       </div>
 
-      {/* Existing Categories Pill Bar */}
+      {/* Categories Bar with Edit & Delete Actions */}
       {categories.length > 0 && (
-        <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-            Active Service Categories ({categories.length})
-          </span>
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
+              Manage Service Categories ({categories.length})
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
             {categories.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800"
+                className="flex items-center gap-2.5 p-2.5 pl-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 shadow-2xs hover:border-emerald-300 transition-all group"
               >
-                {c.image && (
-                  <img src={c.image} alt={c.name} className="w-6 h-6 rounded-lg object-cover border border-slate-200" />
+                {c.image ? (
+                  <img src={c.image} alt={c.name} className="w-7 h-7 rounded-xl object-cover border border-slate-200 shrink-0" />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
                 )}
+
                 <span>{c.name}</span>
+
+                <div className="flex items-center gap-1 border-l border-slate-200 pl-2 ml-1">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditCatModal(c)}
+                    className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                    title="Edit Category"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCategory(c.id, c.name)}
+                    disabled={actionLoading === c.id}
+                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                    title="Delete Category"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -328,14 +398,16 @@ export default function ProviderServicesPage() {
         </div>
       )}
 
-      {/* CREATE CATEGORY MODAL WITH PICTURE UPLOADER */}
+      {/* CREATE / EDIT CATEGORY MODAL WITH PICTURE UPLOADER */}
       {showCatModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <form onSubmit={handleSaveCategory} className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-emerald-600" />
-                <h2 className="font-black text-slate-900 text-base">Create Service Category with Picture</h2>
+                <h2 className="font-black text-slate-900 text-base">
+                  {editingCategory ? 'Edit Service Category' : 'Create Service Category with Picture'}
+                </h2>
               </div>
               <button
                 type="button"
@@ -448,7 +520,7 @@ export default function ProviderServicesPage() {
                 className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5"
               >
                 {savingCat && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>Save Category</span>
+                <span>{editingCategory ? 'Update Category' : 'Save Category'}</span>
               </button>
             </div>
           </form>

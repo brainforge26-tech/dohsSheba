@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/cn';
 import { useLanguageStore } from '@/store/useLanguageStore';
 import {
   Wrench, ShieldCheck, Check, X, Plus, Search, Filter,
-  Trash2, Edit2, Clock, CheckCircle2, UserCheck, Users, UserPlus, Phone, Loader2, Upload, Image as ImageIcon, Sparkles
+  Trash2, Edit, Edit2, Clock, CheckCircle2, UserCheck, Users, UserPlus, Phone, Loader2, Upload, Image as ImageIcon, Sparkles
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useConfirm } from '@/hooks/useConfirm';
@@ -16,8 +16,9 @@ export default function AdminServicesPage() {
   const isBn = language === 'BN';
   const { confirm, dialogProps } = useConfirm();
 
-  const [activeTab, setActiveTab] = useState<'catalog' | 'technicians'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'categories' | 'technicians'>('catalog');
   const [services, setServices] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [technicians, setTechnicians] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -30,8 +31,9 @@ export default function AdminServicesPage() {
   const [techSpecialty, setTechSpecialty] = useState('Electrical & Plumbing');
   const [addingTech, setAddingTech] = useState(false);
 
-  // Add Category Modal
+  // Category Modal
   const [showAddCatModal, setShowAddCatModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [catName, setCatName] = useState('');
   const [catDesc, setCatDesc] = useState('');
   const [catImage, setCatImage] = useState('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
@@ -49,8 +51,9 @@ export default function AdminServicesPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [sRes, tRes] = await Promise.all([
+      const [sRes, cRes, tRes] = await Promise.all([
         fetchApi<any>('/services').catch(() => null),
+        fetchApi<any>('/service-categories').catch(() => null),
         fetchApi<any>('/technicians').catch(() => null),
       ]);
 
@@ -58,6 +61,10 @@ export default function AdminServicesPage() {
         setServices(sRes.data.services);
       } else if (sRes?.success && Array.isArray(sRes.data)) {
         setServices(sRes.data);
+      }
+
+      if (cRes?.success && Array.isArray(cRes.data)) {
+        setCategories(cRes.data);
       }
 
       if (tRes?.success && Array.isArray(tRes.data)) {
@@ -92,29 +99,71 @@ export default function AdminServicesPage() {
     }
   };
 
+  const handleOpenCreateCatModal = () => {
+    setEditingCategory(null);
+    setCatName('');
+    setCatDesc('');
+    setCatImage('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
+    setShowAddCatModal(true);
+  };
+
+  const handleOpenEditCatModal = (cat: any) => {
+    setEditingCategory(cat);
+    setCatName(cat.name || '');
+    setCatDesc(cat.description || '');
+    setCatImage(cat.image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
+    setShowAddCatModal(true);
+  };
+
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!catName) return;
     setAddingCat(true);
     try {
-      const res = await fetchApi<any>('/service-categories', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: catName,
-          description: catDesc,
-          image: catImage,
-        }),
-      }).catch(() => null);
+      if (editingCategory) {
+        await fetchApi<any>(`/service-categories/${editingCategory.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            name: catName,
+            description: catDesc,
+            image: catImage,
+          }),
+        }).catch(() => null);
+        setActionMsg(`Category "${catName}" updated successfully.`);
+      } else {
+        await fetchApi<any>('/service-categories', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: catName,
+            description: catDesc,
+            image: catImage,
+          }),
+        }).catch(() => null);
+        setActionMsg(`Category "${catName}" created successfully with cover picture.`);
+      }
 
       setShowAddCatModal(false);
+      setEditingCategory(null);
       setCatName('');
       setCatDesc('');
-      setActionMsg('Service Category created successfully with cover picture.');
       setTimeout(() => setActionMsg(''), 4000);
       loadData();
     } finally {
       setAddingCat(false);
     }
+  };
+
+  const handleDeleteCategory = async (catId: string, name: string) => {
+    const ok = await confirm({
+      title: 'Delete Category',
+      message: `Are you sure you want to delete category "${name}"?`,
+    });
+    if (!ok) return;
+
+    await fetchApi(`/service-categories/${catId}`, { method: 'DELETE' }).catch(() => null);
+    setCategories((prev) => prev.filter((c) => c.id !== catId));
+    setActionMsg(`Category "${name}" deleted.`);
+    setTimeout(() => setActionMsg(''), 3000);
   };
 
   const handleAddTechnician = async (e: React.FormEvent) => {
@@ -183,17 +232,17 @@ export default function AdminServicesPage() {
               Service Operations & Roster Management
             </h1>
             <p className="text-xs text-blue-200/80 max-w-xl">
-              Manage DOHS Sheba service catalog, categories, pricing, and internal technician roster.
+              Create, edit, and delete service categories with custom cover photos, services, and technician roster.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowAddCatModal(true)}
+              onClick={handleOpenCreateCatModal}
               className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Add Service Category</span>
+              <span>Add Category</span>
             </button>
 
             <button
@@ -224,7 +273,19 @@ export default function AdminServicesPage() {
           }`}
         >
           <Wrench className="w-4 h-4" />
-          <span>Service Catalog ({services.length})</span>
+          <span>Services ({services.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
+            activeTab === 'categories'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>Categories ({categories.length})</span>
         </button>
 
         <button
@@ -236,7 +297,7 @@ export default function AdminServicesPage() {
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Technician Roster ({technicians.length})</span>
+          <span>Technicians ({technicians.length})</span>
         </button>
       </div>
 
@@ -292,7 +353,62 @@ export default function AdminServicesPage() {
         </div>
       )}
 
-      {/* Tab 2: Technician Roster */}
+      {/* Tab 2: Service Categories Management Grid */}
+      {activeTab === 'categories' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {categories.map((c) => (
+              <div
+                key={c.id}
+                className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="relative w-full aspect-16/9 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+                    {c.image ? (
+                      <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-slate-400 absolute inset-0 m-auto" />
+                    )}
+                  </div>
+
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-extrabold text-slate-900 text-base">{c.name}</h4>
+                      <p className="text-xs text-slate-500 line-clamp-1">{c.description || 'Service category'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    Active Category
+                  </span>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleOpenEditCatModal(c)}
+                      className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      title="Edit Category"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteCategory(c.id, c.name)}
+                      className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      title="Delete Category"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tab 3: Technician Roster */}
       {activeTab === 'technicians' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -330,14 +446,16 @@ export default function AdminServicesPage() {
         </div>
       )}
 
-      {/* Add Service Category Modal */}
+      {/* Add / Edit Service Category Modal */}
       {showAddCatModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-extrabold text-base text-slate-900">Create Service Category with Picture</h3>
+                <h3 className="font-extrabold text-base text-slate-900">
+                  {editingCategory ? 'Edit Service Category' : 'Create Service Category with Picture'}
+                </h3>
               </div>
               <button
                 onClick={() => setShowAddCatModal(false)}
@@ -444,7 +562,7 @@ export default function AdminServicesPage() {
                   className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-md flex items-center gap-1.5"
                 >
                   {addingCat && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>Save Category</span>
+                  <span>{editingCategory ? 'Update Category' : 'Save Category'}</span>
                 </button>
               </div>
             </form>
