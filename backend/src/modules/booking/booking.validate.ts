@@ -12,6 +12,17 @@ export const createBookingValidator = [
 export const updateStatusValidator = [
   param('id').notEmpty().withMessage('Booking ID is required'),
   body('status')
-    .isIn(['PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'REJECTED'])
+    .isIn([
+      'PENDING',
+      'CONFIRMED',
+      'TECHNICIAN_ASSIGNED',
+      'TECHNICIAN_ON_THE_WAY',
+      'IN_PROGRESS',
+      'WORK_COMPLETED',
+      'CUSTOMER_CONFIRMED',
+      'COMPLETED',
+      'CANCELLED',
+      'REJECTED',
+    ])
     .withMessage('Invalid booking status'),
 ];
