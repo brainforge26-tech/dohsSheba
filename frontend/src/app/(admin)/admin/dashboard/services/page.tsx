@@ -64,7 +64,7 @@ export default function AdminServicesPage() {
     setLoading(true);
     try {
       const [sRes, cRes, tRes] = await Promise.all([
-        fetchApi<any>('/services').catch(() => null),
+        fetchApi<any>('/services?limit=100').catch(() => null),
         fetchApi<any>('/service-categories').catch(() => null),
         fetchApi<any>('/technicians').catch(() => null),
       ]);

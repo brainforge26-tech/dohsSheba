@@ -38,7 +38,7 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
 export const getServices = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const page     = Number(req.query.page     as string) || 1;
-    const limit    = Number(req.query.limit    as string) || 12;
+    const limit    = Number(req.query.limit    as string) || 100;
     const minPrice = req.query.minPrice ? Number(req.query.minPrice as string) : undefined;
     const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice as string) : undefined;
 

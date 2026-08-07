@@ -267,7 +267,7 @@ interface ServiceFilter {
 
 export const getServices = async (filters: ServiceFilter) => {
   await ensureCompanyServices();
-  const { page = 1, limit = 20, category, search, minPrice, maxPrice, sort } = filters;
+  const { page = 1, limit = 100, category, search, minPrice, maxPrice, sort } = filters;
   const skip = (page - 1) * limit;
 
   const where: any = { isActive: true };
