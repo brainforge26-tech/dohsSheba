@@ -3,13 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import { fetchApi } from '@/lib/api-client';
 import { formatCurrency } from '@/utils/cn';
-import { Wrench, Plus, Check, Edit, Trash2, Power, Star, Loader2, X, Upload, Image as ImageIcon, Sparkles, Layers, Tag } from 'lucide-react';
+import {
+  Wrench, Plus, Check, Edit, Trash2, Power, Star, Loader2, X, Upload,
+  Image as ImageIcon, Sparkles, Layers, Tag, Search, Filter, ChevronLeft, ChevronRight
+} from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 
 export default function ProviderServicesPage() {
+  const { confirm, dialogProps } = useConfirm();
   const [services, setServices] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Filter & Pagination State
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(6);
 
   // Service Modal State
   const [showModal, setShowModal] = useState(false);
@@ -18,7 +30,7 @@ export default function ProviderServicesPage() {
   const [formPrice, setFormPrice] = useState('');
   const [formCategory, setFormCategory] = useState('');
   const [formDescription, setFormDescription] = useState('');
-  
+
   // Service Addons State
   const [formAddons, setFormAddons] = useState<any[]>([]);
   const [newAddonTitle, setNewAddonTitle] = useState('');
@@ -73,6 +85,55 @@ export default function ProviderServicesPage() {
     loadData();
   }, []);
 
+  // Filter Services
+  const filteredServices = services.filter((srv) => {
+    const categoryName = typeof srv.category === 'object' ? srv.category?.name : (srv.category || '');
+    const categoryId = srv.categoryId || srv.category?.id || '';
+
+    // Category Filter
+    if (selectedCategory !== 'ALL') {
+      const isMatchCat = categoryId === selectedCategory || categoryName.toLowerCase() === selectedCategory.toLowerCase();
+      if (!isMatchCat) return false;
+    }
+
+    // Search Query Filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchTitle = (srv.title || '').toLowerCase().includes(q);
+      const matchDesc = (srv.description || '').toLowerCase().includes(q);
+      const matchCat = categoryName.toLowerCase().includes(q);
+      if (!matchTitle && !matchDesc && !matchCat) return false;
+    }
+
+    return true;
+  });
+
+  // Calculate Pagination
+  const totalItems = filteredServices.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const paginatedServices = filteredServices.slice(startIndex, endIndex);
+
+  const handleCategorySelect = (catId: string) => {
+    setSelectedCategory(catId);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    setCurrentPage(1);
+  };
+
+  const getCategoryCount = (catId: string, catName?: string) => {
+    if (catId === 'ALL') return services.length;
+    return services.filter((s) => {
+      const sCatId = s.categoryId || s.category?.id;
+      const sCatName = typeof s.category === 'object' ? s.category?.name : s.category;
+      return sCatId === catId || (catName && sCatName?.toLowerCase() === catName.toLowerCase());
+    }).length;
+  };
+
   const handleOpenCreateModal = () => {
     setEditingService(null);
     setFormTitle('');
@@ -99,6 +160,22 @@ export default function ProviderServicesPage() {
     setShowModal(true);
   };
 
+  const handleOpenCreateCatModal = () => {
+    setEditingCategory(null);
+    setCatName('');
+    setCatDesc('');
+    setCatImage('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
+    setShowCatModal(true);
+  };
+
+  const handleOpenEditCatModal = (cat: any) => {
+    setEditingCategory(cat);
+    setCatName(cat.name || '');
+    setCatDesc(cat.description || '');
+    setCatImage(cat.image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
+    setShowCatModal(true);
+  };
+
   const handleAddAddonItem = () => {
     if (!newAddonTitle || !newAddonPrice) return;
     const addon = {
@@ -115,24 +192,6 @@ export default function ProviderServicesPage() {
 
   const handleRemoveAddonItem = (index: number) => {
     setFormAddons((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleOpenCreateCatModal = () => {
-    setEditingCategory(null);
-    setCatName('');
-    setCatDesc('');
-    setCatIcon('Wrench');
-    setCatImage('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
-    setShowCatModal(true);
-  };
-
-  const handleOpenEditCatModal = (cat: any) => {
-    setEditingCategory(cat);
-    setCatName(cat.name || '');
-    setCatDesc(cat.description || '');
-    setCatIcon(cat.icon || 'Wrench');
-    setCatImage(cat.image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&q=80');
-    setShowCatModal(true);
   };
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,7 +246,12 @@ export default function ProviderServicesPage() {
   };
 
   const handleDeleteCategory = async (catId: string, catName: string) => {
-    if (!confirm(`Are you sure you want to delete category "${catName}"?`)) return;
+    const ok = await confirm({
+      title: 'Delete Category',
+      message: `Are you sure you want to delete category "${catName}"?`,
+    });
+    if (!ok) return;
+
     setActionLoading(catId);
     try {
       await fetchApi(`/service-categories/${catId}`, { method: 'DELETE' }).catch(() => null);
@@ -230,7 +294,12 @@ export default function ProviderServicesPage() {
   };
 
   const handleDeleteService = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this service?')) return;
+    const ok = await confirm({
+      title: 'Delete Service',
+      message: 'Are you sure you want to delete this service?',
+    });
+    if (!ok) return;
+
     setActionLoading(id);
     try {
       await fetchApi(`/services/${id}`, { method: 'DELETE' }).catch(() => null);
@@ -258,6 +327,9 @@ export default function ProviderServicesPage() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto font-sans">
+      <ConfirmDialog {...dialogProps} />
+
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-black text-slate-900 text-xl flex items-center gap-2">
@@ -285,54 +357,100 @@ export default function ProviderServicesPage() {
         </div>
       </div>
 
-      {/* Categories Bar with Edit & Delete Actions */}
-      {categories.length > 0 && (
-        <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
-              Active Service Categories ({categories.length})
-            </span>
+      {/* Category Filter & Search Bar */}
+      <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search services by title or description..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full h-10 pl-10 pr-8 rounded-2xl bg-slate-100 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => handleSearchChange('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {categories.map((c) => (
-              <div
-                key={c.id}
-                className="flex items-center gap-2.5 p-2.5 pl-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 shadow-2xs hover:border-emerald-300 transition-all group"
-              >
-                {c.image ? (
-                  <img src={c.image} alt={c.name} className="w-7 h-7 rounded-xl object-cover border border-slate-200 shrink-0" />
-                ) : (
-                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                )}
-
-                <span>{c.name}</span>
-
-                <div className="flex items-center gap-1 border-l border-slate-200 pl-2 ml-1">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenEditCatModal(c)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                    title="Edit Category"
-                  >
-                    <Edit className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteCategory(c.id, c.name)}
-                    disabled={actionLoading === c.id}
-                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                    title="Delete Category"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5 text-blue-600" /> Per Page:
+            </span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-extrabold text-slate-700"
+            >
+              <option value={6}>6 per page</option>
+              <option value={12}>12 per page</option>
+              <option value={24}>24 per page</option>
+            </select>
           </div>
         </div>
-      )}
+
+        {/* Category Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => handleCategorySelect('ALL')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+              selectedCategory === 'ALL'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <span>All Categories</span>
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                selectedCategory === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
+              }`}
+            >
+              {services.length}
+            </span>
+          </button>
+
+          {categories.map((c) => {
+            const count = getCategoryCount(c.id, c.name);
+            const isActive = selectedCategory === c.id;
+
+            return (
+              <button
+                type="button"
+                key={c.id}
+                onClick={() => handleCategorySelect(c.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-2 ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                <span>{c.name}</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : count > 0
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-slate-200 text-slate-500'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Services Grid */}
       {loading ? (
@@ -341,15 +459,15 @@ export default function ProviderServicesPage() {
             <div key={i} className="h-44 rounded-3xl bg-slate-100 animate-pulse" />
           ))}
         </div>
-      ) : services.length === 0 ? (
+      ) : paginatedServices.length === 0 ? (
         <div className="p-12 text-center border border-dashed border-slate-200 rounded-3xl bg-white space-y-2">
           <Wrench className="w-10 h-10 text-slate-400 mx-auto" />
-          <p className="font-extrabold text-lg text-slate-800">No Services Listed Yet</p>
-          <p className="text-xs text-slate-500">Click "Add New Service" to list a new home maintenance service.</p>
+          <p className="font-extrabold text-lg text-slate-800">No Services Found</p>
+          <p className="text-xs text-slate-500">No home maintenance services match your selected category or search filter.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((srv) => {
+          {paginatedServices.map((srv) => {
             const categoryName = typeof srv.category === 'object' ? srv.category?.name : (srv.category || 'General Service');
             const isActive = srv.isActive !== false;
             const addonCount = Array.isArray(srv.addons) ? srv.addons.length : 0;
@@ -389,55 +507,48 @@ export default function ProviderServicesPage() {
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-
-                      <button
-                        type="button"
-                        onClick={() => toggleServiceStatus(srv)}
-                        disabled={actionLoading === srv.id}
-                        className={`p-1.5 rounded-lg border transition-all ${
-                          isActive
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                            : 'bg-slate-100 text-slate-400 border-slate-200'
-                        }`}
-                        title={isActive ? 'Deactivate Service' : 'Activate Service'}
-                      >
-                        <Power className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
 
-                  <h3 className="font-bold text-slate-900 text-base">{srv.title}</h3>
+                  <h3 className="font-extrabold text-slate-900 text-base">{srv.title}</h3>
                   <p className="text-xs text-slate-500 line-clamp-2">{srv.description}</p>
+
+                  {/* Addons Summary */}
+                  {addonCount > 0 && (
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] space-y-1">
+                      <span className="font-bold text-slate-500 flex items-center gap-1">
+                        <Tag className="w-3 h-3 text-blue-600" /> Addon Options ({addonCount}):
+                      </span>
+                      <div className="space-y-0.5">
+                        {srv.addons.slice(0, 2).map((a: any, idx: number) => (
+                          <div key={idx} className="flex justify-between text-slate-700 font-medium">
+                            <span className="truncate max-w-[150px]">{a.title}</span>
+                            <span className="font-bold text-emerald-600">+৳{a.price}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Addons summary preview */}
-                {addonCount > 0 && (
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] space-y-1">
-                    <span className="font-bold text-slate-500 flex items-center gap-1">
-                      <Tag className="w-3 h-3 text-blue-600" /> Recommended Addons:
-                    </span>
-                    <div className="space-y-0.5">
-                      {srv.addons.slice(0, 2).map((a: any, idx: number) => (
-                        <div key={idx} className="flex justify-between text-slate-700 font-medium">
-                          <span className="truncate max-w-[140px]">{a.title}</span>
-                          <span className="font-bold text-emerald-600">+৳{a.price}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <div className="text-sm font-black text-slate-900">
+                    ৳{srv.price}
                   </div>
-                )}
 
-                <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                  <div>
-                    <span className="text-xs text-slate-400 block font-semibold">Starting Price</span>
-                    <span className="text-2xl font-black text-slate-900">৳{formatCurrency(srv.price)}</span>
-                  </div>
-                  <div className="text-right text-xs">
-                    <span className="text-amber-500 font-bold flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-amber-400" /> {srv.rating || 5.0}
-                    </span>
-                    <span className="text-slate-400 text-[10px]">Verified Service</span>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggleServiceStatus(srv)}
+                    disabled={actionLoading === srv.id}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      isActive
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                        : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Power className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                    <span>{isActive ? 'Active' : 'Disabled'}</span>
+                  </button>
                 </div>
               </div>
             );
@@ -445,16 +556,235 @@ export default function ProviderServicesPage() {
         </div>
       )}
 
-      {/* CREATE / EDIT CATEGORY MODAL */}
+      {/* Pagination Bar */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-3xl bg-white border border-slate-200 shadow-xs">
+          <div className="text-xs font-bold text-slate-600">
+            Showing <span className="text-slate-900 font-extrabold">{totalItems === 0 ? 0 : startIndex + 1}</span> to{' '}
+            <span className="text-slate-900 font-extrabold">{endIndex}</span> of{' '}
+            <span className="text-slate-900 font-extrabold">{totalItems}</span> services
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 px-3 rounded-xl border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold text-xs flex items-center gap-1"
+            >
+              <ChevronLeft className="w-4 h-4" /> Previous
+            </button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }).map((_, idx) => {
+                const pageNum = idx + 1;
+                const isActive = currentPage === pageNum;
+
+                return (
+                  <button
+                    type="button"
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-8 h-8 rounded-xl font-black text-xs transition-all ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 px-3 rounded-xl border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold text-xs flex items-center gap-1"
+            >
+              Next <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Service Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl border border-slate-200 my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-base text-slate-900">
+                {editingService ? 'Edit Service & Addons' : 'Add New Service'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveService} className="space-y-4 text-xs font-semibold max-h-[75vh] overflow-y-auto pr-1">
+              <div>
+                <label className="block text-slate-600 mb-1 font-bold">Service Title</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Master AC Jet Wash Servicing"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-600 mb-1 font-bold">Base Price (৳)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 1200"
+                    value={formPrice}
+                    onChange={(e) => setFormPrice(e.target.value)}
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-600 mb-1 font-bold">Category</label>
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
+                    required
+                  >
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-600 mb-1 font-bold">Description</label>
+                <textarea
+                  rows={2}
+                  placeholder="Briefly describe what this service includes..."
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  className="w-full p-3 rounded-xl border border-slate-300 bg-white"
+                />
+              </div>
+
+              {/* Service Addons Manager */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-emerald-600" />
+                    <span className="font-extrabold text-slate-900 text-xs">
+                      Recommended Service Addons ({formAddons.length})
+                    </span>
+                  </div>
+                </div>
+
+                {formAddons.length > 0 && (
+                  <div className="space-y-2">
+                    {formAddons.map((addon, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200 shadow-2xs">
+                        <div className="space-y-0.5">
+                          <span className="font-bold text-slate-900 text-xs block">{addon.title}</span>
+                          {addon.description && <p className="text-[10px] text-slate-500">{addon.description}</p>}
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <span className="font-black text-xs text-emerald-600">+৳{addon.price}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAddonItem(idx)}
+                            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="p-3 rounded-xl bg-white border border-dashed border-slate-300 space-y-2">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                    Add New Service Addon Item:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Addon Title (e.g. Gas Top-Up)"
+                      value={newAddonTitle}
+                      onChange={(e) => setNewAddonTitle(e.target.value)}
+                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Price ৳ (e.g. 800)"
+                      value={newAddonPrice}
+                      onChange={(e) => setNewAddonPrice(e.target.value)}
+                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Desc (e.g. Refill gas)"
+                      value={newAddonDesc}
+                      onChange={(e) => setNewAddonDesc(e.target.value)}
+                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddAddonItem}
+                    disabled={!newAddonTitle || !newAddonPrice}
+                    className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Addon to Service
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading === 'saving'}
+                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black shadow-md flex items-center gap-1.5"
+                >
+                  {actionLoading === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{editingService ? 'Update Service' : 'Save Service'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Service Category Modal */}
       {showCatModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <form onSubmit={handleSaveCategory} className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-emerald-600" />
-                <h2 className="font-black text-slate-900 text-base">
+                <h3 className="font-extrabold text-base text-slate-900">
                   {editingCategory ? 'Edit Service Category' : 'Create Service Category with Picture'}
-                </h2>
+                </h3>
               </div>
               <button
                 type="button"
@@ -465,15 +795,15 @@ export default function ProviderServicesPage() {
               </button>
             </div>
 
-            <div className="space-y-4 text-xs font-semibold">
+            <form onSubmit={handleSaveCategory} className="space-y-4 text-xs font-semibold">
               <div>
                 <label className="block text-slate-600 mb-1 font-bold">Category Name</label>
                 <input
                   type="text"
-                  placeholder="e.g., Solar Panel Servicing, CCTV Security"
+                  placeholder="e.g. CCTV Security & Automation"
                   value={catName}
                   onChange={(e) => setCatName(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-300 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
                   required
                 />
               </div>
@@ -482,10 +812,10 @@ export default function ProviderServicesPage() {
                 <label className="block text-slate-600 mb-1 font-bold">Description</label>
                 <input
                   type="text"
-                  placeholder="e.g., Professional installation & diagnostics"
+                  placeholder="e.g. Security cameras, IP camera & DVR setup"
                   value={catDesc}
                   onChange={(e) => setCatDesc(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-300 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white"
                 />
               </div>
 
@@ -547,195 +877,26 @@ export default function ProviderServicesPage() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setShowCatModal(false)}
-                className="flex-1 py-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={savingCat}
-                className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5"
-              >
-                {savingCat && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>{editingCategory ? 'Update Category' : 'Save Category'}</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* ADD / EDIT SERVICE MODAL WITH ADDONS MANAGER */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto max-h-screen">
-          <form onSubmit={handleSaveService} className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl p-6 space-y-5 shadow-2xl my-8">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="font-black text-slate-900 text-base">
-                {editingService ? 'Edit Home Service & Addons' : 'Add New Home Service & Addons'}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs font-semibold max-h-[75vh] overflow-y-auto pr-1">
-              <div>
-                <label className="block text-slate-600 mb-1 font-bold">Service Title</label>
-                <input
-                  type="text"
-                  placeholder="e.g., AC Master Servicing & Jet Washing"
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  className="w-full h-11 px-4 rounded-xl bg-white border border-slate-300 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setShowCatModal(false)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingCat}
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-md flex items-center gap-1.5"
+                >
+                  {savingCat && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{editingCategory ? 'Update Category' : 'Save Category'}</span>
+                </button>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-600 mb-1 font-bold">Category</label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white font-medium focus:ring-2 focus:ring-blue-500"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-slate-600 mb-1 font-bold">Starting Price (৳)</label>
-                  <input
-                    type="number"
-                    placeholder="e.g., 1200"
-                    value={formPrice}
-                    onChange={(e) => setFormPrice(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl bg-white border border-slate-300 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-slate-600 mb-1 font-bold">Service Description</label>
-                <textarea
-                  rows={2}
-                  placeholder="Describe features and scope of work..."
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-white border border-slate-300 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* SERVICE ADDONS SECTION */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-emerald-600" />
-                    <span className="font-extrabold text-slate-900 text-xs">
-                      Recommended Service Addons ({formAddons.length})
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-medium">Optional extra services at checkout</span>
-                </div>
-
-                {/* Existing Addons List */}
-                {formAddons.length > 0 && (
-                  <div className="space-y-2">
-                    {formAddons.map((addon, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200 shadow-2xs">
-                        <div className="space-y-0.5">
-                          <span className="font-bold text-slate-900 text-xs block">{addon.title}</span>
-                          {addon.description && <p className="text-[10px] text-slate-500">{addon.description}</p>}
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <span className="font-black text-xs text-emerald-600">+৳{addon.price}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveAddonItem(idx)}
-                            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                            title="Remove Addon"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Add New Addon Inline Creator */}
-                <div className="p-3 rounded-xl bg-white border border-dashed border-slate-300 space-y-2">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                    Add New Service Addon Item:
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <input
-                      type="text"
-                      placeholder="Addon Title (e.g. Gas Top-Up)"
-                      value={newAddonTitle}
-                      onChange={(e) => setNewAddonTitle(e.target.value)}
-                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Price ৳ (e.g. 800)"
-                      value={newAddonPrice}
-                      onChange={(e) => setNewAddonPrice(e.target.value)}
-                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Desc (e.g. Up to 50% refill)"
-                      value={newAddonDesc}
-                      onChange={(e) => setNewAddonDesc(e.target.value)}
-                      className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-medium"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleAddAddonItem}
-                    disabled={!newAddonTitle || !newAddonPrice}
-                    className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1 transition-all cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add Addon to Service
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="flex-1 py-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={actionLoading === 'saving'}
-                className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5"
-              >
-                {actionLoading === 'saving' && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>{editingService ? 'Update Service & Addons' : 'Save Service & Addons'}</span>
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
     </div>
