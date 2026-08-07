@@ -12,9 +12,15 @@ function generateSlug(text: string): string {
 }
 
 async function main() {
-  const csvPath = `C:\\Users\\Hp ZBooK 15U G6\\Downloads\\products (2).csv`;
-  if (!fs.existsSync(csvPath)) {
-    console.error(`CSV file not found at: ${csvPath}`);
+  const possiblePaths = [
+    path.join(process.cwd(), 'data', 'products.csv'),
+    path.join(__dirname, '../../data/products.csv'),
+    `C:\\Users\\Hp ZBooK 15U G6\\Downloads\\products (2).csv`,
+  ];
+
+  const csvPath = possiblePaths.find((p) => fs.existsSync(p));
+  if (!csvPath) {
+    console.error(`CSV file not found in any of: ${possiblePaths.join(', ')}`);
     process.exit(1);
   }
 
