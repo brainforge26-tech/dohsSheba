@@ -27,3 +27,12 @@ if (fs.existsSync(dairyJsonPath)) {
   fs.writeFileSync(path.join(__dirname, '../src/data/dairy_dataset.ts'), tsContent, 'utf-8');
   console.log('✅ Generated backend/src/data/dairy_dataset.ts');
 }
+
+// 4. Meat & Fish Dataset
+const meatFishJsonPath = path.join(__dirname, '../src/data/meat_fish_products.json');
+if (fs.existsSync(meatFishJsonPath)) {
+  const meatFishData = JSON.parse(fs.readFileSync(meatFishJsonPath, 'utf-8'));
+  const tsContent = `export const meatFishDataset = ${JSON.stringify(meatFishData, null, 2)};\n`;
+  fs.writeFileSync(path.join(__dirname, '../src/data/meat_fish_dataset.ts'), tsContent, 'utf-8');
+  console.log('✅ Generated backend/src/data/meat_fish_dataset.ts');
+}
