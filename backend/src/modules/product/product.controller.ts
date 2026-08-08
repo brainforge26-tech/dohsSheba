@@ -3,6 +3,7 @@ import * as productService from './product.service';
 import { runCookingSeed } from '../../scripts/seedCookingProducts';
 import { runFruitsVegetablesSeed } from '../../scripts/seedFruitsVegetablesProducts';
 import { runDairySeed } from '../../scripts/seedDairyProducts';
+import { runMeatFishSeed } from '../../scripts/seedMeatFishProducts';
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import { sendResponse, getPaginationMeta } from '../../utils/response.util';
 
@@ -25,6 +26,13 @@ export const seedDairyNow = async (_req: Request, res: Response, next: NextFunct
   try {
     const result = await runDairySeed();
     return sendResponse(res, 200, 'Dairy products seeded successfully', result);
+  } catch (error) { next(error); }
+};
+
+export const seedMeatFishNow = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await runMeatFishSeed();
+    return sendResponse(res, 200, 'Meat & Fish products seeded successfully', result);
   } catch (error) { next(error); }
 };
 

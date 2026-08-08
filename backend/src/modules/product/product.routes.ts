@@ -11,6 +11,7 @@ const categoryRouter = Router();
 categoryRouter.get('/seed-cooking-now', productController.seedCookingNow);
 categoryRouter.get('/seed-fruits-vegetables-now', productController.seedFruitsVegetablesNow);
 categoryRouter.get('/seed-dairy-now', productController.seedDairyNow);
+categoryRouter.get('/seed-meat-fish-now', productController.seedMeatFishNow);
 categoryRouter.get('/',     productController.getCategories);
 categoryRouter.get('/slug/:slug', productController.getCategoryBySlug);
 categoryRouter.post('/',    protect, authorize('SELLER', 'ADMIN'), productCategoryValidator, validate, productController.createCategory);
