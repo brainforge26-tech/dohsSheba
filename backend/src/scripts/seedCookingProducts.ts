@@ -23,6 +23,20 @@ function extractUnit(name: string): { unit: string; unitAmount?: number } {
   return { unit: '1 pcs', unitAmount: 1 };
 }
 
+const SUB_IMAGES: Record<string, string> = {
+  'colors-flavours': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&auto=format&fit=crop&q=80',
+  'dal-or-lentil': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&auto=format&fit=crop&q=80',
+  'ghee': 'https://images.unsplash.com/photo-1631451095765-2c91616fc9e6?w=400&auto=format&fit=crop&q=80',
+  'oil': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&auto=format&fit=crop&q=80',
+  'premium-ingredients': 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&auto=format&fit=crop&q=80',
+  'ready-mix': 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400&auto=format&fit=crop&q=80',
+  'rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80',
+  'salt-sugar': 'https://images.unsplash.com/photo-1518110168401-f282472fc750?w=400&auto=format&fit=crop&q=80',
+  'shemai-suji': 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?w=400&auto=format&fit=crop&q=80',
+  'special-ingredients-miscellaneous': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&auto=format&fit=crop&q=80',
+  'spices': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&auto=format&fit=crop&q=80'
+};
+
 export async function runCookingSeed() {
   console.log('🚀 Running Cooking Products Seed on Database...');
 
@@ -76,13 +90,15 @@ export async function runCookingSeed() {
       }
     });
 
+    const validImg = SUB_IMAGES[config.slug] || config.image || 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&auto=format&fit=crop&q=80';
+
     if (!subCat) {
       subCat = await prisma.productCategory.create({
         data: {
           name: config.name,
           slug: config.slug,
           icon: config.icon || '🍳',
-          image: config.image,
+          image: validImg,
           parentId: mainCooking.id,
           isActive: true
         }
@@ -93,7 +109,7 @@ export async function runCookingSeed() {
         data: {
           name: config.name,
           slug: config.slug,
-          image: subCat.image || config.image,
+          image: validImg,
           icon: config.icon || subCat.icon,
           parentId: mainCooking.id,
           isActive: true
