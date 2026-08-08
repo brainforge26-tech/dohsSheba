@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as productService from './product.service';
 import { runCookingSeed } from '../../scripts/seedCookingProducts';
+import { runFruitsVegetablesSeed } from '../../scripts/seedFruitsVegetablesProducts';
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import { sendResponse, getPaginationMeta } from '../../utils/response.util';
 
@@ -9,6 +10,13 @@ export const seedCookingNow = async (_req: Request, res: Response, next: NextFun
   try {
     const result = await runCookingSeed();
     return sendResponse(res, 200, 'Cooking products seeded successfully', result);
+  } catch (error) { next(error); }
+};
+
+export const seedFruitsVegetablesNow = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await runFruitsVegetablesSeed();
+    return sendResponse(res, 200, 'Fruits & Vegetables products seeded successfully', result);
   } catch (error) { next(error); }
 };
 
