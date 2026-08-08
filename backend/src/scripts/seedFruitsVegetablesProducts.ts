@@ -158,11 +158,12 @@ export async function runFruitsVegetablesSeed() {
   return { success: true, addedCount, updatedCount, totalCategories: subcatList.length };
 }
 
-if (require.main === module) {
-  runFruitsVegetablesSeed()
-    .catch((err) => {
-      console.error('Seed Error:', err);
-      process.exit(1);
-    })
-    .finally(() => prisma.$disconnect());
-}
+runFruitsVegetablesSeed()
+  .then(() => {
+    console.log('🎉 Fruits & Vegetables Seed Completed!');
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error('Seed Error:', err);
+    process.exit(1);
+  });

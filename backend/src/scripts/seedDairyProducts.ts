@@ -160,11 +160,12 @@ export async function runDairySeed() {
   return { success: true, addedCount, updatedCount, totalCategories: subcatList.length };
 }
 
-if (require.main === module) {
-  runDairySeed()
-    .catch((err) => {
-      console.error('Seed Error:', err);
-      process.exit(1);
-    })
-    .finally(() => prisma.$disconnect());
-}
+runDairySeed()
+  .then(() => {
+    console.log('🎉 Dairy Seed Completed!');
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error('Seed Error:', err);
+    process.exit(1);
+  });
