@@ -1,6 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import { prisma } from '../lib/prisma';
+import { cookingDataset } from '../data/cooking_dataset';
 
 function slugify(text: string): string {
   return text
@@ -59,13 +58,8 @@ export async function runCookingSeed() {
     });
   }
 
-  // 3. Load JSON data
-  const jsonPath = path.join(__dirname, '../data/cooking_products.json');
-  if (!fs.existsSync(jsonPath)) {
-    throw new Error(`Data file not found at: ${jsonPath}`);
-  }
-
-  const subcatList: any[] = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+  // 3. Load dataset
+  const subcatList: any[] = cookingDataset;
   const activeSubcatIds: string[] = [];
   let addedCount = 0;
   let updatedCount = 0;

@@ -1,6 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import { prisma } from '../lib/prisma';
+import { fruitsVegetablesDataset } from '../data/fruits_vegetables_dataset';
 
 function slugify(text: string): string {
   return text
@@ -59,13 +58,8 @@ export async function runFruitsVegetablesSeed() {
     });
   }
 
-  // 3. Load JSON data
-  const jsonPath = path.join(__dirname, '../data/fruits_vegetables_products.json');
-  if (!fs.existsSync(jsonPath)) {
-    throw new Error(`Data file not found at: ${jsonPath}`);
-  }
-
-  const subcatList: any[] = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+  // 3. Load dataset
+  const subcatList: any[] = fruitsVegetablesDataset;
   let addedCount = 0;
   let updatedCount = 0;
 
