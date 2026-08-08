@@ -1,0 +1,1800 @@
+[
+  {
+    "name": "Colors & Flavours",
+    "slug": "colors-flavours",
+    "icon": "🎨",
+    "image": "https://chaldn.com/_mpimage/foster-clark-food-color-red-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D129377&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Tiara Food Color (Green) 28 ml Next Day",
+        "price": 90,
+        "imageUrl": "https://chaldn.com/_mpimage/tiara-food-color-green-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101312&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Bragg Organic Apple Cider Vinegar 946 ml Next Day",
+        "price": 1499,
+        "imageUrl": "https://chaldn.com/_mpimage/bragg-organic-apple-cider-vinegar-946-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126229&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Hershey's Chocolate Syrup 623 gm Next Day",
+        "price": 1029,
+        "imageUrl": "https://chaldn.com/_mpimage/hersheys-chocolate-syrup-623-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D103086&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Kikkoman Premium Soy Sauce 600 ml Next Day",
+        "price": 679,
+        "imageUrl": "https://chaldn.com/_mpimage/kikkoman-premium-soy-sauce-600-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D109792&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Synthetic Vinegar 650 ml Next Day",
+        "price": 55,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-synthetic-vinegar-650-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D158547&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Kewra Jal (Screwpine Water) 200 ml Next Day",
+        "price": 29,
+        "imageUrl": "https://chaldn.com/_mpimage/kewra-jal-screwpine-water-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108622&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed White Vinegar 500 ml Next Day",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-white-vinegar-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123201&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Kasundi 285 ml Next Day",
+        "price": 65,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-kasundi-285-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110488&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Tiara Food Color (Red) 28 ml Next Day",
+        "price": 90,
+        "imageUrl": "https://chaldn.com/_mpimage/tiara-food-color-red-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101311&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foster Clark's Culinary Essence Orange 28 ml Next Day",
+        "price": 160,
+        "imageUrl": "https://chaldn.com/_mpimage/foster-clarks-culinary-essence-orange-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D155710&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foster Clark's Food Color Orange 28 ml Next Day",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/foster-clarks-food-color-orange-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D155709&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "American Garden Pizza Sauce Classic 397 ml Next Day",
+        "price": 670,
+        "imageUrl": "https://chaldn.com/_mpimage/american-garden-pizza-sauce-classic-397-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177295&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Hosen Gherkins Original Flavour Jar 680 gm Next Day",
+        "price": 529,
+        "imageUrl": "https://chaldn.com/_mpimage/hosen-gherkins-original-flavour-jar-680-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D104889&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foster Clark's Culinary Essence Rose 28 ml Next Day",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/foster-clarks-culinary-essence-rose-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110786&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "450 Maggi Seasoning Sauce 680 ml Next Day",
+        "price": 439,
+        "imageUrl": "https://chaldn.com/_mpimage/maggi-seasoning-sauce-680-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48211&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "850 Saporito Red Grape Vinegar 500 ml Next Day",
+        "price": 619,
+        "imageUrl": "https://chaldn.com/_mpimage/saporito-red-grape-vinegar-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133149&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "French's Classic Yellow Mustard 255 gm Next Day",
+        "price": 460,
+        "imageUrl": "https://chaldn.com/_mpimage/frenchs-classic-yellow-mustard-255-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128597&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed White Vinegar 325 ml Next Day",
+        "price": 58,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-white-vinegar-325-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123202&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foster Clark's Culinary Essence Strawberry 28 ml Next Day",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/foster-clarks-culinary-essence-strawberry-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110788&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foster Clark's Culinary Essence Vanilla 28 ml Next Day",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/foster-clarks-culinary-essence-vanilla-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110790&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Hershey's Strawberry Syrup 623 gm Next Day",
+        "price": 939,
+        "imageUrl": "https://chaldn.com/_mpimage/hersheys-strawberry-syrup-623-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D174494&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foster Clark's Food Colour (Red) 28 ml Next Day",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/foster-clarks-food-colour-red-28-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D112888&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Dal or Lentil",
+    "slug": "dal-or-lentil",
+    "icon": "🫘",
+    "image": "https://chaldn.com/_mpimage/teer-red-lentil-deshi-musur-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Golden Grain Premium Mug Dal 500 gm",
+        "price": 100,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-premium-mug-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D186705&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Premium Moshur Dal 1 kg",
+        "price": 175,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-premium-moshur-dal-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127721&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Mashkolai Dal Peeled 500 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/mashkolai-dal-peeled-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183017&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Moshur Dal (Imported) 250 gm",
+        "price": 29,
+        "imageUrl": "https://chaldn.com/_mpimage/moshur-dal-imported-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182351&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "45 Mix Dal 250 gm",
+        "price": 39,
+        "imageUrl": "https://chaldn.com/_mpimage/mix-dal-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182352&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Mug Dal 500 gm",
+        "price": 89,
+        "imageUrl": "https://chaldn.com/_mpimage/mug-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183437&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "115 Moshur Dal (Imported) 1 kg",
+        "price": 109,
+        "imageUrl": "https://chaldn.com/_mpimage/moshur-dal-imported-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182354&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "179 Moshur Dal (Deshi) 1 kg",
+        "price": 159,
+        "imageUrl": "https://chaldn.com/_mpimage/moshur-dal-deshi-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182384&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Boot Dal 500 gm",
+        "price": 59,
+        "imageUrl": "https://chaldn.com/_mpimage/boot-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182387&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Teer Red Lentil (Moshur) Dal 1 kg",
+        "price": 130,
+        "imageUrl": "https://chaldn.com/_mpimage/teer-red-lentil-moshur-dal-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101041&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Moshur Dal (Imported) 500 gm",
+        "price": 55,
+        "imageUrl": "https://chaldn.com/_mpimage/moshur-dal-imported-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182353&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Chola Boot (Chick Peas) 1 kg",
+        "price": 109,
+        "imageUrl": "https://chaldn.com/_mpimage/chola-boot-chick-peas-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126716&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dubli Boot 500 gm",
+        "price": 39,
+        "imageUrl": "https://chaldn.com/_mpimage/dubli-boot-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183018&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "75 Khosha Chara Chola Boot (Peeled Chick Pea) 500 gm",
+        "price": 65,
+        "imageUrl": "https://chaldn.com/_mpimage/khosha-chara-chola-boot-peeled-chick-pea-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47044&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Moshur Dal (Deshi) 1 kg",
+        "price": 185,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-moshur-dal-deshi-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D98671&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Mug Dal 250 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/mug-dal-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183436&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "White Chick Peas (Kabuli Boot) 500 gm",
+        "price": 129,
+        "imageUrl": "https://chaldn.com/_mpimage/white-chick-peas-kabuli-boot-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183019&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Mug Dal 500 gm",
+        "price": 100,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-mug-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108367&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Anchor Boot Dal 500 gm",
+        "price": 39,
+        "imageUrl": "https://chaldn.com/_mpimage/anchor-boot-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182388&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Kangaroo Lentil (Moshur Dal) 1 kg",
+        "price": 179,
+        "imageUrl": "https://chaldn.com/_mpimage/kangaroo-lentil-moshur-dal-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182386&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "79 Mixed Dal 500 gm",
+        "price": 75,
+        "imageUrl": "https://chaldn.com/_mpimage/mixed-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182355&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Moshur Dal (Deshi) 500 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-moshur-dal-deshi-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132318&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Split Pea (Motor Dal) 500 gm",
+        "price": 79,
+        "imageUrl": "https://chaldn.com/_mpimage/split-pea-motor-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47054&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Natural Moshur Dal 1 kg",
+        "price": 185,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-natural-moshur-dal-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122769&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "65 Kheshari Dal 500 gm",
+        "price": 59,
+        "imageUrl": "https://chaldn.com/_mpimage/kheshari-dal-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183261&q=best&v=1&m=400&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Ghee",
+    "slug": "ghee",
+    "icon": "🧈",
+    "image": "https://chaldn.com/_mpimage/aarong-dairy-pure-ghee-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D26926&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Foodela Ghee 400 gm",
+        "price": 785,
+        "imageUrl": "https://chaldn.com/_mpimage/foodela-ghee-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D178445&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foodela Ghee 200 gm",
+        "price": 390,
+        "imageUrl": "https://chaldn.com/_mpimage/foodela-ghee-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D178444&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foodela Ghee 100 gm",
+        "price": 215,
+        "imageUrl": "https://chaldn.com/_mpimage/foodela-ghee-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D178443&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Pure Ghee 200 gm",
+        "price": 390,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-pure-ghee-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D26926&q=low&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Pure Ghee 450 gm",
+        "price": 825,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-pure-ghee-450-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D179716&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Premium Ghee 200 gm",
+        "price": 415,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-premium-ghee-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D158275&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Premium Ghee 100 gm",
+        "price": 230,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-premium-ghee-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D158274&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ultra Ghee 900 gm",
+        "price": 1450,
+        "imageUrl": "https://chaldn.com/_mpimage/ultra-ghee-900-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D124774&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Meena sweets Ghee 500 gm",
+        "price": 1075,
+        "imageUrl": "https://chaldn.com/_mpimage/meena-sweets-ghee-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D100652&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Pran Premium Ghee 200 gm",
+        "price": 350,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-premium-ghee-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D137122&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Premium Ghee 100 gm",
+        "price": 190,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-premium-ghee-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D137121&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Premium Ghee 400 gm",
+        "price": 760,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-premium-ghee-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D137123&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Pure Ghee 900 gm",
+        "price": 1735,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-pure-ghee-900-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D179309&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Oil",
+    "slug": "oil",
+    "icon": "🛢️",
+    "image": "https://chaldn.com/_mpimage/rupchanda-fortified-soyabean-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133985&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Oil",
+        "price": 0,
+        "imageUrl": "https://chaldn.com/_mpimage/oil?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D181824&q=best&v=1&m=700&webp=1"
+      },
+      {
+        "name": "Rahul Pure Mustard Oil 1 ltr",
+        "price": 355,
+        "imageUrl": "https://chaldn.com/_mpimage/rahul-pure-mustard-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185269&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farmer's Gold Flaxseed Oil 100 ml",
+        "price": 165,
+        "imageUrl": "https://chaldn.com/_mpimage/farmers-gold-flaxseed-oil-100-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D160664&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "La Espanola Extra Virgin Olive Oil 500 ml",
+        "price": 1350,
+        "imageUrl": "https://chaldn.com/_mpimage/la-espanola-extra-virgin-olive-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D129928&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Fortified Soyabean Oil 5 ltr",
+        "price": 975,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-fortified-soyabean-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D135116&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Teer Fortified Soyabean Oil 1 ltr",
+        "price": 199,
+        "imageUrl": "https://chaldn.com/_mpimage/teer-fortified-soyabean-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D136109&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Fortified Soyabean Oil 2 ltr",
+        "price": 398,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-fortified-soyabean-oil-2-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D135115&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Teer Fortified Soyabean Oil 2 ltr",
+        "price": 398,
+        "imageUrl": "https://chaldn.com/_mpimage/teer-fortified-soyabean-oil-2-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D136108&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Pure Mustard Oil 500 ml",
+        "price": 200,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-pure-mustard-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132550&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Pure Mustard Oil 1 ltr",
+        "price": 380,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-pure-mustard-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132549&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pusti Fortified Soyabean Oil 1 ltr",
+        "price": 199,
+        "imageUrl": "https://chaldn.com/_mpimage/pusti-fortified-soyabean-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132433&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Mustard Oil 1 ltr",
+        "price": 330,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-mustard-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D168903&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Nutrilife Rice Bran Oil 5 ltr",
+        "price": 1160,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-nutrilife-rice-bran-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177941&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Rice Bran Oil 5 ltr",
+        "price": 1080,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-rice-bran-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D178229&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Mustard Oil 500 ml",
+        "price": 180,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-mustard-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D168881&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "10 King's Sunflower Oil Pet 5 ltr",
+        "price": 2100,
+        "imageUrl": "https://chaldn.com/_mpimage/kings-sunflower-oil-pet-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182967&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fortune Fortified Rice Bran Oil 5 ltr",
+        "price": 1210,
+        "imageUrl": "https://chaldn.com/_mpimage/fortune-fortified-rice-bran-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182968&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "10 Orkide Sunflower Oil 5 ltr",
+        "price": 2100,
+        "imageUrl": "https://chaldn.com/_mpimage/orkide-sunflower-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131611&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Ecorganic Fortified Sunflower Oil Pet 5 ltr",
+        "price": 2125,
+        "imageUrl": "https://chaldn.com/_mpimage/ecorganic-fortified-sunflower-oil-pet-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D163383&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foodela Mustard Oil 1 ltr",
+        "price": 360,
+        "imageUrl": "https://chaldn.com/_mpimage/foodela-mustard-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D178464&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Foodela Mustard Oil 500 ml",
+        "price": 180,
+        "imageUrl": "https://chaldn.com/_mpimage/foodela-mustard-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D178462&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Pure Mustard Oil 2 ltr",
+        "price": 750,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-pure-mustard-oil-2-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D176933&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Starship Fortified Soyabean Oil 2 ltr",
+        "price": 398,
+        "imageUrl": "https://chaldn.com/_mpimage/starship-fortified-soyabean-oil-2-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D174123&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farmer's Gold Peanut oil 100 ml",
+        "price": 345,
+        "imageUrl": "https://chaldn.com/_mpimage/farmers-gold-peanut-oil-100-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D160653&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olio Orolio Olive Oil 3 ltr",
+        "price": 4100,
+        "imageUrl": "https://chaldn.com/_mpimage/olio-orolio-olive-oil-3-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D125610&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olio Orolio Extra Virgin Olive Oil 5 ltr",
+        "price": 10800,
+        "imageUrl": "https://chaldn.com/_mpimage/olio-orolio-extra-virgin-olive-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D148786&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olitalia Italian Pomace Olive Oil 250 ml",
+        "price": 750,
+        "imageUrl": "https://chaldn.com/_mpimage/olitalia-italian-pomace-olive-oil-250-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D125053&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Sunshine Mustard Oil 1 ltr",
+        "price": 360,
+        "imageUrl": "https://chaldn.com/_mpimage/sunshine-mustard-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122932&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olio Orolio Olive Oil 1 ltr",
+        "price": 1565,
+        "imageUrl": "https://chaldn.com/_mpimage/olio-orolio-olive-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122142&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olio Orolio Olive Oil 750 ml",
+        "price": 1190,
+        "imageUrl": "https://chaldn.com/_mpimage/olio-orolio-olive-oil-750-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122139&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olio Orolio Olive Oil 500 ml",
+        "price": 900,
+        "imageUrl": "https://chaldn.com/_mpimage/olio-orolio-olive-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122137&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olio Orolio Extra Virgin Olive Oil 1 ltr",
+        "price": 2300,
+        "imageUrl": "https://chaldn.com/_mpimage/olio-orolio-extra-virgin-olive-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D148784&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olio Orolio Extra Virgin Olive Oil 500 ml",
+        "price": 1195,
+        "imageUrl": "https://chaldn.com/_mpimage/olio-orolio-extra-virgin-olive-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122133&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Clariss Olive Oil Pomace Glass Bottle 250 ml",
+        "price": 495,
+        "imageUrl": "https://chaldn.com/_mpimage/clariss-olive-oil-pomace-glass-bottle-250-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D93952&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ceylon Organic Extra Virgin Coconut Oil 200 ml",
+        "price": 600,
+        "imageUrl": "https://chaldn.com/_mpimage/ceylon-organic-extra-virgin-coconut-oil-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126645&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Luglio Extra Virgin Olive Oil 1 ltr",
+        "price": 1950,
+        "imageUrl": "https://chaldn.com/_mpimage/luglio-extra-virgin-olive-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D74239&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "10 Golden Drop Sunflower Oil 5 ltr",
+        "price": 2150,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-drop-sunflower-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128923&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Ceylon Organic Extra Virgin Coconut Oil 500 ml",
+        "price": 1590,
+        "imageUrl": "https://chaldn.com/_mpimage/ceylon-organic-extra-virgin-coconut-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126647&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Naturel Organic Extra Virgin Coconut Oil 500 ml",
+        "price": 1525,
+        "imageUrl": "https://chaldn.com/_mpimage/naturel-organic-extra-virgin-coconut-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101800&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Orkide Extra Virgin Olive Oil 500 ml",
+        "price": 675,
+        "imageUrl": "https://chaldn.com/_mpimage/orkide-extra-virgin-olive-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131610&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Pran Mustard Oil 1 ltr",
+        "price": 340,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-mustard-oil-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108370&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Saffola Active Plus Edible Oil 5 ltr",
+        "price": 2000,
+        "imageUrl": "https://chaldn.com/_mpimage/saffola-active-plus-edible-oil-5-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133099&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "YO WE Fragrance Sesame Oil 630 ml",
+        "price": 1045,
+        "imageUrl": "https://chaldn.com/_mpimage/yo-we-fragrance-sesame-oil-630-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182292&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Mustard Oil 500 ml",
+        "price": 170,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-mustard-oil-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132319&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ambassador Spanish Olive Oil Can 150 ml",
+        "price": 550,
+        "imageUrl": "https://chaldn.com/_mpimage/ambassador-spanish-olive-oil-can-150-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123301&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Premium Ingredients",
+    "slug": "premium-ingredients",
+    "icon": "⭐",
+    "image": "https://chaldn.com/_mpimage/golden-grain-poppy-seed-posto-dana-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187931&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "89 Chia Seed 100 gm",
+        "price": 59,
+        "imageUrl": "https://chaldn.com/_mpimage/chia-seed-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D78545&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farmer's Gold Raw Turmeric powder 100 gm",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/farmers-gold-raw-turmeric-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131651&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farmer's Gold Protein Powder 200 gm",
+        "price": 450,
+        "imageUrl": "https://chaldn.com/_mpimage/farmers-gold-protein-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131671&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ligion Black Seed With Sesame Seed 100 gm",
+        "price": 130,
+        "imageUrl": "https://chaldn.com/_mpimage/ligion-black-seed-with-sesame-seed-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D138645&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Saffron (Jafran) 1 gm",
+        "price": 299,
+        "imageUrl": "https://chaldn.com/_mpimage/saffron-jafran-1-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D18137&q=best&v=1&m=400&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Ready Mix",
+    "slug": "ready-mix",
+    "icon": "📦",
+    "image": "https://chaldn.com/_mpimage/radhuni-ready-beef-masala-20-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D129377&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "95 Ahmed Chicken Masala 100 gm",
+        "price": 79,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-chicken-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122976&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Maggi Shaad-e Magic Seasoning Mix Sachet 4 gm",
+        "price": 5,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-maggi-shaad-e-magic-seasoning-mix-sachet-4-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131313&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Biryani Masala 40 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-biryani-masala-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D109980&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Roast Masala 35 gm",
+        "price": 65,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-roast-masala-35-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110797&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Tehari Masala 40 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-tehari-masala-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110807&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chicken Masala 20 gm",
+        "price": 20,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chicken-masala-20-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132481&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Biryani Masala 40 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-biryani-masala-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D96331&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed Chotpoti Masala 50 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-chotpoti-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D59374&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Firni Mix 150 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-firni-mix-150-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D113113&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Haleem Mix 200 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-haleem-mix-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D113118&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Kachchi Biryani Masala 40 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-kachchi-biryani-masala-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110485&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Chicken Tikka Masala Mix 50 gm",
+        "price": 117,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-chicken-tikka-masala-mix-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133613&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Beef Masala 25 gm",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-beef-masala-25-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132447&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Kabab Masala 50 gm",
+        "price": 120,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-kabab-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110483&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed Meat Masala 100 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-meat-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123001&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Maggi Shaad-e Magic Seasoning Mix 4 gm 12 pcs",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-maggi-shaad-e-magic-seasoning-mix-4-gm-12-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D178321&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chotpoti Masala 50 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chotpoti-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D138436&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Haleem Mix 200 gm",
+        "price": 80,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-haleem-mix-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132529&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Falooda Mix (Mango Flavor) 250 gm",
+        "price": 120,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-falooda-mix-mango-flavor-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132524&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Falooda Mix (Vanilla Flavor) 250 gm",
+        "price": 120,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-falooda-mix-vanilla-flavor-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D138437&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Kala Bhuna Masala 80 gm",
+        "price": 100,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-kala-bhuna-masala-80-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110486&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Pure Kabab Masala 50 gm",
+        "price": 100,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-kabab-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177466&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farmer's Gold Khichuri Mix 500 gm",
+        "price": 150,
+        "imageUrl": "https://chaldn.com/_mpimage/farmers-gold-khichuri-mix-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D149026&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Teer Haleem Mix 200 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/teer-haleem-mix-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D100991&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Roast Masala 35 gm",
+        "price": 65,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-roast-masala-35-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D96335&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Maggi Shaad-e Magic Seasoning Mix Sachet 25 gm",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-maggi-shaad-e-magic-seasoning-mix-sachet-25-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131312&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Bbq Masala 50 gm",
+        "price": 80,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-bbq-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D109973&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chicken Masala 100 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chicken-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D109989&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed Firni Mix 150 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-firni-mix-150-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108014&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed Haleem Mix 200 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-haleem-mix-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D95818&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Beef Curry Masala 100 gm",
+        "price": 90,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-beef-curry-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D109975&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chicken Tandoori Masala 50 gm",
+        "price": 80,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chicken-tandoori-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D109997&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Hyderabadi Biryani Masala 45 gm",
+        "price": 90,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-hyderabadi-biryani-masala-45-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110479&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Firni Mix 150 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-firni-mix-150-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108144&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Haleem Mix 200 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-haleem-mix-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D154706&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Tehari Masala 40 gm",
+        "price": 55,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-tehari-masala-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D186430&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Pilau Biryani 50 gm",
+        "price": 115,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-pilau-biryani-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133623&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Chotpoti Masala 45 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-chotpoti-masala-45-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D175132&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Shami Kabab 50 gm",
+        "price": 117,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-shami-kabab-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133625&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Sajeeb Ready Mix Pancake 500 gm",
+        "price": 225,
+        "imageUrl": "https://chaldn.com/_mpimage/sajeeb-ready-mix-pancake-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D94968&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Chicken Masala 50 gm",
+        "price": 122,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-chicken-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133612&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Chaat Masala 100 gm",
+        "price": 138,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-chaat-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133601&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Karachi Beef Biryani 60 gm",
+        "price": 125,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-karachi-beef-biryani-60-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48317&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Malay Spice Mix for Memoni Mutton Biryani 60 gm",
+        "price": 115,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-malay-spice-mix-for-memoni-mutton-biryani-60-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127108&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Tikka Bbq 50 gm",
+        "price": 115,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-tikka-bbq-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48330&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Korma Curry Mix 50 gm",
+        "price": 115,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-korma-curry-mix-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133619&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Sajeeb Ready Mix Bhuna Khichuri 500 gm",
+        "price": 150,
+        "imageUrl": "https://chaldn.com/_mpimage/sajeeb-ready-mix-bhuna-khichuri-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122637&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Khichuri Mix 500 gm",
+        "price": 160,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-khichuri-mix-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110489&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Fish Curry Masala 100 gm",
+        "price": 80,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-fish-curry-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132526&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Spice Mix For Malay Chicken Biryani 60 gm",
+        "price": 115,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-spice-mix-for-malay-chicken-biryani-60-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D180889&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Tandoori Masala 50 gm",
+        "price": 122,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-tandoori-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133628&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Meat Curry Masala 100 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-meat-curry-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110495&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Firni Mix 150 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-firni-mix-150-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110469&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Borhani Masala 50 gm",
+        "price": 40,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-borhani-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132448&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Rice",
+    "slug": "rice",
+    "icon": "🌾",
+    "image": "https://chaldn.com/_mpimage/aci-aroma-chinigura-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Miniket Rice Premium (Boiled) ± 50 gm 5 kg",
+        "price": 439,
+        "imageUrl": "https://chaldn.com/_mpimage/miniket-rice-premium-boiled-50-gm-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48081&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "379 Athash Rice (Boiled) ± 50 gm 5 kg",
+        "price": 329,
+        "imageUrl": "https://chaldn.com/_mpimage/athash-rice-boiled-50-gm-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D76816&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "89 Amon Rice 1 kg",
+        "price": 79,
+        "imageUrl": "https://chaldn.com/_mpimage/amon-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D157667&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "479 Nazirshail Rice Premium (Half Boiled) ± 50 gm 5 kg",
+        "price": 449,
+        "imageUrl": "https://chaldn.com/_mpimage/nazirshail-rice-premium-half-boiled-50-gm-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48083&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Chinigura Rice Premium 1 kg",
+        "price": 169,
+        "imageUrl": "https://chaldn.com/_mpimage/chinigura-rice-premium-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48071&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Chashi Aromatic Chinigura Rice 1 kg",
+        "price": 190,
+        "imageUrl": "https://chaldn.com/_mpimage/chashi-aromatic-chinigura-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126657&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Chashi Aromatic Chinigura Rice 2 kg",
+        "price": 370,
+        "imageUrl": "https://chaldn.com/_mpimage/chashi-aromatic-chinigura-rice-2-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126658&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Pure Nazirshail Rice 5 kg",
+        "price": 495,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-nazirshail-rice-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177233&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Chinigura Aromatic Rice 1 kg",
+        "price": 190,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-chinigura-aromatic-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D154823&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "75 Paijam Rice (Boiled) 1 kg",
+        "price": 65,
+        "imageUrl": "https://chaldn.com/_mpimage/paijam-rice-boiled-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D80161&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "459 Nazirshail Rice Standard (Half Boiled) ± 50 gm 5 kg",
+        "price": 399,
+        "imageUrl": "https://chaldn.com/_mpimage/nazirshail-rice-standard-half-boiled-50-gm-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D66168&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Miniket Rice Standard (Boiled) ± 50 gm 5 kg",
+        "price": 389,
+        "imageUrl": "https://chaldn.com/_mpimage/miniket-rice-standard-boiled-50-gm-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48082&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Chinigura Aromatic Rice 2 kg",
+        "price": 370,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-chinigura-aromatic-rice-2-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132228&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Pure Miniket Rice Premium 10 kg",
+        "price": 950,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-miniket-rice-premium-10-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177231&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "75 Atop Rice 1 kg",
+        "price": 59,
+        "imageUrl": "https://chaldn.com/_mpimage/atop-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48064&q=low&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Chinigura Rice 1 kg",
+        "price": 175,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-chinigura-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128603&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Rupchanda Chinigura Premium Aromatic Rice 1 kg",
+        "price": 175,
+        "imageUrl": "https://chaldn.com/_mpimage/rupchanda-chinigura-premium-aromatic-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182970&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Pure Premium Miniket Rice 5 kg",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-premium-miniket-rice-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177234&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Katari Atop Rice ± 50 gm 5 kg",
+        "price": 489,
+        "imageUrl": "https://chaldn.com/_mpimage/katari-atop-rice-50-gm-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D74589&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Katarivog Rice 1 kg",
+        "price": 129,
+        "imageUrl": "https://chaldn.com/_mpimage/katarivog-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48075&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "119 Banglamoti Rice (Boiled) 1 kg",
+        "price": 105,
+        "imageUrl": "https://chaldn.com/_mpimage/banglamoti-rice-boiled-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D72051&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "419 Zirashail Rice (Boiled) ± 50 gm 5 kg",
+        "price": 349,
+        "imageUrl": "https://chaldn.com/_mpimage/zirashail-rice-boiled-50-gm-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D138415&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "1759 Athash Rice (Boiled)  ± 200 gm 25 kg",
+        "price": 1599,
+        "imageUrl": "https://chaldn.com/_mpimage/athash-rice-boiled-200-gm-25-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D165060&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "399 Huski Rice (Half Boiled) 5 kg",
+        "price": 329,
+        "imageUrl": "https://chaldn.com/_mpimage/huski-rice-half-boiled-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133719&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Extra Long Grain Bashmati Rice 1 kg",
+        "price": 299,
+        "imageUrl": "https://chaldn.com/_mpimage/extra-long-grain-bashmati-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D179845&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "ACI Aroma Chinigura Rice 2 kg",
+        "price": 345,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-aroma-chinigura-rice-2-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177164&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "1659 Atop Rice ± 200 gm 25 kg",
+        "price": 1439,
+        "imageUrl": "https://chaldn.com/_mpimage/atop-rice-200-gm-25-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177021&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "1699 30 Paijam Rice (Boiled) ± 200 gm 25 kg",
+        "price": 1639,
+        "imageUrl": "https://chaldn.com/_mpimage/paijam-rice-boiled-200-gm-25-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D117515&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Natural Chinigura Rice 5 kg",
+        "price": 761,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-natural-chinigura-rice-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122763&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Royal Umbrella Thai Glutinous Sticky Rice 1 kg",
+        "price": 500,
+        "imageUrl": "https://chaldn.com/_mpimage/royal-umbrella-thai-glutinous-sticky-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133056&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Royal Umbrella Pure Thai Hom Mali Rice 5 kg",
+        "price": 1500,
+        "imageUrl": "https://chaldn.com/_mpimage/royal-umbrella-pure-thai-hom-mali-rice-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D69042&q=low&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "ACI Aroma Premium Basmati Rice 1 kg",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-aroma-premium-basmati-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177124&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Metro Basmati Rice 1 kg",
+        "price": 420,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-metro-basmati-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108354&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Rupchanda Jirashail Rice 5 kg",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/rupchanda-jirashail-rice-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D169273&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fortune Biryani Special Basmati Rice 1 kg",
+        "price": 400,
+        "imageUrl": "https://chaldn.com/_mpimage/fortune-biryani-special-basmati-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182969&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Mehran Basmati Kernel Rice 1 kg",
+        "price": 595,
+        "imageUrl": "https://chaldn.com/_mpimage/mehran-basmati-kernel-rice-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D124719&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Chashi Aromatic Chinigura Rice 5 kg",
+        "price": 910,
+        "imageUrl": "https://chaldn.com/_mpimage/chashi-aromatic-chinigura-rice-5-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D89208&q=low&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Salt & Sugar",
+    "slug": "salt-sugar",
+    "icon": "🧂",
+    "image": "https://chaldn.com/_mpimage/aci-pure-refined-sugar-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "ACI Pure Salt 1 kg",
+        "price": 42,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-salt-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47100&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Super Premium (Vacuum) Salt 1 kg",
+        "price": 42,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-super-premium-vacuum-salt-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128654&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "AJI-NO-MOTO Monosodium Glutamate 200 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/aji-no-moto-monosodium-glutamate-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D92745&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Refined Sugar 1 kg",
+        "price": 110,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-refined-sugar-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D113128&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Teer Sugar 1 kg",
+        "price": 110,
+        "imageUrl": "https://chaldn.com/_mpimage/teer-sugar-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101003&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Pure Salt 500 gm",
+        "price": 22,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-salt-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D57736&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Starship Refined Sugar 1 kg",
+        "price": 110,
+        "imageUrl": "https://chaldn.com/_mpimage/starship-refined-sugar-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D174230&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "55 Sugar Candy (Tal Misri) 200 gm",
+        "price": 39,
+        "imageUrl": "https://chaldn.com/_mpimage/sugar-candy-tal-misri-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48011&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Rock Salt (Bit Lobon) 100 gm",
+        "price": 55,
+        "imageUrl": "https://chaldn.com/_mpimage/rock-salt-bit-lobon-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D138598&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Sprinkle Salt & Pepper Mix 100 gm",
+        "price": 125,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-sprinkle-salt-pepper-mix-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D174550&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "AJI-NO-MOTO Monosodium Glutamate 40 gm",
+        "price": 20,
+        "imageUrl": "https://chaldn.com/_mpimage/aji-no-moto-monosodium-glutamate-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128507&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Saad Bit Salt 100 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/saad-bit-salt-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131576&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Iodized Salt 1 kg",
+        "price": 42,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-iodized-salt-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132238&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "420 Sis White Icing Sugar 500 gm",
+        "price": 359,
+        "imageUrl": "https://chaldn.com/_mpimage/sis-white-icing-sugar-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133672&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "AJI-NO-MOTO Monosodium Glutamate 100 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/aji-no-moto-monosodium-glutamate-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123203&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Sis Brown Sugar 800 gm",
+        "price": 759,
+        "imageUrl": "https://chaldn.com/_mpimage/sis-brown-sugar-800-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133670&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Sis White Sugar Cube 454 gm",
+        "price": 500,
+        "imageUrl": "https://chaldn.com/_mpimage/sis-white-sugar-cube-454-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D176580&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Shemai & Suji",
+    "slug": "shemai-suji",
+    "icon": "🥣",
+    "image": "https://chaldn.com/_mpimage/radhuni-vermicelli-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Farina Laccha Shemai 500 gm",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/farina-laccha-shemai-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185343&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farina Chutki Shemai 200 gm",
+        "price": 40,
+        "imageUrl": "https://chaldn.com/_mpimage/farina-chutki-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185291&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Rahul Vermicelli Chikon Shemai 200 gm",
+        "price": 40,
+        "imageUrl": "https://chaldn.com/_mpimage/rahul-vermicelli-chikon-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185262&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Kolson Cock Vermicelli (Shemai) 200 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/kolson-cock-vermicelli-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D141265&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Teer Semolina Suji 500 gm",
+        "price": 48,
+        "imageUrl": "https://chaldn.com/_mpimage/teer-semolina-suji-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101043&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Banoful Lashcha Shemai 200 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/banoful-lashcha-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101139&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "ACI Pure Suji 500 gm",
+        "price": 48,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-suji-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177380&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Bombay Sweets Instant Laccha Shemai 180 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/bombay-sweets-instant-laccha-shemai-180-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D159835&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Rahul Vermicelli Chikon Shemai 500 gm",
+        "price": 90,
+        "imageUrl": "https://chaldn.com/_mpimage/rahul-vermicelli-chikon-shemai-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185263&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Olympic Lascha Shemai 200 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/olympic-lascha-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D154920&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Banoful Vermicelli Shemai 200 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/banoful-vermicelli-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182946&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dekko Laccha Shemai 180 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/dekko-laccha-shemai-180-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D154931&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Vermicelli Shemai 200 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-vermicelli-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108686&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dekko Shahi Shemai 180 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/dekko-shahi-shemai-180-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123371&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Thai Choice Rice Noodles 200 gm",
+        "price": 350,
+        "imageUrl": "https://chaldn.com/_mpimage/thai-choice-rice-noodles-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D136126&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Suji 500 gm",
+        "price": 48,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-suji-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D97221&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Shemai 200 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-shemai-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D110805&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Kolson Special Lascha Semai 180 gm",
+        "price": 50,
+        "imageUrl": "https://chaldn.com/_mpimage/kolson-special-lascha-semai-180-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D113038&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Special Ingredients & Miscellaneous",
+    "slug": "special-ingredients-miscellaneous",
+    "icon": "🥄",
+    "image": "https://chaldn.com/_mpimage/foster-clark-baking-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Chickpea Flour (Boot Beshon) 500 gm",
+        "price": 69,
+        "imageUrl": "https://chaldn.com/_mpimage/chickpea-flour-boot-beshon-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D176725&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "60 Sagudana 200 gm",
+        "price": 49,
+        "imageUrl": "https://chaldn.com/_mpimage/sagudana-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47075&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Foster Clark's Corn Flour 400 gm",
+        "price": 360,
+        "imageUrl": "https://chaldn.com/_mpimage/foster-clarks-corn-flour-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D173671&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "59 Tamarind peeled (Tetul) 200 gm",
+        "price": 55,
+        "imageUrl": "https://chaldn.com/_mpimage/tamarind-peeled-tetul-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D64745&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pumpkin Seed 100 gm",
+        "price": 99,
+        "imageUrl": "https://chaldn.com/_mpimage/pumpkin-seed-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D86418&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Nutmeg (Jayfal) Whole 5 pcs",
+        "price": 49,
+        "imageUrl": "https://chaldn.com/_mpimage/nutmeg-jayfal-whole-5-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D103098&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fit Food Italian Seasoning 80 gm",
+        "price": 250,
+        "imageUrl": "https://chaldn.com/_mpimage/fit-food-italian-seasoning-80-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D109868&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fit Food Cajun Seasoning 80 gm",
+        "price": 250,
+        "imageUrl": "https://chaldn.com/_mpimage/fit-food-cajun-seasoning-80-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128531&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Barilla Pasta Sauce Jar Napoletana 400 gm",
+        "price": 599,
+        "imageUrl": "https://chaldn.com/_mpimage/barilla-pasta-sauce-jar-napoletana-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D125437&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Barilla Pasta Sauce Jar Arrabbiata 400 gm",
+        "price": 599,
+        "imageUrl": "https://chaldn.com/_mpimage/barilla-pasta-sauce-jar-arrabbiata-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D125435&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Barilla Pasta Sauce Jar Basilico 400 gm",
+        "price": 599,
+        "imageUrl": "https://chaldn.com/_mpimage/barilla-pasta-sauce-jar-basilico-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D125436&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "159 Kidney Bean 500 gm",
+        "price": 129,
+        "imageUrl": "https://chaldn.com/_mpimage/kidney-bean-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D129766&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Remia Dijon Mustard 370 gm",
+        "price": 520,
+        "imageUrl": "https://chaldn.com/_mpimage/remia-dijon-mustard-370-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132682&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "BBQ Coal Bag 1 kg",
+        "price": 149,
+        "imageUrl": "https://chaldn.com/_mpimage/bbq-coal-bag-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47065&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "49 Bread Crumbs Loose 200 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/bread-crumbs-loose-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126244&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Uncle Barn's Tempura Flour 500 gm",
+        "price": 275,
+        "imageUrl": "https://chaldn.com/_mpimage/uncle-barns-tempura-flour-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185237&q=low&v=1&m=400&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Spices",
+    "slug": "spices",
+    "icon": "🌶️",
+    "image": "https://chaldn.com/_mpimage/radhuni-chilli-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Golden Grain Cumin (Jira) 100 gm",
+        "price": 120,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-cumin-jira-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187910&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Poppy Seed (Posto Dana) 50 gm",
+        "price": 195,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-poppy-seed-posto-dana-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187931&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Dried Chillies (Shukna Morich) 100 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-dried-chillies-shukna-morich-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187911&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Black Pepper (Gol Morich) Whole 100 gm",
+        "price": 195,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-black-pepper-gol-morich-whole-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187921&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Black Cumin (Kalo Jira) 100 gm",
+        "price": 100,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-black-cumin-kalo-jira-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187928&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Coriander (Dhonia) 100 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-coriander-dhonia-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187914&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Cardamom (Elachi) Whole 50 gm",
+        "price": 350,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-cardamom-elachi-whole-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187930&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Bay Leaf (Tejpata) 100 gm",
+        "price": 55,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-bay-leaf-tejpata-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187913&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Clove (Lobongo) 50 gm",
+        "price": 145,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-clove-lobongo-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187898&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Mix Spice (Pach Foron) 100 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-mix-spice-pach-foron-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187922&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Golden Grain Mustard Seed (Red) 100 gm",
+        "price": 35,
+        "imageUrl": "https://chaldn.com/_mpimage/golden-grain-mustard-seed-red-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187925&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Cinnamon (Daruchini) Whole 100 gm",
+        "price": 75,
+        "imageUrl": "https://chaldn.com/_mpimage/cinnamon-daruchini-whole-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48355&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chilli (Morich) Powder 100 gm",
+        "price": 75,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chilli-morich-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132509&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Cumin (Jira) Powder 100 gm",
+        "price": 160,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-cumin-jira-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132521&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Coriander (Dhonia) Powder 100 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-coriander-dhonia-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132516&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "35 Fenugreek (Methi) Seed 100 gm",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/fenugreek-methi-seed-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48366&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "30 Mustard Seed (Yellow) 100 gm",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/mustard-seed-yellow-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130992&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Garam Masala 15 gm",
+        "price": 40,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-garam-masala-15-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132528&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Turmeric (Holud) Powder 50 gm",
+        "price": 40,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-turmeric-holud-powder-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132555&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ramisa Tokma 100 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/ramisa-tokma-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185387&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "199 Betel Nut (Shupari) 250 gm",
+        "price": 169,
+        "imageUrl": "https://chaldn.com/_mpimage/betel-nut-shupari-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D46972&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Chilli Powder 200 gm",
+        "price": 125,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-chilli-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D135105&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "35 Mustard Seed (Red) 100 gm",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/mustard-seed-red-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D115243&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "199 Walnuts (Akhrot) 100 gm",
+        "price": 179,
+        "imageUrl": "https://chaldn.com/_mpimage/walnuts-akhrot-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D184610&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "95 Cumin (Jira) 100 gm",
+        "price": 85,
+        "imageUrl": "https://chaldn.com/_mpimage/cumin-jira-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183697&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "149 Cardamom (Elachi) Whole 25 gm",
+        "price": 139,
+        "imageUrl": "https://chaldn.com/_mpimage/cardamom-elachi-whole-25-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183665&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chilli (Morich) Powder 200 gm",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chilli-morich-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132510&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "55 Dried Chillies (Shukna Morich) 100 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/dried-chillies-shukna-morich-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48364&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Turmeric (Holud) Powder 200 gm",
+        "price": 145,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-turmeric-holud-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132553&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Turmeric (Holud) Powder 100 gm",
+        "price": 75,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-turmeric-holud-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132554&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Garam Masala 40 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-garam-masala-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132527&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "119 Clove (Lobongo) 50 gm",
+        "price": 89,
+        "imageUrl": "https://chaldn.com/_mpimage/clove-lobongo-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D184759&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Coriander (Dhonia) Powder 200 gm",
+        "price": 110,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-coriander-dhonia-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132897&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "35 Bay Leaf (Tejpata) 100 gm",
+        "price": 29,
+        "imageUrl": "https://chaldn.com/_mpimage/bay-leaf-tejpata-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48347&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Cumin (Jira) Powder 50 gm",
+        "price": 85,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-cumin-jira-powder-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132522&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Cumin (Jira) Powder 200 gm",
+        "price": 310,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-cumin-jira-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132896&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "299 Cardamom (Elachi) Whole 50 gm",
+        "price": 269,
+        "imageUrl": "https://chaldn.com/_mpimage/cardamom-elachi-whole-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183666&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chilli (Morich) Powder 500 gm",
+        "price": 345,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chilli-morich-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132511&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Panch Phoran 50 gm",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-panch-phoran-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132545&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "89 Chia Seed 100 gm",
+        "price": 59,
+        "imageUrl": "https://chaldn.com/_mpimage/chia-seed-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D78545&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Black Cumin (Kalo Jira) 100 gm",
+        "price": 69,
+        "imageUrl": "https://chaldn.com/_mpimage/black-cumin-kalo-jira-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D67826&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "85 Black Pepper (Gol Morich) Whole 50 gm",
+        "price": 79,
+        "imageUrl": "https://chaldn.com/_mpimage/black-pepper-gol-morich-whole-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D184755&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Turmeric (Holud) Powder 500 gm",
+        "price": 335,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-turmeric-holud-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132552&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "55 Fennel (Mouri) 100 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/fennel-mouri-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48365&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chilli (Morich) Powder 50 gm",
+        "price": 38,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chilli-morich-powder-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132508&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "149 Alu Bukhara 100 gm",
+        "price": 119,
+        "imageUrl": "https://chaldn.com/_mpimage/alu-bukhara-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48343&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "219 Black Cardamom (Kalo Elachi) Whole 50 gm",
+        "price": 199,
+        "imageUrl": "https://chaldn.com/_mpimage/black-cardamom-kalo-elachi-whole-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D50292&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Coriander (Dhonia) 100 gm",
+        "price": 35,
+        "imageUrl": "https://chaldn.com/_mpimage/coriander-dhonia-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48363&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "45 Mix Spice (Pach Foron) 100 gm",
+        "price": 35,
+        "imageUrl": "https://chaldn.com/_mpimage/mix-spice-pach-foron-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130790&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "319 Green Cardamom (Sobuj Elachi) Whole 50 gm",
+        "price": 299,
+        "imageUrl": "https://chaldn.com/_mpimage/green-cardamom-sobuj-elachi-whole-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D184770&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Nutmeg (Jayfal) Whole 5 pcs",
+        "price": 49,
+        "imageUrl": "https://chaldn.com/_mpimage/nutmeg-jayfal-whole-5-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D103098&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "165 Black Pepper (Gol Morich) Whole 100 gm",
+        "price": 159,
+        "imageUrl": "https://chaldn.com/_mpimage/black-pepper-gol-morich-whole-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D184756&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Coriander (Dhonia) Powder 50 gm",
+        "price": 32,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-coriander-dhonia-powder-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132517&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Imperial Eats Red Chilli Powder 200 gm",
+        "price": 170,
+        "imageUrl": "https://chaldn.com/_mpimage/imperial-eats-red-chilli-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D167804&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Imperial Eats Healthy Gut Mix 250 gm",
+        "price": 550,
+        "imageUrl": "https://chaldn.com/_mpimage/imperial-eats-healthy-gut-mix-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D167800&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Rongdhonu Arjun Powder 100 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/rongdhonu-arjun-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D149207&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Bangla Cut Tastebud Meat Masala 75 gm",
+        "price": 290,
+        "imageUrl": "https://chaldn.com/_mpimage/bangla-cut-tastebud-meat-masala-75-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D125896&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chilli Flakes 40 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chilli-flakes-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132513&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farmer's Gold Kabab Spice Powder 100 gm",
+        "price": 170,
+        "imageUrl": "https://chaldn.com/_mpimage/farmers-gold-kabab-spice-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128395&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farmer's Gold Black Seed (Kalo Jira) Powder 100 gm",
+        "price": 120,
+        "imageUrl": "https://chaldn.com/_mpimage/farmers-gold-black-seed-kalo-jira-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131655&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Cumin (Jira) Powder 100 gm",
+        "price": 180,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-cumin-jira-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131206&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "My Organic BD Black Pepper (Gol Morich) Whole 100 gm",
+        "price": 150,
+        "imageUrl": "https://chaldn.com/_mpimage/my-organic-bd-black-pepper-gol-morich-whole-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131003&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "ACI Pure Cumin (Jira) Powder 100 gm",
+        "price": 82,
+        "imageUrl": "https://chaldn.com/_mpimage/aci-pure-cumin-jira-powder-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122826&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Seeds 100 gm",
+        "price": 59,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-seeds-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D80140&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "199 Kabab Chini 50 gm",
+        "price": 149,
+        "imageUrl": "https://chaldn.com/_mpimage/kabab-chini-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D184964&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed Roast Masala 35 gm",
+        "price": 65,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-roast-masala-35-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108171&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Ahmed Biryani Masala 40 gm",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/ahmed-biryani-masala-40-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D87868&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Chilli (Morich) Powder Jar 200 gm",
+        "price": 160,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-chilli-morich-powder-jar-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132512&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Turmeric (Holud) Powder Jar 200 gm",
+        "price": 160,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-turmeric-holud-powder-jar-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132556&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "150 White Pepper Whole 50 gm",
+        "price": 99,
+        "imageUrl": "https://chaldn.com/_mpimage/white-pepper-whole-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D184757&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "159 Star Flower 50 gm",
+        "price": 139,
+        "imageUrl": "https://chaldn.com/_mpimage/star-flower-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D185008&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "119 Imperial Cumin (Shahi Jira) 50 gm",
+        "price": 99,
+        "imageUrl": "https://chaldn.com/_mpimage/imperial-cumin-shahi-jira-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D129472&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Mace Whole 50 gm",
+        "price": 199,
+        "imageUrl": "https://chaldn.com/_mpimage/mace-whole-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130484&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "199 Poppy Seed (Posto Dana) 50 gm",
+        "price": 179,
+        "imageUrl": "https://chaldn.com/_mpimage/poppy-seed-posto-dana-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132211&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Turmeric Powder 200 gm",
+        "price": 135,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-turmeric-powder-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D135109&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Meat Masala 100 gm",
+        "price": 95,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-meat-masala-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108353&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Chilli Powder Jar 200 gm",
+        "price": 160,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-chilli-powder-jar-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D111321&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "119 Ekanghi 100 gm",
+        "price": 99,
+        "imageUrl": "https://chaldn.com/_mpimage/ekanghi-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D64817&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Cumin (Jira) Powder 500 gm",
+        "price": 750,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-cumin-jira-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132519&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shan Biryani Masala 50 gm",
+        "price": 110,
+        "imageUrl": "https://chaldn.com/_mpimage/shan-biryani-masala-50-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D168600&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Globe Thyme 10 gm",
+        "price": 70,
+        "imageUrl": "https://chaldn.com/_mpimage/globe-thyme-10-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48425&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "589 Cardamom (Elachi) Whole 100 gm",
+        "price": 539,
+        "imageUrl": "https://chaldn.com/_mpimage/cardamom-elachi-whole-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D183664&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Tokma Seed 100 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/tokma-seed-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48426&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Radhuni Coriander (Dhonia) Powder 500 gm",
+        "price": 240,
+        "imageUrl": "https://chaldn.com/_mpimage/radhuni-coriander-dhonia-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132514&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Arrowroot 100 gm",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/arrowroot-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D175875&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "49 Ajwain 100 gm",
+        "price": 45,
+        "imageUrl": "https://chaldn.com/_mpimage/ajwain-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48342&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Pran Turmeric (Holud) Powder Jar 200 gm",
+        "price": 160,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-turmeric-holud-powder-jar-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132337&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Cumin (Jira) Powder Jar 200 gm",
+        "price": 330,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-cumin-jira-powder-jar-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D113291&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Paprika Bottle 15 gm",
+        "price": 75,
+        "imageUrl": "https://chaldn.com/_mpimage/paprika-bottle-15-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D177913&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Mace Whole 100 gm",
+        "price": 369,
+        "imageUrl": "https://chaldn.com/_mpimage/mace-whole-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D48378&q=best&v=1&m=400&m=400&webp=1"
+      }
+    ]
+  }
+]

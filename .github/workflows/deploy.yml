@@ -38,7 +38,7 @@ jobs:
             npm install
             npx prisma db push
             npx prisma generate
-            npx ts-node src/scripts/importCsvProducts.ts || true
+            npx ts-node src/scripts/seedCookingProducts.ts || true
             npm run build
             fuser -k 5000/tcp || true
             pm2 restart project3-api --update-env || pm2 restart dohsheba-api --update-env || pm2 start dist/server.js --name "project3-api"
