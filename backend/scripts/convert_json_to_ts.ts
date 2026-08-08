@@ -18,3 +18,12 @@ if (fs.existsSync(fruitsJsonPath)) {
   fs.writeFileSync(path.join(__dirname, '../src/data/fruits_vegetables_dataset.ts'), tsContent, 'utf-8');
   console.log('✅ Generated backend/src/data/fruits_vegetables_dataset.ts');
 }
+
+// 3. Dairy Dataset
+const dairyJsonPath = path.join(__dirname, '../src/data/dairy_products.json');
+if (fs.existsSync(dairyJsonPath)) {
+  const dairyData = JSON.parse(fs.readFileSync(dairyJsonPath, 'utf-8'));
+  const tsContent = `export const dairyDataset = ${JSON.stringify(dairyData, null, 2)};\n`;
+  fs.writeFileSync(path.join(__dirname, '../src/data/dairy_dataset.ts'), tsContent, 'utf-8');
+  console.log('✅ Generated backend/src/data/dairy_dataset.ts');
+}

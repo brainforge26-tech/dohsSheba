@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as productService from './product.service';
 import { runCookingSeed } from '../../scripts/seedCookingProducts';
 import { runFruitsVegetablesSeed } from '../../scripts/seedFruitsVegetablesProducts';
+import { runDairySeed } from '../../scripts/seedDairyProducts';
 import { AuthRequest } from '../../middlewares/auth.middleware';
 import { sendResponse, getPaginationMeta } from '../../utils/response.util';
 
@@ -17,6 +18,13 @@ export const seedFruitsVegetablesNow = async (_req: Request, res: Response, next
   try {
     const result = await runFruitsVegetablesSeed();
     return sendResponse(res, 200, 'Fruits & Vegetables products seeded successfully', result);
+  } catch (error) { next(error); }
+};
+
+export const seedDairyNow = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await runDairySeed();
+    return sendResponse(res, 200, 'Dairy products seeded successfully', result);
   } catch (error) { next(error); }
 };
 

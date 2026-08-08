@@ -1,0 +1,538 @@
+export const dairyDataset = [
+  {
+    "name": "Liquid & UHT Milk",
+    "slug": "liquid-uht-milk",
+    "icon": "🥛",
+    "image": "https://chaldn.com/_mpimage/aarong-dairy-pasteurized-liquid-milk-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Aarong Dairy Pasteurized Liquid Milk 1 ltr",
+        "price": 105,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-pasteurized-liquid-milk-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D119561&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Pasteurized Full Cream Liquid Milk 1 ltr",
+        "price": 100,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-pasteurized-full-cream-liquid-milk-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132322&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Laban 500 ml",
+        "price": 75,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-laban-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D74142&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Danish Ayran Pasteurized Full Cream Liquid Milk 1 ltr",
+        "price": 140,
+        "imageUrl": "https://chaldn.com/_mpimage/danish-ayran-pasteurized-full-cream-liquid-milk-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127452&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Matha 200 ml",
+        "price": 35,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-matha-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D74143&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Danish Ayran Pasteurized Full Cream Liquid Milk 2 ltr",
+        "price": 255,
+        "imageUrl": "https://chaldn.com/_mpimage/danish-ayran-pasteurized-full-cream-liquid-milk-2-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101671&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Mango Flavored Milk (Pouch) 150 ml",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-mango-flavored-milk-pouch-150-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D175235&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Chocolate Flavored Milk (Pouch) 150 ml",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-chocolate-flavored-milk-pouch-150-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D175234&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy UHT Milk 500 ml",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-uht-milk-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D125267&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran UHT Milk 1 ltr",
+        "price": 130,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-uht-milk-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132338&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Chocolate Milk Drink UHT 200 ml",
+        "price": 35,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-chocolate-milk-drink-uht-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101665&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran UHT Milk 200 ml",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-uht-milk-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D186721&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Full Cream Milk Powder 500 gm",
+        "price": 460,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-full-cream-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D174739&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "480 Cowhead Pure UHT Milk 1 ltr",
+        "price": 449,
+        "imageUrl": "https://chaldn.com/_mpimage/cowhead-pure-uht-milk-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127198&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farm Fresh UHT Milk 500 ml",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/farm-fresh-uht-milk-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D160156&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran UHT Milk 500 ml",
+        "price": 60,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-uht-milk-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D186720&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Lassi 200 ml",
+        "price": 40,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-lassi-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D176341&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Marks Active School Belgian Chocolate Flavour Milk Shake 200 ml",
+        "price": 40,
+        "imageUrl": "https://chaldn.com/_mpimage/marks-active-school-belgian-chocolate-flavour-milk-shake-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D120533&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Mango Milk Drink UHT 200 ml",
+        "price": 35,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-mango-milk-drink-uht-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D99536&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Kulfi Milk Drink 200 ml",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-kulfi-milk-drink-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D136224&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Badam Milk Drink 200 ml",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-badam-milk-drink-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D136223&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Chocolate Milk Drink 200 ml",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-chocolate-milk-drink-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D136222&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Mango Milk Drink 180 ml",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-mango-milk-drink-180-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D97866&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Cowhead UHT Pure Milk (Omega-3) 1 ltr",
+        "price": 490,
+        "imageUrl": "https://chaldn.com/_mpimage/cowhead-uht-pure-milk-omega-3-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127201&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Cowhead UHT Milk Low Fat 1 ltr",
+        "price": 459,
+        "imageUrl": "https://chaldn.com/_mpimage/cowhead-uht-milk-low-fat-1-ltr?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D174493&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Powder Milk",
+    "slug": "powder-milk",
+    "icon": "🍼",
+    "image": "https://chaldn.com/_mpimage/dano-full-cream-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Starship Full Cream Milk Powder 500 gm",
+        "price": 375,
+        "imageUrl": "https://chaldn.com/_mpimage/starship-full-cream-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D152337&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Starship Full Cream Milk Powder 1 kg",
+        "price": 770,
+        "imageUrl": "https://chaldn.com/_mpimage/starship-full-cream-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D152338&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Marks Full Cream Milk Powder Poly 500 gm",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/marks-full-cream-milk-powder-poly-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130615&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Marks Full Cream Milk Powder Poly 1 kg",
+        "price": 950,
+        "imageUrl": "https://chaldn.com/_mpimage/marks-full-cream-milk-powder-poly-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D59268&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dano Daily Pushti Milk Powder 500 gm",
+        "price": 400,
+        "imageUrl": "https://chaldn.com/_mpimage/dano-daily-pushti-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D180158&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dano Daily Pushti Milk Powder 1 kg",
+        "price": 770,
+        "imageUrl": "https://chaldn.com/_mpimage/dano-daily-pushti-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D169269&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dano Power Full Cream Milk Powder 500 gm",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/dano-power-full-cream-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187004&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dano Delight Full Cream Milk Powder 500 gm",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/dano-delight-full-cream-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D161828&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Instant Full Cream Milk Powder 500 gm",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-instant-full-cream-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D126002&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Dano Power Full Cream Milk Powder 1 kg",
+        "price": 950,
+        "imageUrl": "https://chaldn.com/_mpimage/dano-power-full-cream-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D187005&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Nido Family Choice Milk Powder Pouch 500 gm",
+        "price": 490,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-nido-family-choice-milk-powder-pouch-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D166792&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Instant Full Cream Milk Powder 1 kg",
+        "price": 950,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-instant-full-cream-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130892&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Nido Fortigrow Full Cream Milk Powder Tin 1 kg",
+        "price": 1400,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-nido-fortigrow-full-cream-milk-powder-tin-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131372&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "AMA Full Cream Milk Powder 500 gm",
+        "price": 440,
+        "imageUrl": "https://chaldn.com/_mpimage/ama-full-cream-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D97595&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Farm Fresh Full Cream Milk Powder 500 gm",
+        "price": 475,
+        "imageUrl": "https://chaldn.com/_mpimage/farm-fresh-full-cream-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D160172&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Dessert Milk Powder 1 kg",
+        "price": 750,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-dessert-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D113108&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Goalini Full Cream Milk Powder 1 kg",
+        "price": 910,
+        "imageUrl": "https://chaldn.com/_mpimage/goalini-full-cream-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D114899&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Marks Milk Powder Tin 1 kg",
+        "price": 1300,
+        "imageUrl": "https://chaldn.com/_mpimage/marks-milk-powder-tin-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130616&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Cowhead Instant Milk Powder 1.8 kg",
+        "price": 3700,
+        "imageUrl": "https://chaldn.com/_mpimage/cowhead-instant-milk-powder-18-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D58937&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Fresh Insta Milk Powder 500 gm",
+        "price": 480,
+        "imageUrl": "https://chaldn.com/_mpimage/fresh-insta-milk-powder-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128636&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Pran Full Cream Milk Powder 1 kg",
+        "price": 840,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-full-cream-milk-powder-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108313&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Marks Young Star (16-40 years) 400 gm",
+        "price": 425,
+        "imageUrl": "https://chaldn.com/_mpimage/marks-young-star-16-40-years-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130618&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shape Up Non Fat High Protein Milk Powder 400 gm",
+        "price": 490,
+        "imageUrl": "https://chaldn.com/_mpimage/shape-up-non-fat-high-protein-milk-powder-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D175835&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Nido Fortigrow Full Cream Milk Powder Tin 2.5 kg",
+        "price": 3400,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-nido-fortigrow-full-cream-milk-powder-tin-25-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131373&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Yogurt & Curd",
+    "slug": "yogurt-curd",
+    "icon": "🍧",
+    "image": "https://chaldn.com/_mpimage/aarong-dairy-sweet-yogurt-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Aarong Dairy Sour Curd 500 gm",
+        "price": 120,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-sour-curd-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D77433&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Low Fat Yogurt (Sour) 500 gm",
+        "price": 110,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-low-fat-yogurt-sour-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D70197&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Sweetened Yogurt 500 gm",
+        "price": 150,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-sweetened-yogurt-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122759&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Sour Curd 500 ml",
+        "price": 120,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-sour-curd-500-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D132328&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Shokti+ Mishti Doi 75 gm",
+        "price": 25,
+        "imageUrl": "https://chaldn.com/_mpimage/shokti-mishti-doi-75-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D133646&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Drinking Yogurt 200 ml",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-drinking-yogurt-200-ml?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D118710&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Sweetened Yogurt 100 gm",
+        "price": 30,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-sweetened-yogurt-100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108654&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Pantoa 600 gm",
+        "price": 210,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-pantoa-600-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122752&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Roshogolla 600 gm",
+        "price": 200,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-roshogolla-600-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122754&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Roshogolla (20±2 pcs) 1 kg",
+        "price": 350,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-roshogolla-202-pcs-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122755&q=best&v=1&m=400&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Butter & Sour Cream",
+    "slug": "butter-sour-cream",
+    "icon": "🧈",
+    "image": "https://chaldn.com/_mpimage/aarong-dairy-salted-butter-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Aarong Dairy Butter 200 gm",
+        "price": 270,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-butter-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D46787&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Milk Vita Butter 200 gm",
+        "price": 270,
+        "imageUrl": "https://chaldn.com/_mpimage/milk-vita-butter-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D137235&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Vivo Ambient Whip Topping with Vegetable Fat 1100 gm",
+        "price": 736,
+        "imageUrl": "https://chaldn.com/_mpimage/vivo-ambient-whip-topping-with-vegetable-fat-1100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D137073&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Pran Butter (Fresco Container) 200 gm",
+        "price": 280,
+        "imageUrl": "https://chaldn.com/_mpimage/pran-butter-fresco-container-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108099&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Lurpak Butter Unsalted 200 gm",
+        "price": 880,
+        "imageUrl": "https://chaldn.com/_mpimage/lurpak-butter-unsalted-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D130418&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Lurpak Salted Spreadable Butter 250 gm",
+        "price": 990,
+        "imageUrl": "https://chaldn.com/_mpimage/lurpak-salted-spreadable-butter-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D66078&q=best&v=1&m=400&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Cheese",
+    "slug": "cheeses",
+    "icon": "🧀",
+    "image": "https://chaldn.com/_mpimage/happy-cow-cheese-8-slices-133-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Aarong Dairy Austagram Cheese 200 gm",
+        "price": 190,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-austagram-cheese-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47612&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Paneer 200 gm",
+        "price": 200,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-paneer-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122751&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Puck Cheese Triangles 240 gm 16 pcs",
+        "price": 605,
+        "imageUrl": "https://chaldn.com/_mpimage/puck-cheese-triangles-240-gm-16-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D180124&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Puck Cheese Triangles 120 gm 8 pcs",
+        "price": 305,
+        "imageUrl": "https://chaldn.com/_mpimage/puck-cheese-triangles-120-gm-8-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D180123&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Lactima Slice Cheese (12 Slice) 200 gm",
+        "price": 510,
+        "imageUrl": "https://chaldn.com/_mpimage/lactima-slice-cheese-12-slice-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D129932&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Eru Slice Cheese Cheddar Herb (8 Slice) 150 gm",
+        "price": 790,
+        "imageUrl": "https://chaldn.com/_mpimage/eru-slice-cheese-cheddar-herb-8-slice-150-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D108680&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "American Garden Popcorn Cheese 273 gm",
+        "price": 400,
+        "imageUrl": "https://chaldn.com/_mpimage/american-garden-popcorn-cheese-273-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D60041&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Cheese Spread Garlic 180 gm",
+        "price": 300,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-cheese-spread-garlic-180-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D122744&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Cheese Spread Pizza 180 gm",
+        "price": 260,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-cheese-spread-pizza-180-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47617&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Aarong Dairy Cheese Spread Classic 180 gm",
+        "price": 290,
+        "imageUrl": "https://chaldn.com/_mpimage/aarong-dairy-cheese-spread-classic-180-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D101670&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Almarai spreadable Cream Cheese 500 gm",
+        "price": 1290,
+        "imageUrl": "https://chaldn.com/_mpimage/almarai-spreadable-cream-cheese-500-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D175499&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Kraft Processed Cheddar Cheese Tin 190 gm",
+        "price": 470,
+        "imageUrl": "https://chaldn.com/_mpimage/kraft-processed-cheddar-cheese-tin-190-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D113376&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "680 Almarai Spreadable Cream Cheese 200 gm",
+        "price": 619,
+        "imageUrl": "https://chaldn.com/_mpimage/almarai-spreadable-cream-cheese-200-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D175776&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Mozzarella Cheese 250 gm",
+        "price": 270,
+        "imageUrl": "https://chaldn.com/_mpimage/mozzarella-cheese-250-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D47623&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Condensed Milk & Cream",
+    "slug": "condensed-milk-cream",
+    "icon": "🍦",
+    "image": "https://chaldn.com/_mpimage/danish-sweetened-condensed-milk-397-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Starship Condensed Milk 400 gm",
+        "price": 105,
+        "imageUrl": "https://chaldn.com/_mpimage/starship-condensed-milk-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D135316&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "No 1. Condensed Milk 400 gm",
+        "price": 105,
+        "imageUrl": "https://chaldn.com/_mpimage/no-1-condensed-milk-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131446&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Goalini Plus Condensed Milk 400 gm",
+        "price": 105,
+        "imageUrl": "https://chaldn.com/_mpimage/goalini-plus-condensed-milk-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D114901&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Danish Condensed Filled Milk 397 gm",
+        "price": 105,
+        "imageUrl": "https://chaldn.com/_mpimage/danish-condensed-filled-milk-397-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127453&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Coffee Mate Coffee Creamer Box 450 gm",
+        "price": 380,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-coffee-mate-coffee-creamer-box-450-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123151&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Vivo Ambient Whip Topping with Vegetable Fat 1100 gm",
+        "price": 736,
+        "imageUrl": "https://chaldn.com/_mpimage/vivo-ambient-whip-topping-with-vegetable-fat-1100-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D137073&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Grand'Or UHT Cooking Cream 1000 gm",
+        "price": 1550,
+        "imageUrl": "https://chaldn.com/_mpimage/grandor-uht-cooking-cream-1000-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D128959&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Coffee Mate Creamer 1 kg",
+        "price": 850,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-coffee-mate-creamer-1-kg?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D45914&q=low&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Nestle Coffee Mate Coffee Creamer Jar 400 gm",
+        "price": 400,
+        "imageUrl": "https://chaldn.com/_mpimage/nestle-coffee-mate-coffee-creamer-jar-400-gm?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D123152&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  },
+  {
+    "name": "Eggs",
+    "slug": "eggs",
+    "icon": "🥚",
+    "image": "https://chaldn.com/_mpimage/farm-egg-red-12-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D127117&q=low&v=1&m=400&webp=1",
+    "products": [
+      {
+        "name": "Chicken Eggs (Layer) 12 pcs",
+        "price": 145,
+        "imageUrl": "https://chaldn.com/_mpimage/chicken-eggs-layer-12-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D79219&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Chicken Eggs Layer (White) 12 pcs",
+        "price": 135,
+        "imageUrl": "https://chaldn.com/_mpimage/chicken-eggs-layer-white-12-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D165811&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "125 Chicken Eggs (Deshi) 6 pcs",
+        "price": 119,
+        "imageUrl": "https://chaldn.com/_mpimage/chicken-eggs-deshi-6-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D79976&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Chicken Eggs (Layer) 6 pcs",
+        "price": 75,
+        "imageUrl": "https://chaldn.com/_mpimage/chicken-eggs-layer-6-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D182905&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Duck Eggs (Hasher Dim) 6 pcs",
+        "price": 115,
+        "imageUrl": "https://chaldn.com/_mpimage/duck-eggs-hasher-dim-6-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D79970&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "95 Quail Eggs 20 pcs",
+        "price": 89,
+        "imageUrl": "https://chaldn.com/_mpimage/quail-eggs-20-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D79220&q=best&v=1&m=400&webp=1"
+      },
+      {
+        "name": "Chicken Eggs Layer (White) 6 pcs",
+        "price": 69,
+        "imageUrl": "https://chaldn.com/_mpimage/chicken-eggs-layer-white-6-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D165810&q=best&v=1&m=400&m=400&webp=1"
+      },
+      {
+        "name": "Paragon Omega 3+ Eggs 12 pcs",
+        "price": 265,
+        "imageUrl": "https://chaldn.com/_mpimage/paragon-omega-3-eggs-12-pcs?src=https%3A%2F%2Feggyolk.chaldal.com%2Fapi%2FPicture%2FRaw%3FpictureId%3D131999&q=best&v=1&m=400&webp=1"
+      }
+    ]
+  }
+];
